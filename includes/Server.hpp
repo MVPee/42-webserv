@@ -19,7 +19,7 @@ class Server {
 		std::string index;
 		std::string error;
 	
-		const std::vector<std::string> &Tokenize (const std::string config_text) const;
+		const std::vector<std::string> Tokenize (const std::string config_text) const;
 
 	public:
 		Server(const std::string config_text);
