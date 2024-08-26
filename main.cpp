@@ -25,6 +25,7 @@ int main(int ac, char **av) {
 
     // std::cout << text << std::endl;
     Server test(text);
+	std::cout << test << std::endl;
     file.close();
 
     return (0);
