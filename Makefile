@@ -1,6 +1,6 @@
 NAME = webserv
 
-OBJS_DIR = objs
+OBJS_DIR = .objs
 SRCS = 	main.cpp
 
 OBJS = $(addprefix $(OBJS_DIR)/, $(SRCS:%.cpp=%.o))
@@ -30,4 +30,4 @@ fclean: clean
 re: fclean all
 
 run: all
-	./$(NAME)
+	./$(NAME) server.conf
