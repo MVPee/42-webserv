@@ -1,7 +1,8 @@
 NAME = webserv
 
 OBJS_DIR = .objs
-SRCS = 	main.cpp
+SRCS = 	main.cpp \
+		srcs/Server.cpp
 
 OBJS = $(addprefix $(OBJS_DIR)/, $(SRCS:%.cpp=%.o))
 
@@ -18,7 +19,7 @@ $(NAME): $(OBJS)
 	@echo "\n${RED}./$(NAME)\n${NC}"
 
 $(OBJS_DIR)/%.o: %.cpp
-	@mkdir -p $(OBJS_DIR)
+	@mkdir -p $(dir $@)
 	@c++ $(FLAGS) -c $< -o $@
 
 clean:
