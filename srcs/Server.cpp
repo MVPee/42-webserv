@@ -8,9 +8,9 @@ Server::Server(const std::string config_text) :
 	name("default_server"), 
 	port(80), 
 	body(100),
-	root("/var/www/html"),
-	index("./rsrcs/index.html"),
-	error("./rsrcs/404.html") 
+	root("./rsrcs/"),
+	index("index.html"),
+	error("404.html") 
 	{
 	methods[GET] = false;
 	methods[POST] = false;
