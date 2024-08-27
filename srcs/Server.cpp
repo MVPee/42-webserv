@@ -10,8 +10,7 @@ Server::Server(const std::string config_text) :
 	body(100),
 	root("./rsrcs/"),
 	index("index.html"),
-	error("404.html") 
-	{
+	error("404.html") {
 	methods[GET] = false;
 	methods[POST] = false;
 	methods[DELETE] = false;
@@ -21,20 +20,18 @@ Server::Server(const std::string config_text) :
 	try {
 		map = Tokenize(config_text);
 		if (map.count("name")) this->name = map["name"]; 
-		if (map.count("port"))this->port = std::atoll(map["port"].c_str());
-		if (map.count("body_size"))this->body = std::atoll(map["body_size"].c_str());
-		if (map.count("root"))this->root = map["root"];
-		if (map.count("index"))this->index = map["index"];
-		if (map.count("error_page"))this->error = map["error_page"];
-		if (map.count("methods"))
-		{
+		if (map.count("port")) this->port = std::atoll(map["port"].c_str());
+		if (map.count("body_size")) this->body = std::atoll(map["body_size"].c_str());
+		if (map.count("root")) this->root = map["root"];
+		if (map.count("index")) this->index = map["index"];
+		if (map.count("error_page")) this->error = map["error_page"];
+		if (map.count("methods")) {
 			std::stringstream s;
 			std::string line;
 			s << map["methods"];
-			while (std::getline(s, line, ' '))
-			{
+			while (std::getline(s, line, ' ')) {
 				line.erase(std::remove_if(line.begin(), line.end(), isspace), line.end());
-				// std::cout << Y << "'" + line + "'" << C << std::endl; //* DEBUG
+				std::cout << Y << "'" + line + "'" << C << std::endl; //* DEBUG
 				if (line == "GET") this->methods[GET] = true;
 				else if (line == "POST") this->methods[POST] = true;
 				else if (line == "DELETE") this->methods[DELETE] = true;
