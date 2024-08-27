@@ -5,13 +5,17 @@
 */
 
 Server::Server(const std::string config_text) :
-	name("default"), 
+	name("default_server"), 
 	port(80), 
-	body(100) {
+	body(100),
+	root("/var/www/html"),
+	index("./rsrcs/index.html"),
+	error("./rsrcs/404.html") 
+	{
 	methods[GET] = false;
 	methods[POST] = false;
 	methods[DELETE] = false;
-	//todo: put more defaults
+
 	std::map<std::string, std::string> map;
 
 	try {
@@ -22,13 +26,23 @@ Server::Server(const std::string config_text) :
 		if (map.count("root"))this->root = map["root"];
 		if (map.count("index"))this->index = map["index"];
 		if (map.count("error_page"))this->error = map["error_page"];
-		// if (map.count("methods")) //Todo: add methods
-		// {
-			
-		// }
+		if (map.count("methods"))
+		{
+			std::stringstream s;
+			std::string line;
+			s << map["methods"];
+			while (std::getline(s, line, ' '))
+			{
+				line.erase(std::remove_if(line.begin(), line.end(), isspace), line.end());
+				// std::cout << Y << "'" + line + "'" << C << std::endl; //* DEBUG
+				if (line == "GET") this->methods[GET] = true;
+				else if (line == "POST") this->methods[POST] = true;
+				else if (line == "DELETE") this->methods[DELETE] = true;
+			}
+		}
 	}
 	catch (std::exception &e) {
-		std::cerr << e.what() << std::endl;
+		std::cerr << R << e.what() << C << std::endl;
 	}
 }
 
@@ -45,15 +59,17 @@ Server::~Server() {
 */
 
 std::ostream &			operator<<( std::ostream & o, Server const & i ) {
-	o << "Name: " << i.getName() << "\n";
-	o << "Port: " << i.getPort() << "\n";
-	o << "Method GET: " << (i.getMethods(GET) ? "True" : "False") << "\n";
-	o << "Method POST: " << (i.getMethods(POST) ? "True" : "False") << "\n";
-	o << "Method DELETE: " << (i.getMethods(DELETE) ? "True" : "False") << "\n";
-	o << "Body: " << i.getBody() << "\n";
-	o << "Root: " << i.getRoot() << "\n";
-	o << "Index: " << i.getIndex() << "\n";
-	o << "Error: " << i.getError() << "\n";
+	o << M << "\n---------\n";
+	o << "|Name: " << i.getName() << "\n";
+	o << "|Port: " << i.getPort() << "\n";
+	o << "|Method GET: " << (i.getMethods(GET) ? "True" : "False") << "\n";
+	o << "|Method POST: " << (i.getMethods(POST) ? "True" : "False") << "\n";
+	o << "|Method DELETE: " << (i.getMethods(DELETE) ? "True" : "False") << "\n";
+	o << "|Body: " << i.getBody() << "\n";
+	o << "|Root: " << i.getRoot() << "\n";
+	o << "|Index: " << i.getIndex() << "\n";
+	o << "|Error: " << i.getError() << "\n";
+	o << "---------\n" << C;
 	return o;
 }
 
@@ -66,7 +82,6 @@ std::ostream &			operator<<( std::ostream & o, Server const & i ) {
 
 const std::map<std::string, std::string> Server::Tokenize (const std::string config_text) const
 {
-	//? Passer directement le infile
 	std::stringstream stream(config_text);
 	std::map<std::string, std::string> map;
 	std::string line;
@@ -80,9 +95,11 @@ const std::map<std::string, std::string> Server::Tokenize (const std::string con
 		i = 0;
 		if (first_line)
 		{
-			if (line.compare(0, 6, "server") != 0) throw std::runtime_error("missing 'server' label");
-			line.erase(0, 6); 
 			first_line = false;
+			line.erase(std::remove_if(line.begin(), line.end(), isspace), line.end());
+			if (line.compare(0, 6, "server") != 0) throw std::runtime_error("missing 'server' label");
+			else if (line.length() > 6 ) line.erase(0, 6);
+			else continue;
 		}
 		while (i < line.length() && isspace(line[i])) i++;
 		start = i;
@@ -98,7 +115,7 @@ const std::map<std::string, std::string> Server::Tokenize (const std::string con
 	}
 	if (current_level != 0) throw std::runtime_error("wrong level"); //TODO: meilleur message
 
-	// std::map<std::string, std::string>::const_iterator it = map.begin(); //? Debug
+	// std::map<std::string, std::string>::const_iterator it = map.begin(); //* Debug
 	// while(it != map.end())
 	// {
 	// 	std::cout << it->first << "|" << it->second << "\n";
