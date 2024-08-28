@@ -14,6 +14,9 @@
 # include <netinet/in.h>
 # include <netinet/ip.h>
 # include <arpa/inet.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <unistd.h>
 
 # include "Server.hpp"
 
@@ -27,6 +30,8 @@
 # define ACCEPT 3
 # define SEND 4
 # define RECEIVE 5
+
+enum extension {HTML = 1, PHP = 2, ICO = 3};
 
 # define R "\x1b[1;31m"
 # define G "\x1b[1;32m"

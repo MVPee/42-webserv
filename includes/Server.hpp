@@ -37,7 +37,8 @@ class Server {
 		void myAccept(void);
 		void myReceive(void);
 		void mySend(void);
-		std::string parse_requested_page(void) const;
+
+		std::string getFile(std::string page);
 };
 
 std::ostream &operator<<( std::ostream & o, Server const & i );

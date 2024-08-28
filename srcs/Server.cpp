@@ -137,12 +137,18 @@ void Server::myReceive(void) {
 	std::cout << "Message received: " << this->receive_buffer << std::endl;
 }
 
-std::string Server::parse_requested_page(void) const {
-	std::stringstream full_request(this->receive_buffer);
-	std::string request_line;
-	std::string requested_page;
+// image/png, image/x-icon, image/jpeg, ...
+// text/css, text/html
+// application/javascript
+//code error
+//php html ico
 
-	getline(full_request, request_line);
+static std::string parse_requested_page(std::string receive_buffer){
+	std::stringstream full_request(receive_buffer);
+	std::string request_line;
+	std::string request;
+
+	std::getline(full_request, request_line);
 	if (full_request.fail())
 		throw std::runtime_error("Error while parsing request");
 
@@ -151,58 +157,80 @@ std::string Server::parse_requested_page(void) const {
 
 	if (start == std::string::npos || end == std::string::npos)
 		throw std::runtime_error("Bad server request");
-	requested_page = request_line.substr(start, end - start);
+	request = request_line.substr(start, end - start);
 
     std::size_t pos;
-    while ((pos = requested_page.find("../")) != std::string::npos) {
-        requested_page.erase(pos, 3);
+    while ((pos = request.find("../")) != std::string::npos) {
+        request.erase(pos, 3);
     }
-
-	if (!access(std::string(this->root + requested_page).c_str(), F_OK))
-		return (this->root + requested_page);
-	if (!access(std::string(this->root + requested_page + ".html").c_str(), F_OK))
-		return (this->root + requested_page + ".html");
-	return (this->root + requested_page + ".php");
+	return (request);
 }
 
-static std::string getHTML(std::ifstream &file, int code) {
-    std::ostringstream str1;
-    str1 << file.rdbuf();
-    std::string content = str1.str();
-    
-    std::ostringstream html;
-	html << "HTTP/1.1 "<< code << " OK\nContent-Type:text/html\nContent-Length: " << content.size() << "\n\n" << content;
-    return (html.str());
+static std::string getExtension(std::string file) {
+	size_t start = file.find('.', 1);
+	if (start == std::string::npos)
+		return ("text/html");
+
+	start += 1;
+	std::string extension = file.substr(start, file.size() - start);
+	std::cout << R << extension << C << std::endl;
+	if (extension == "php") return "text/php";
+	else if (extension == "ico") return "image/x-icon";
+	else return "text/html";
 }
 
-static std::string getHTML(std::string str, int code) {
-    std::ostringstream html;
-	html << "HTTP/1.1 "<< code << " OK\nContent-Type:text/html\nContent-Length: " << str.size() << "\n\n" << str;
-    return (html.str());
+std::string Server::getFile(std::string page) {
+	//! Extension ? Garder : mettre .html
+	//! Root ? => envoyer index
+	//! déterminer la taille du contenu (avec stat?)
+	//! determiner le type de contenu demandé
+	//!
+	std::string extension = getExtension(page);
+	if (page == (this->root + "/"))
+		return (page + this->index);
+	if (extension == "text/html")
+		return (page + ".html");
+	return (page);
+}
+
+// static std::string getContent(std::string request)
+// {
+// 	std::size_t start;
+// 	std::string extension;
+
+// 	start = request.find('.');
+// 	if (start == std)
+// }
+
+// "./html" | 
+
+static std::string getContent(std::string page) {
+	std::ostringstream html;
+	struct stat stat_buf;
+	// std::cout << Y << page << C << std::endl; //* DEBUG
+	std::ifstream file(page.c_str(), std::ifstream::binary | std::ifstream::in);
+	if (!file.is_open() || !file.good())
+		return ("HTTP/1.1 404 NOT FOUND\nContent-Type:text/html\nContent-Length: 12\n\n<h1>404</h1>");
+	if (stat(page.c_str(), &stat_buf)) throw std::runtime_error("Error while retrieving request data");
+
+	std::ostringstream string_converter;
+	string_converter << stat_buf.st_size;
+
+	std::cout << B << string_converter.str() << C << std::endl;
+	std::ostringstream str1;
+	str1 << file.rdbuf();
+	std::string content = str1.str();
+	html << "HTTP/1.1 200 Ok\nContent-Type:" + getExtension(page) + "\nContent-Length: " << content.size() << "\n\n" << content;
+	return (html.str());
 }
 
 void Server::mySend() {
-	std::string requested_page = parse_requested_page();
-	std::ifstream file;
-	std::string html;
-	std::cout << R << "'" + requested_page + "'" << C << std::endl; //* Debug
-	if (requested_page == this->root + "/") requested_page += this->index;
-	file.open(requested_page.c_str());
-
-    if (!file.is_open() || !file.good()) {
-		std::string link;
-		link = this->root + '/' + this->error;
-        file.open(link.c_str());
-        if (!file.is_open() || !file.good())
-			html = getHTML("<h1>404, page not found...</h1>", 404);
-		else
-			html = getHTML(file, 404);
-    }
-	else
-		html = getHTML(file, 200);
-
-	file.close();
-    this->fd[SEND] = send(this->fd[ACCEPT], html.c_str(), html.size(), 0);
+	std::cout << this->receive_buffer << std::endl;
+	std::string page = this->root + parse_requested_page(this->receive_buffer);
+	std::string file = getFile(page);
+	std::cout << file << std::endl;
+	std::string content = getContent(file);
+    this->fd[SEND] = send(this->fd[ACCEPT], content.c_str(), content.size(), 0);
     if (this->fd[SEND] < 0)
         throw std::runtime_error("Send failed");
 }
