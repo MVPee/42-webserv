@@ -158,6 +158,8 @@ std::string Server::parse_requested_page(void) const {
         requested_page.erase(pos, 3);
     }
 
+	if (!access(std::string(this->root + requested_page).c_str(), F_OK))
+		return (this->root + requested_page);
 	return (this->root + requested_page + ".html");
 }
 
