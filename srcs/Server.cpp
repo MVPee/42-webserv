@@ -38,7 +38,7 @@ Server::Server(const std::string config_text) :
 			s << map["methods"];
 			while (std::getline(s, line, ' ')) {
 				line.erase(std::remove_if(line.begin(), line.end(), isspace), line.end());
-				// std::cout << Y << "'" + line + "'" << C << std::endl; //* DEBUG
+				// std::cout << Y << "'" + line + "'" << C << std::endl; // DEBUG
 				if (line == "GET") this->methods[GET] = true;
 				else if (line == "POST") this->methods[POST] = true;
 				else if (line == "DELETE") this->methods[DELETE] = true;
@@ -137,45 +137,7 @@ void Server::myReceive(void) {
 	std::cout << "Message received: " << this->receive_buffer << std::endl;
 }
 
-static std::string getHTML(std::ifstream &file) {
-    std::ostringstream str1;
-    str1 << file.rdbuf();
-    file.close();
-    std::string content = str1.str();
-    
-    std::ostringstream html;
-    html << "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: " << content.size() << "\n\n" << content;
-
-    return html.str();
-}
-
-void Server::mySend() {
-	std::string requested_page = parse_requested_page();
-	std::ifstream file;
-	// std::cout << R << "'" + requested_page + "'" << C << std::endl; //* Debug
-	if (requested_page == this->root + "/") requested_page += this->index;
-	file.open(requested_page.c_str());
-
-    if (!file.is_open() || !file.good()) {
-		std::string link;
-		link = this->root + '/' + this->error;
-        file.open(link.c_str());
-        if (!file.is_open() || !file.good()) {
-            file.close();
-			return ;
-        }
-    }
-
-    std::string html = getHTML(file);
-    this->fd[SEND] = send(this->fd[ACCEPT], html.c_str(), html.size(), 0);
-    if (this->fd[SEND] < 0) {
-        throw std::runtime_error("Send failed");
-    }
-}
-
-
-std::string Server::parse_requested_page(void) const
-{
+std::string Server::parse_requested_page(void) const {
 	std::stringstream full_request(this->receive_buffer);
 	std::string request_line;
 	std::string requested_page;
@@ -197,6 +159,51 @@ std::string Server::parse_requested_page(void) const
     }
 
 	return this->root + requested_page;
+
+	return (this->root + request_line.substr(start, end - start));
+}
+
+static std::string getHTML(std::ifstream &file, int code) {
+    std::ostringstream str1;
+    str1 << file.rdbuf();
+    file.close();
+    std::string content = str1.str();
+    
+    std::ostringstream html;
+	html << "HTTP/1.1 "<< code << " OK\nContent-Type:text/html\nContent-Length: " << content.size() << "\n\n" << content;
+    return (html.str());
+}
+
+static std::string getHTML(std::string str, int code) {
+    std::ostringstream html;
+	html << "HTTP/1.1 "<< code << " OK\nContent-Type:text/html\nContent-Length: " << str.size() << "\n\n" << str;
+    return (html.str());
+}
+
+void Server::mySend() {
+	std::string requested_page = parse_requested_page();
+	std::ifstream file;
+	std::string html;
+	std::cout << R << "'" + requested_page + "'" << C << std::endl; //* Debug
+	if (requested_page == this->root + "/") requested_page += this->index;
+	file.open(requested_page.c_str());
+
+    if (!file.is_open() || !file.good()) {
+		std::string link;
+		link = this->root + '/' + this->error;
+        file.open(link.c_str());
+        if (!file.is_open() || !file.good())
+			html = getHTML("<h1>404, page not found...</h1>", 404);
+		else
+			html = getHTML(file, 404);
+    }
+	else
+		html = getHTML(file, 200);
+
+	file.close();
+    this->fd[SEND] = send(this->fd[ACCEPT], html.c_str(), html.size(), 0);
+    if (this->fd[SEND] < 0)
+        throw std::runtime_error("Send failed");
 }
 
 const std::map<std::string, std::string> Server::tokenize (const std::string config_text) const
@@ -224,7 +231,7 @@ const std::map<std::string, std::string> Server::tokenize (const std::string con
 		start = i;
 		if (i < line.length() && line[i] == '{') current_level++;
 		else if (i < line.length() && line[i] == '}' && current_level > 0) current_level--;
-		else if  (i < line.length() && line[i] == '}' && current_level <= 0) throw std::runtime_error("wrong level");
+		else if  (i < line.length() && line[i] == '}' && current_level <= 0) throw std::runtime_error("wrong level"); //TODO: meilleur message
 		else
 		{
 			while (i < line.length() && !isspace(line[i])) i++;

@@ -36,9 +36,9 @@ int main(int ac, char **av) {
         return (1);
     }
 
+    test.myListen();
     while(1) {
         try {
-            test.myListen();
             test.myAccept();
             test.myReceive();
             test.mySend();
