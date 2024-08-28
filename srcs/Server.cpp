@@ -38,7 +38,7 @@ Server::Server(const std::string config_text) :
 			s << map["methods"];
 			while (std::getline(s, line, ' ')) {
 				line.erase(std::remove_if(line.begin(), line.end(), isspace), line.end());
-				// std::cout << Y << "'" + line + "'" << C << std::endl; //* DEBUG
+				// std::cout << Y << "'" + line + "'" << C << std::endl; // DEBUG
 				if (line == "GET") this->methods[GET] = true;
 				else if (line == "POST") this->methods[POST] = true;
 				else if (line == "DELETE") this->methods[DELETE] = true;
@@ -152,7 +152,7 @@ static std::string getHTML(std::ifstream &file) {
 void Server::mySend() {
 	std::string requested_page = parse_requested_page();
 	std::ifstream file;
-	// std::cout << R << "'" + requested_page + "'" << C << std::endl; //* Debug
+	std::cout << R << "'" + requested_page + "'" << C << std::endl; //* Debug
 	if (requested_page == this->root + "/") requested_page += this->index;
 	file.open(requested_page.c_str());
 
@@ -218,7 +218,7 @@ const std::map<std::string, std::string> Server::tokenize (const std::string con
 		start = i;
 		if (i < line.length() && line[i] == '{') current_level++;
 		else if (i < line.length() && line[i] == '}' && current_level > 0) current_level--;
-		else if  (i < line.length() && line[i] == '}' && current_level <= 0) throw std::runtime_error("wrong level");
+		else if  (i < line.length() && line[i] == '}' && current_level <= 0) throw std::runtime_error("wrong level"); //TODO: meilleur message
 		else
 		{
 			while (i < line.length() && !isspace(line[i])) i++;
