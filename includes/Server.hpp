@@ -25,7 +25,7 @@
 # define LISTEN 2
 # define ACCEPT 3
 # define SEND 4
-# define RECIEVE 5
+# define RECEIVE 5
 
 # define R "\x1b[1;31m"
 # define G "\x1b[1;32m"
@@ -47,7 +47,7 @@ class Server {
 
 		sockaddr_in sock_address;
 		int fd[6];
-		char recieve_buffer[1024];
+		char receive_buffer[1024];
 	
 		const std::map<std::string, std::string> tokenize (const std::string config_text) const;
 		void clearFileDescriptor();
@@ -67,7 +67,7 @@ class Server {
 		void myBind();
 		void myListen();
 		void myAccept();
-		void myRecieve();
+		void myReceive();
 		void mySend();
 };
 

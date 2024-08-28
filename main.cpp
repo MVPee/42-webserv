@@ -40,7 +40,7 @@ int main(int ac, char **av) {
         try {
             test.myListen();
             test.myAccept();
-            test.myRecieve();
+            test.myReceive();
             test.mySend();
         }
         catch (std::exception &e) {

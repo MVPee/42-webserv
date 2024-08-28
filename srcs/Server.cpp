@@ -20,7 +20,7 @@ Server::Server(const std::string config_text) :
 	this->fd[LISTEN] = 0;
 	this->fd[ACCEPT] = 0;
 	this->fd[SEND] = 0;
-	this->fd[RECIEVE] = 0;
+	this->fd[RECEIVE] = 0;
 
 	std::map<std::string, std::string> map;
 
@@ -65,8 +65,8 @@ void Server::clearFileDescriptor(void) {
 		close(fd[ACCEPT]);
 	if (fd[SEND])
 		close(fd[SEND]);
-	if (fd[RECIEVE])
-		close(fd[RECIEVE]);
+	if (fd[RECEIVE])
+		close(fd[RECEIVE]);
 }
 
 Server::~Server() {
@@ -131,10 +131,10 @@ void Server::myAccept(void) {
 	if (this->fd[ACCEPT] < 0) throw std::runtime_error("Accept failed");
 }
 
-void Server::myRecieve(void) {
-	this->fd[RECIEVE] = recv(this->fd[ACCEPT], this->recieve_buffer, 1024, 0);
-	if (this->fd[RECIEVE] < 0) throw std::runtime_error("Recieve failed");
-	std::cout << "Message received: " << this->recieve_buffer << std::endl;
+void Server::myReceive(void) {
+	this->fd[RECEIVE] = recv(this->fd[ACCEPT], this->receive_buffer, 1024, 0);
+	if (this->fd[RECEIVE] < 0) throw std::runtime_error("Receive failed");
+	std::cout << "Message received: " << this->receive_buffer << std::endl;
 }
 
 static std::string getHTML(std::ifstream &file) {
