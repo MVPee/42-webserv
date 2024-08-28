@@ -7,10 +7,26 @@
 # include <sstream>
 # include <map>
 # include <cstdlib>
+# include <algorithm>
+
+# include <unistd.h>
+# include <fstream>
+# include <sys/socket.h>
+# include <netinet/in.h>
+# include <netinet/ip.h>
+# include <arpa/inet.h>
 
 # define GET 0
 # define POST 1
 # define DELETE 2
+
+# define SOCKET 0
+# define BIND 1
+# define LISTEN 2
+# define ACCEPT 3
+# define SEND 4
+# define RECIEVE 5
+
 # define R "\x1b[1;31m"
 # define G "\x1b[1;32m"
 # define B "\x1b[1;36m"
@@ -25,12 +41,14 @@ class Server {
 		unsigned int port;
 		unsigned int body;
 		bool methods[3];
+		int fd[6];
 		std::string root;
 		std::string index;
 		std::string error;
+		sockaddr_in sock_address;
 	
-		const std::map<std::string, std::string> Tokenize (const std::string config_text) const;
-
+		const std::map<std::string, std::string> tokenize (const std::string config_text) const;
+		void clearFileDescriptor();
 	public:
 		Server(const std::string config_text);
 		~Server();
@@ -42,6 +60,13 @@ class Server {
 		const std::string &getRoot(void) const;
 		const std::string &getIndex(void) const;
 		const std::string &getError(void) const;
+
+		void mySocket();
+		void myBind();
+		void myListen();
+		void myAccept();
+		void myRecieve();
+		void mySend();
 };
 
 std::ostream &operator<<( std::ostream & o, Server const & i );

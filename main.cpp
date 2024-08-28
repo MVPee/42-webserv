@@ -18,6 +18,7 @@ int main(int ac, char **av) {
     while (std::getline(file, line)) {
         text.append(line + "\n");
     }
+    file.close();
     // while ((text.find("server") != std::string::npos) = position)
     // {
     //     // Continue le parsing à partir de position
@@ -26,7 +27,27 @@ int main(int ac, char **av) {
     // std::cout << text << std::endl;
     Server test(text);
 	std::cout << test << std::endl;
-    file.close();
+    try {
+        test.mySocket();
+        test.myBind();
+    }
+    catch (std::exception &e) {
+        std::cerr << e.what() << std::endl;
+        return (1);
+    }
+
+    while(1) {
+        try {
+            test.myListen();
+            test.myAccept();
+            test.myRecieve();
+            test.mySend();
+        }
+        catch (std::exception &e) {
+            std::cerr << e.what() << std::endl;
+            return (1);
+        }
+    }
 
     return (0);
 }

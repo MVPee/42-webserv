@@ -11,14 +11,21 @@ Server::Server(const std::string config_text) :
 	root("./rsrcs/"),
 	index("index.html"),
 	error("404.html") {
-	methods[GET] = false;
-	methods[POST] = false;
-	methods[DELETE] = false;
+	this->methods[GET] = false;
+	this->methods[POST] = false;
+	this->methods[DELETE] = false;
+
+	this->fd[SOCKET] = 0;
+	this->fd[BIND] = 0;
+	this->fd[LISTEN] = 0;
+	this->fd[ACCEPT] = 0;
+	this->fd[SEND] = 0;
+	this->fd[RECIEVE] = 0;
 
 	std::map<std::string, std::string> map;
 
 	try {
-		map = Tokenize(config_text);
+		map = tokenize(config_text);
 		if (map.count("name")) this->name = map["name"]; 
 		if (map.count("port")) this->port = std::atoll(map["port"].c_str());
 		if (map.count("body_size")) this->body = std::atoll(map["body_size"].c_str());
@@ -31,7 +38,7 @@ Server::Server(const std::string config_text) :
 			s << map["methods"];
 			while (std::getline(s, line, ' ')) {
 				line.erase(std::remove_if(line.begin(), line.end(), isspace), line.end());
-				std::cout << Y << "'" + line + "'" << C << std::endl; //* DEBUG
+				// std::cout << Y << "'" + line + "'" << C << std::endl; //* DEBUG
 				if (line == "GET") this->methods[GET] = true;
 				else if (line == "POST") this->methods[POST] = true;
 				else if (line == "DELETE") this->methods[DELETE] = true;
@@ -39,7 +46,7 @@ Server::Server(const std::string config_text) :
 		}
 	}
 	catch (std::exception &e) {
-		std::cerr << R << e.what() << C << std::endl;
+		throw std::runtime_error(e.what());
 	}
 }
 
@@ -47,9 +54,24 @@ Server::Server(const std::string config_text) :
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
 
-Server::~Server() {
+void Server::clearFileDescriptor(void) {
+	if (fd[SOCKET])
+		close(fd[SOCKET]);
+	if (fd[BIND])
+		close(fd[BIND]);
+	if (fd[LISTEN])
+		close(fd[LISTEN]);
+	if (fd[ACCEPT])
+		close(fd[ACCEPT]);
+	if (fd[SEND])
+		close(fd[SEND]);
+	if (fd[RECIEVE])
+		close(fd[RECIEVE]);
 }
 
+Server::~Server() {
+	this->clearFileDescriptor();
+}
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
@@ -70,14 +92,74 @@ std::ostream &			operator<<( std::ostream & o, Server const & i ) {
 	return o;
 }
 
-
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
 
+void Server::mySocket(void) {
+	this->fd[SOCKET] = socket(AF_INET, SOCK_STREAM, 0);
+	if (this->fd[SOCKET] < 0) throw std::runtime_error("Socked failed");
 
+	this->sock_address.sin_family = AF_INET;
+    this->sock_address.sin_port = htons(this->port);
+    this->sock_address.sin_addr.s_addr = INADDR_ANY;
+}
 
-const std::map<std::string, std::string> Server::Tokenize (const std::string config_text) const
+void Server::myBind(void) {
+	std::ostringstream str1;
+	int opt = 1;
+    setsockopt(this->fd[SOCKET], SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+	this->fd[BIND] = bind(this->fd[SOCKET], (sockaddr *) &this->sock_address, sizeof(this->sock_address));
+	str1 << fd[BIND];
+	if (this->fd[BIND] < 0) throw std::runtime_error("Bind failed " + str1.str());
+}
+
+void Server::myListen(void) {
+	this->fd[LISTEN] = listen(this->fd[SOCKET], 3);
+	if (this->fd[LISTEN] < 0) throw std::runtime_error("Listen failed");
+
+	std::ostringstream ss;
+	ss << "\n*** Listening on ADDRESS: " 
+		<< inet_ntoa(sock_address.sin_addr) 
+		<< " PORT: " << ntohs(sock_address.sin_port) 
+		<< " ***\n\n";
+	std::cout << ss.str() << std::endl;
+}
+
+void Server::myAccept(void) {
+	this->fd[ACCEPT] = accept(this->fd[SOCKET], 0, 0);
+	if (this->fd[ACCEPT] < 0) throw std::runtime_error("Accept failed");
+}
+
+void Server::myRecieve(void) {
+	char buffer[1024] = {0};
+	this->fd[RECIEVE] = recv(this->fd[ACCEPT], buffer, 1024, 0);
+	if (this->fd[RECIEVE] < 0) throw std::runtime_error("Recieve failed");
+	std::cout << "Message received: " << buffer << std::endl;
+}
+
+void Server::mySend(void) {
+	std::string html;
+	std::string temp;
+	std::string line;
+	std::ifstream file;
+	std::ostringstream str1;
+
+	file.open("rsrcs/index.html");
+	if (!file.is_open() && !file.good()) throw std::runtime_error("File opening failed");
+
+	while (std::getline(file, line)) {
+		temp += line + '\n';
+	}
+	html += "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: ";
+	str1 << temp.size();
+	html += str1.str() + "\n\n";
+	html += temp;
+	this->fd[SEND] = send(this->fd[ACCEPT], html.c_str(), html.size(), 0);
+	if (this->fd[SEND] < 0) throw std::runtime_error("Send failed");
+}
+
+const std::map<std::string, std::string> Server::tokenize (const std::string config_text) const
 {
 	std::stringstream stream(config_text);
 	std::map<std::string, std::string> map;
