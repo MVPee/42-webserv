@@ -1,8 +1,4 @@
-# include <iostream>
-# include <fstream>
-# include <string>
-# include "includes/Server.hpp"
-# include <cstring>
+# include "includes/macro.hpp"
 
 int main(int ac, char **av) {
     std::string line;
