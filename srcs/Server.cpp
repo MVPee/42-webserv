@@ -189,8 +189,14 @@ std::string Server::parse_requested_page(void) const
 
 	if (start == std::string::npos || end == std::string::npos)
 		throw std::runtime_error("Bad server request");
+	requested_page = request_line.substr(start, end - start);
 
-	return this->root + request_line.substr(start, end - start);
+    std::size_t pos;
+    while ((pos = requested_page.find("../")) != std::string::npos) {
+        requested_page.erase(pos, 3);
+    }
+
+	return this->root + requested_page;
 }
 
 const std::map<std::string, std::string> Server::tokenize (const std::string config_text) const
