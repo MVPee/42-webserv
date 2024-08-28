@@ -160,7 +160,9 @@ std::string Server::parse_requested_page(void) const {
 
 	if (!access(std::string(this->root + requested_page).c_str(), F_OK))
 		return (this->root + requested_page);
-	return (this->root + requested_page + ".html");
+	if (!access(std::string(this->root + requested_page + ".html").c_str(), F_OK))
+		return (this->root + requested_page + ".html");
+	return (this->root + requested_page + ".php");
 }
 
 static std::string getHTML(std::ifstream &file, int code) {
