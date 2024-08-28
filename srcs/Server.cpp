@@ -132,31 +132,40 @@ void Server::myAccept(void) {
 }
 
 void Server::myRecieve(void) {
-	char buffer[1024] = {0};
-	this->fd[RECIEVE] = recv(this->fd[ACCEPT], buffer, 1024, 0);
+	this->fd[RECIEVE] = recv(this->fd[ACCEPT], this->recieve_buffer, 1024, 0);
 	if (this->fd[RECIEVE] < 0) throw std::runtime_error("Recieve failed");
-	std::cout << "Message received: " << buffer << std::endl;
+	std::cout << "Message received: " << this->recieve_buffer << std::endl;
+}
+
+static std::string getHTML(std::ifstream &file) {
+    std::ostringstream str1;
+    str1 << file.rdbuf();
+    file.close();
+    std::string content = str1.str();
+    
+    std::ostringstream html;
+    html << "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: " << content.size() << "\n\n" << content;
+
+    return html.str();
 }
 
 void Server::mySend(void) {
-	std::string html;
-	std::string temp;
-	std::string line;
-	std::ifstream file;
-	std::ostringstream str1;
+    std::ifstream file("rsrcs/index.html"); // Need to depends on this->receive_buffer (DAN)
 
-	file.open("rsrcs/index.html");
-	if (!file.is_open() && !file.good()) throw std::runtime_error("File opening failed");
+    if (!file.is_open() || !file.good()) {
+		std::string link;
+		link = this->root + '/' + this->error;
+        file.open(link.c_str());
+        if (!file.is_open() || !file.good()) {
+            throw std::runtime_error("No valid error page");
+        }
+    }
 
-	while (std::getline(file, line)) {
-		temp += line + '\n';
-	}
-	html += "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: ";
-	str1 << temp.size();
-	html += str1.str() + "\n\n";
-	html += temp;
-	this->fd[SEND] = send(this->fd[ACCEPT], html.c_str(), html.size(), 0);
-	if (this->fd[SEND] < 0) throw std::runtime_error("Send failed");
+    std::string html = getHTML(file);
+    this->fd[SEND] = send(this->fd[ACCEPT], html.c_str(), html.size(), 0);
+    if (this->fd[SEND] < 0) {
+        throw std::runtime_error("Send failed");
+    }
 }
 
 const std::map<std::string, std::string> Server::tokenize (const std::string config_text) const

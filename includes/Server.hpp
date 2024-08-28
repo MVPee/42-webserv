@@ -41,11 +41,13 @@ class Server {
 		unsigned int port;
 		unsigned int body;
 		bool methods[3];
-		int fd[6];
 		std::string root;
 		std::string index;
 		std::string error;
+
 		sockaddr_in sock_address;
+		int fd[6];
+		char recieve_buffer[1024];
 	
 		const std::map<std::string, std::string> tokenize (const std::string config_text) const;
 		void clearFileDescriptor();
