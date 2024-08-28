@@ -159,8 +159,6 @@ std::string Server::parse_requested_page(void) const {
     }
 
 	return this->root + requested_page;
-
-	return (this->root + request_line.substr(start, end - start));
 }
 
 static std::string getHTML(std::ifstream &file, int code) {
