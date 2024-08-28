@@ -175,6 +175,7 @@ static std::string getHTML(std::string str, int code) {
 void Server::mySend() {
 	std::string requested_page = parse_requested_page();
 	std::ifstream file;
+	std::string html;
 	std::cout << R << "'" + requested_page + "'" << C << std::endl; //* Debug
 	if (requested_page == this->root + "/") requested_page += this->index;
 	file.open(requested_page.c_str());
@@ -183,21 +184,18 @@ void Server::mySend() {
 		std::string link;
 		link = this->root + '/' + this->error;
         file.open(link.c_str());
-        if (!file.is_open() || !file.good()) {
-            file.close();
-			std::string html = getHTML("<h1>404, page not found...</h1>", 404);
-			this->fd[SEND] = send(this->fd[ACCEPT], html.c_str(), html.size(), 0);
-			if (this->fd[SEND] < 0) {
-				throw std::runtime_error("Send failed");
-			}
-        }
+        if (!file.is_open() || !file.good())
+			html = getHTML("<h1>404, page not found...</h1>", 404);
+		else
+			html = getHTML(file, 404);
     }
+	else
+		html = getHTML(file, 200);
 
-    std::string html = getHTML(file, 200);
+	file.close();
     this->fd[SEND] = send(this->fd[ACCEPT], html.c_str(), html.size(), 0);
-    if (this->fd[SEND] < 0) {
+    if (this->fd[SEND] < 0)
         throw std::runtime_error("Send failed");
-    }
 }
 
 const std::map<std::string, std::string> Server::tokenize (const std::string config_text) const
