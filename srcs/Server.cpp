@@ -137,16 +137,39 @@ void Server::myReceive(void) {
 	std::cout << "Message received: " << this->receive_buffer << std::endl;
 }
 
-static std::string getHTML(std::ifstream &file) {
+std::string Server::parse_requested_page(void) const {
+	std::stringstream full_request(this->receive_buffer);
+	std::string request_line;
+	std::string requested_page;
+
+	getline(full_request, request_line);
+	if (full_request.fail())
+		throw std::runtime_error("Error while parsing request");
+
+	std::size_t start = request_line.find_first_of(' ') + 1;
+	std::size_t end = request_line.find_last_of(' ');
+
+	if (start == std::string::npos || end == std::string::npos)
+		throw std::runtime_error("Bad server request");
+
+	return (this->root + request_line.substr(start, end - start));
+}
+
+static std::string getHTML(std::ifstream &file, int code) {
     std::ostringstream str1;
     str1 << file.rdbuf();
     file.close();
     std::string content = str1.str();
     
     std::ostringstream html;
-    html << "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: " << content.size() << "\n\n" << content;
+	html << "HTTP/1.1 "<< code << " OK\nContent-Type:text/html\nContent-Length: " << content.size() << "\n\n" << content;
+    return (html.str());
+}
 
-    return html.str();
+static std::string getHTML(std::string str, int code) {
+    std::ostringstream html;
+	html << "HTTP/1.1 "<< code << " OK\nContent-Type:text/html\nContent-Length: " << str.size() << "\n\n" << str;
+    return (html.str());
 }
 
 void Server::mySend() {
@@ -162,35 +185,19 @@ void Server::mySend() {
         file.open(link.c_str());
         if (!file.is_open() || !file.good()) {
             file.close();
-			return ;
+			std::string html = getHTML("<h1>404, page not found...</h1>", 404);
+			this->fd[SEND] = send(this->fd[ACCEPT], html.c_str(), html.size(), 0);
+			if (this->fd[SEND] < 0) {
+				throw std::runtime_error("Send failed");
+			}
         }
     }
 
-    std::string html = getHTML(file);
+    std::string html = getHTML(file, 200);
     this->fd[SEND] = send(this->fd[ACCEPT], html.c_str(), html.size(), 0);
     if (this->fd[SEND] < 0) {
         throw std::runtime_error("Send failed");
     }
-}
-
-
-std::string Server::parse_requested_page(void) const
-{
-	std::stringstream full_request(this->receive_buffer);
-	std::string request_line;
-	std::string requested_page;
-
-	getline(full_request, request_line);
-	if (full_request.fail())
-		throw std::runtime_error("Error while parsing request");
-
-	std::size_t start = request_line.find_first_of(' ') + 1;
-	std::size_t end = request_line.find_last_of(' ');
-
-	if (start == std::string::npos || end == std::string::npos)
-		throw std::runtime_error("Bad server request");
-
-	return this->root + request_line.substr(start, end - start);
 }
 
 const std::map<std::string, std::string> Server::tokenize (const std::string config_text) const
