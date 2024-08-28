@@ -115,7 +115,7 @@ void Server::myBind(void) {
 }
 
 void Server::myListen(void) {
-	this->fd[LISTEN] = listen(this->fd[SOCKET], 3);
+	this->fd[LISTEN] = listen(this->fd[SOCKET], this->body);
 	if (this->fd[LISTEN] < 0) throw std::runtime_error("Listen failed");
 
 	std::ostringstream ss;
