@@ -158,13 +158,12 @@ std::string Server::parse_requested_page(void) const {
         requested_page.erase(pos, 3);
     }
 
-	return this->root + requested_page;
+	return (this->root + requested_page + ".html");
 }
 
 static std::string getHTML(std::ifstream &file, int code) {
     std::ostringstream str1;
     str1 << file.rdbuf();
-    file.close();
     std::string content = str1.str();
     
     std::ostringstream html;
