@@ -157,7 +157,8 @@ void Server::mySend(void) {
 		link = this->root + '/' + this->error;
         file.open(link.c_str());
         if (!file.is_open() || !file.good()) {
-            throw std::runtime_error("No valid error page");
+            file.close();
+			return ;
         }
     }
 
