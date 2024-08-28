@@ -63,12 +63,13 @@ class Server {
 		const std::string &getIndex(void) const;
 		const std::string &getError(void) const;
 
-		void mySocket();
-		void myBind();
-		void myListen();
-		void myAccept();
-		void myReceive();
-		void mySend();
+		void mySocket(void);
+		void myBind(void);
+		void myListen(void);
+		void myAccept(void);
+		void myReceive(void);
+		void mySend(void);
+		std::string parse_requested_page(void) const;
 };
 
 std::ostream &operator<<( std::ostream & o, Server const & i );

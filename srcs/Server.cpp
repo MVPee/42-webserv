@@ -149,8 +149,12 @@ static std::string getHTML(std::ifstream &file) {
     return html.str();
 }
 
-void Server::mySend(void) {
-    std::ifstream file("rsrcs/index.html"); // Need to depends on this->receive_buffer (DAN)
+void Server::mySend() {
+	std::string requested_page = parse_requested_page();
+	std::ifstream file;
+	// std::cout << R << "'" + requested_page + "'" << C << std::endl; //* Debug
+	if (requested_page == this->root + "/") requested_page += this->index;
+	file.open(requested_page.c_str());
 
     if (!file.is_open() || !file.good()) {
 		std::string link;
@@ -167,6 +171,26 @@ void Server::mySend(void) {
     if (this->fd[SEND] < 0) {
         throw std::runtime_error("Send failed");
     }
+}
+
+
+std::string Server::parse_requested_page(void) const
+{
+	std::stringstream full_request(this->receive_buffer);
+	std::string request_line;
+	std::string requested_page;
+
+	getline(full_request, request_line);
+	if (full_request.fail())
+		throw std::runtime_error("Error while parsing request");
+
+	std::size_t start = request_line.find_first_of(' ') + 1;
+	std::size_t end = request_line.find_last_of(' ');
+
+	if (start == std::string::npos || end == std::string::npos)
+		throw std::runtime_error("Bad server request");
+
+	return this->root + request_line.substr(start, end - start);
 }
 
 const std::map<std::string, std::string> Server::tokenize (const std::string config_text) const
