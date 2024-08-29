@@ -8,31 +8,12 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-
-void Request::resolvePath(Server &s) {
-	if (_path == (s.getRoot() + "/"))
-		_path += s.getIndex();
-    else if (_extension == "None") {
-		_path += ".html";
-	}
-}
-
-void Request::parse_extension( void ) {
-	std::cout << R << _path << C << std::endl;
-	size_t start = _path.find('.', 1);
-	if (start != std::string::npos) {
-		start += 1;
-		_extension = _path.substr(start, _path.size() - start);
-	}
-}
-
 Request::Request(int &client_fd, Server &s) : _fd(0), _extension("None") {
 	_fd = recv(client_fd, _buffer, sizeof(_buffer), 0);
 	if (_fd < 0) throw std::runtime_error("Receive failed");
 	// std::cout << "Message received: " << _buffer << std::endl; //* DEBUG
 	parse_request(s);
 	resolvePath(s);
-	parse_extension();
 }
 
 /*
@@ -65,6 +46,23 @@ std::ostream &			operator<<( std::ostream & o, Request const & i ) {
 ** --------------------------------- METHODS ----------------------------------
 */
 
+void Request::resolvePath(Server &s) {
+	if (_path == (s.getRoot() + "/"))
+		_path += s.getIndex();
+    else if (_extension == "None") {
+        _path += ".html";
+	}
+}
+
+void Request::parse_extension( void ) {
+	std::cout << R << _path << C << std::endl;
+	size_t start = _path.find('.', 1);
+	if (start != std::string::npos) {
+		start += 1;
+		_extension = _path.substr(start, _path.size() - start);
+	}
+}
+
 void Request::parse_request(Server &s){
 	char path_buffer[1024];
 	char type_buffer[1024];
@@ -85,6 +83,7 @@ void Request::parse_request(Server &s){
 	if (request_method == "GET") this->_method = GET;
 	else if (request_method == "POST") this->_method = POST;
 	else this->_method = DELETE;
+	parse_extension();
 }
 
 /*
