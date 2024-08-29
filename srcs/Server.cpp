@@ -132,8 +132,10 @@ void Server::process(void) {
 		throw std::runtime_error(e.what());
 	}
 
-	delete _request;
-	delete _response;
+	if (_request)
+		delete _request;
+	if (_response)
+		delete _response;
 	close(fd[ACCEPT]);
 }
 
