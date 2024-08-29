@@ -30,7 +30,7 @@ Request::~Request() {
 */
 
 std::ostream &			operator<<( std::ostream & o, Request const & i ) {
-	o << Y << "\n----Request-----\n";
+	o << Y << "----Request-----\n";
 	o << "Method: ";
 	if (i.getMethod() == GET) o << "GET";
 	else if (i.getMethod() == POST) o << "POST";
@@ -56,7 +56,7 @@ void Request::resolvePath(Server &s) {
 }
 
 void Request::parse_extension( void ) {
-	std::cout << R << _path << C << std::endl;
+	// std::cout << R << _path << C << std::endl; //* DEBUG
 	size_t start = _path.find('.', 1);
 	if (start != std::string::npos && (start + 1) < _path.size() - 1) {
 		start += 1;

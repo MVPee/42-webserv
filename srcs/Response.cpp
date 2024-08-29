@@ -20,10 +20,6 @@ std::string get_content_type(std::string extension)
 }
 
 Response::Response(int &client_fd, Request &request, Server &server) {
-
-	std::cout << request.getPath() << std::endl;
-	std::cout << request.getExtension() << std::endl;
-
 	getContent(request, server);
     _fd = send(client_fd, _content.c_str(), _content_size, 0);
     if (_fd < 0) {
