@@ -17,7 +17,7 @@ void Request::getExtension( void ) {
 Request::Request(int &client_fd, Server &s) : _fd(0), _extension("None") {
 	_fd = recv(client_fd, _buffer, sizeof(_buffer), 0);
 	if (_fd < 0) throw std::runtime_error("Receive failed");
-	std::cout << "Message received: " << _buffer << std::endl; //* DEBUG
+	// std::cout << "Message received: " << _buffer << std::endl; //* DEBUG
 	parse_request(s);
 	getExtension();
 }
