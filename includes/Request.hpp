@@ -9,9 +9,11 @@ class Request {
 		int 	_fd;
 		char 	_buffer[1024];
 		short	_method;
+		std::string	_extension;
 		std::string _path;
 
 		void parse_request(Server &s);
+		void getExtension( void );
 	public:
 		Request(int &client_fd, Server &s);
 		~Request();
@@ -19,6 +21,7 @@ class Request {
 		const char			*getBuffer(void) const;
 		const int			&getFd(void) const;
 		const short			&getMethod(void) const;
+		const std::string	&getExtension(void) const;
 		const std::string	&getPath(void) const;
 };
 

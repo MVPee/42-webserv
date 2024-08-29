@@ -4,6 +4,21 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
+//? Temporary function
+std::string get_content_type(std::string extension)
+{
+    std::map<std::string, std::string> extensions;
+    extensions["html"] = "text/html";
+    extensions["php"] = "text/php";
+    extensions["ico"] = "image/x-icon";
+    extensions["png"] = "image/png";
+    extensions["jpg"] = "image/jpg";
+    extensions["None"] = "text/html";
+
+	if (extensions.count(extension)) return (extensions[extension]);
+	else return "text/html";
+}
+
 // image/png, image/x-icon, image/jpeg, ...
 // text/css, text/html
 // application/javascript
@@ -24,24 +39,11 @@
 // "./html" | 
 
 
-static std::string getExtension(std::string file) {
-	size_t start = file.find('.', 1);
-	if (start == std::string::npos)
-		return ("none");
-
-	start += 1;
-	std::string extension = file.substr(start, file.size() - start);
-	// std::cout << R << extension << C << std::endl; //* DEBUG
-	if (extension == "php") return "text/php";
-	else if (extension == "ico") return "image/x-icon";
-	else return "text/html";
-}
-
 static std::string getFile(std::string page, Server &server) {
-	std::string extension = getExtension(page);
+	std::string extension = get_content_type(page);
 	if (page == (server.getRoot() + "/"))
 		return (page + server.getIndex());
-	if (extension == "none")
+	if (extension == "None")
 		return (page + ".html");
 	return (page);
 }
@@ -62,7 +64,7 @@ static std::string getContent(std::string page) {
 	std::ostringstream str1;
 	str1 << file.rdbuf();
 	std::string content = str1.str();
-	html << "HTTP/1.1 200 Ok\nContent-Type:" + getExtension(page) + "\nContent-Length: " << content.size() << "\n\n" << content;
+	html << "HTTP/1.1 200 Ok\nContent-Type:" + get_content_type(page) + "\nContent-Length: " << content.size() << "\n\n" << content;
 	return (html.str());
 }
 
