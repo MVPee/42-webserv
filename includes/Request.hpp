@@ -8,7 +8,7 @@ class Request {
 	private:
 		int 	_fd;
 		char 	_buffer[1024];
-		short	_type;
+		short	_method;
 		std::string _path;
 
 		void parse_request(Server &s);
@@ -18,7 +18,7 @@ class Request {
 		
 		const char			*getBuffer(void) const;
 		const int			&getFd(void) const;
-		const short			&getType(void) const;
+		const short			&getMethod(void) const;
 		const std::string	&getPath(void) const;
 };
 

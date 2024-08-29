@@ -26,10 +26,10 @@ Request::~Request() {
 
 std::ostream &			operator<<( std::ostream & o, Request const & i ) {
 	o << Y << "\n----Request-----\n";
-	o << "Type: ";
-	if (i.getType() == GET) o << "GET";
-	else if (i.getType() == POST) o << "POST";
-	else if (i.getType() == DELETE) o << "DELETE";
+	o << "Method: ";
+	if (i.getMethod() == GET) o << "GET";
+	else if (i.getMethod() == POST) o << "POST";
+	else if (i.getMethod() == DELETE) o << "DELETE";
 	else o <<  R "UNKNOWN" Y;
 	o << "\n";
 	o << "Path: " << i.getPath() << "\n";
@@ -49,7 +49,7 @@ void Request::parse_request(Server &s){
 		throw std::runtime_error("Error while parsing request");
 
 	std::string request_path(path_buffer);
-	std::string request_type (type_buffer);
+	std::string request_method (type_buffer);
 
     std::size_t pos;
     while ((pos = request_path.find("../")) != std::string::npos) {
@@ -58,9 +58,9 @@ void Request::parse_request(Server &s){
 
 	this->_path = s.getRoot() + request_path;
 
-	if (request_type == "GET") this->_type = GET;
-	else if (request_type == "POST") this->_type = POST;
-	else this->_type = DELETE;
+	if (request_method == "GET") this->_method = GET;
+	else if (request_method == "POST") this->_method = POST;
+	else this->_method = DELETE;
 }
 
 /*
@@ -69,7 +69,7 @@ void Request::parse_request(Server &s){
 
 const char 			*Request::getBuffer(void) const {return (_buffer);}
 const int 			&Request::getFd(void) const {return (_fd);}
-const short			&Request::getType(void) const {return (_type);}
+const short			&Request::getMethod(void) const {return (_method);}
 const std::string 	&Request::getPath(void) const {return(_path);}
 
 /* ************************************************************************** */
