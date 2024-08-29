@@ -36,7 +36,8 @@ Response::Response(int &client_fd, Request &request, Server &server) {
 */
 
 Response::~Response() {
-	close(_fd);
+    if (_fd >= 0)
+	    close(_fd);
 }
 
 /*
@@ -53,31 +54,33 @@ std::ostream &			operator<<( std::ostream & o, Response const & i ) {
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void Response::getContent(Request &request, Server &server) {
+static void putContent(const std::ifstream &file, std::string &_content) {
     std::ostringstream temp;
+
+    temp << file.rdbuf();
+    std::string content = temp.str();
+    std::ostringstream sizeStream;
+    sizeStream << content.size();
+    _content += sizeStream.str() + "\n\n" + content;
+}
+
+void Response::getContent(Request &request, Server &server) {
     std::ifstream file(request.getPath().c_str());
 
     _content += "HTTP/1.1 ";
     if (!file.is_open() || !file.good()) {
         file.open(std::string(server.getRoot() + '/' + server.getError()).c_str());
         _content += "404 NOT FOUND\nContent-Type: text/html\nContent-Length: ";
-        if (!file.is_open() || !file.good()) {
+        if (!file.is_open() || !file.good())
             _content += "21\n\n<h1>default: 404</h1>";
-        } else {
-            temp << file.rdbuf();
-            std::string content = temp.str();
-            std::ostringstream sizeStream;
-            sizeStream << content.size();
-            _content += sizeStream.str() + "\n\n" + content;
-        }
-    } else {
-        _content += "200 OK\nContent-Type: " + get_content_type(request.getExtension()) + "\nContent-Length: ";
-        temp << file.rdbuf();
-        std::string content = temp.str();
-        std::ostringstream sizeStream;
-        sizeStream << content.size();
-        _content += sizeStream.str() + "\n\n" + content;
+        else
+            putContent(file, _content);
     }
+    else {
+        _content += "200 OK\nContent-Type: " + get_content_type(request.getExtension()) + "\nContent-Length: ";
+        putContent(file, _content);
+    }
+    file.close();
 	_content_size = _content.size();
 }
 

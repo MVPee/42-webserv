@@ -21,7 +21,8 @@ Request::Request(int &client_fd, Server &s) : _fd(0), _extension("None") {
 */
 
 Request::~Request() {
-	close(_fd);
+	if (_fd >= 0)
+		close(_fd);
 }
 
 /*
