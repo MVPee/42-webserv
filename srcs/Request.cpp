@@ -57,7 +57,7 @@ void Request::resolvePath(Server &s) {
 void Request::parse_extension( void ) {
 	std::cout << R << _path << C << std::endl;
 	size_t start = _path.find('.', 1);
-	if (start != std::string::npos) {
+	if (start != std::string::npos && (start + 1) < _path.size() - 1) {
 		start += 1;
 		_extension = _path.substr(start, _path.size() - start);
 	}
