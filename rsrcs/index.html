@@ -1,74 +1,121 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Super page web(serv)</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Form Example</title>
-		<style>
-        /* Style for the input field */
-        input[type="text"] {
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Page Web(serv)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <style>
+        body {
+            background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fad0c4, #ffd1ff);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            font-size: 3em;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+		.image-container {
+    margin-bottom: 20px;
+    text-align: center;
+	}
+
+	.responsive-img {
+		width: 100%;
+		max-width: 200px;
+		border-radius: 10px;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	}
+
+        .video-container {
+            margin-bottom: 20px;
+        }
+
+        .video-container video {
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 22px);
             padding: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
             font-size: 1em;
         }
 
-        /* Style for the button */
         button {
-            width: 100%;
-            max-width: 500px;
-            padding: 20px; /* Adjust padding for larger size */
-            font-size: 1.5em; /* Increase font size */
-            background-color: #4CAF50; /* Background color */
-            color: white; /* Text color */
-            border: none; /* Remove border */
-            border-radius: 5px; /* Rounded corners */
-            cursor: pointer; /* Pointer cursor on hover */
+            padding: 15px 30px;
+            font-size: 1.2em;
+            color: #fff;
+            background-color: #ff5722;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
-        /* Optional: Add hover effect */
         button:hover {
-            background-color: #45a049;
+            background-color: #e64a19;
         }
-		</style>
-    </head>
-    <body style="background-color:gold;">
-        <img src="https://media.tenor.com/UVmpVqlpVhQAAAAM/yess-yes.gif">
-        <img src="https://media.tenor.com/UVmpVqlpVhQAAAAM/yess-yes.gif">
-        <img src="https://media.tenor.com/UVmpVqlpVhQAAAAM/yess-yes.gif">
-        <img src="https://media.tenor.com/UVmpVqlpVhQAAAAM/yess-yes.gif">
-		<br>
 
-		<form id="myForm" action="/" method="post">
-			<input type="text" name="password" placeholder="Enter your card number and code" required style="width: 100%; max-width: 500px;">
-			<button type="submit" onclick="handleSubmit(event)">Free Robux</button>
-		</form>		
-	
-		<script>
-			function handleSubmit(event) {
-				// Prevent the default form submission
-				event.preventDefault();
-	
-				// Get the form element
-				const form = document.getElementById('myForm');
-				
-				// Check if the form is valid
-				if (form.checkValidity()) {
-					// Submit the form
-					form.submit();
-	
-					// Redirect to the link
-					window.location.href = './favicon.ico';
-				} else {
-					// Optionally, you can handle invalid form cases here
-					alert('Please complete the form before proceeding.');
-				}
-			}
-		</script>
-		
-		
+        footer {
+            margin-top: 20px;
+            color: #fff;
+        }
 
-        <marquee><h1 style="color:red;font-size:200px;">YES!</h1></marquee>
-        <h2 style="color:rgb(0, 64, 255);font-size:200px;">wedidit</h2>
-    </body>
+        .icon {
+            margin-top: 20px;
+            font-size: 2em;
+            color: #ff5722;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Super Page Web(serv)</h1>
+    </header>
+	<div class="image-container">
+		<img src="./favicon.ico" alt="Icon" class="responsive-img">
+	</div>
+    <form id="myForm" action="/" method="post">
+        <input type="text" name="word" placeholder="Enter a word" required>
+        <button type="submit" onclick="handleSubmit(event)">Submit</button>
+    </form>
+</body>
 </html>
