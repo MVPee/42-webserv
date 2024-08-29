@@ -126,117 +126,20 @@ void Server::myListen(void) {
 	std::cout << ss.str() << std::endl;
 }
 
-void Server::myAccept(void) {
+void Server::process(void) {
 	this->fd[ACCEPT] = accept(this->fd[SOCKET], 0, 0);
 	if (this->fd[ACCEPT] < 0) throw std::runtime_error("Accept failed");
-}
 
-void Server::myReceive(void) {
-	this->fd[RECEIVE] = recv(this->fd[ACCEPT], this->receive_buffer, 1024, 0);
-	if (this->fd[RECEIVE] < 0) throw std::runtime_error("Receive failed");
-	std::cout << "Message received: " << this->receive_buffer << std::endl;
-	close(fd[RECEIVE]);
-}
-
-// image/png, image/x-icon, image/jpeg, ...
-// text/css, text/html
-// application/javascript
-//code error
-//php html ico
-
-static std::string parse_requested_page(std::string receive_buffer){
-	std::stringstream full_request(receive_buffer);
-	std::string request_line;
-	std::string request;
-
-	std::getline(full_request, request_line);
-	if (full_request.fail())
-		throw std::runtime_error("Error while parsing request");
-
-	std::size_t start = request_line.find_first_of(' ') + 1;
-	std::size_t end = request_line.find_last_of(' ');
-
-	if (start == std::string::npos || end == std::string::npos)
-		throw std::runtime_error("Bad server request");
-	request = request_line.substr(start, end - start);
-
-    std::size_t pos;
-    while ((pos = request.find("../")) != std::string::npos) {
-        request.erase(pos, 3);
-    }
-	return (request);
-}
-
-static std::string getExtension(std::string file) {
-	size_t start = file.find('.', 1);
-	if (start == std::string::npos)
-		return ("text/html");
-
-	start += 1;
-	std::string extension = file.substr(start, file.size() - start);
-	std::cout << R << extension << C << std::endl;
-	if (extension == "php") return "text/php";
-	else if (extension == "ico") return "image/x-icon";
-	else return "text/html";
-}
-
-std::string Server::getFile(std::string page) {
-	//! Extension ? Garder : mettre .html
-	//! Root ? => envoyer index
-	//! déterminer la taille du contenu (avec stat?)
-	//! determiner le type de contenu demandé
-	//!
-	std::string extension = getExtension(page);
-	if (page == (this->root + "/"))
-		return (page + this->index);
-	if (extension == "text/html")
-		return (page + ".html");
-	return (page);
-}
-
-// static std::string getContent(std::string request)
-// {
-// 	std::size_t start;
-// 	std::string extension;
-
-// 	start = request.find('.');
-// 	if (start == std)
-// }
-
-// "./html" | 
-
-static std::string getContent(std::string page) {
-	std::ostringstream html;
-	struct stat stat_buf;
-	// std::cout << Y << page << C << std::endl; //* DEBUG
-	std::ifstream file(page.c_str(), std::ifstream::binary | std::ifstream::in);
-	if (!file.is_open() || !file.good())
-		return ("HTTP/1.1 404 NOT FOUND\nContent-Type:text/html\nContent-Length: 12\n\n<h1>404</h1>");
-	if (stat(page.c_str(), &stat_buf)) throw std::runtime_error("Error while retrieving request data");
-
-	std::ostringstream string_converter;
-	string_converter << stat_buf.st_size;
-
-	std::cout << B << string_converter.str() << C << std::endl;
-	std::ostringstream str1;
-	str1 << file.rdbuf();
-	std::string content = str1.str();
-	html << "HTTP/1.1 200 Ok\nContent-Type:" + getExtension(page) + "\nContent-Length: " << content.size() << "\n\n" << content;
-	return (html.str());
-}
-
-void Server::mySend() {
-	std::cout << this->receive_buffer << std::endl;
-	std::string page = this->root + parse_requested_page(this->receive_buffer);
-	std::string file = getFile(page);
-	std::cout << file << std::endl;
-	std::string content = getContent(file);
-    this->fd[SEND] = send(this->fd[ACCEPT], content.c_str(), content.size(), 0);
-    if (this->fd[SEND] < 0) {
-        throw std::runtime_error("Send failed");
+	try {
+		_request = new Request(fd[ACCEPT]);
+		_response = new Response(fd[ACCEPT], *_request, *this);
+	} catch (std::exception &e){
+		throw std::runtime_error(e.what());
 	}
+
+	delete _request;
+	delete _response;
 	close(fd[ACCEPT]);
-	close(fd[SEND]);
 }
 
 const std::map<std::string, std::string> Server::tokenize (const std::string config_text) const

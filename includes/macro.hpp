@@ -18,6 +18,8 @@
 # include <sys/stat.h>
 # include <unistd.h>
 
+# include "Request.hpp"
+# include "Response.hpp"
 # include "Server.hpp"
 
 # define GET 0

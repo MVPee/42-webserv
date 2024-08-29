@@ -35,9 +35,7 @@ int main(int ac, char **av) {
     test.myListen();
     while(1) {
         try {
-            test.myAccept();
-            test.myReceive();
-            test.mySend();
+            test.process();
         }
         catch (std::exception &e) {
             std::cerr << e.what() << std::endl;

@@ -3,6 +3,9 @@
 
 # include "macro.hpp"
 
+class Request;
+class Response;
+
 class Server {
 	private:
 		std::string name;
@@ -15,7 +18,9 @@ class Server {
 
 		sockaddr_in sock_address;
 		int fd[6];
-		char receive_buffer[1024];
+
+		Request		*_request;
+		Response	*_response;
 	
 		const std::map<std::string, std::string> tokenize (const std::string config_text) const;
 		void clearFileDescriptor();
@@ -34,9 +39,7 @@ class Server {
 		void mySocket(void);
 		void myBind(void);
 		void myListen(void);
-		void myAccept(void);
-		void myReceive(void);
-		void mySend(void);
+		void process(void);
 
 		std::string getFile(std::string page);
 };

@@ -2,7 +2,9 @@ NAME = webserv
 
 OBJS_DIR = .objs
 SRCS = 	main.cpp \
-		srcs/Server.cpp
+		srcs/Server.cpp \
+		srcs/Request.cpp \
+		srcs/Response.cpp
 
 OBJS = $(addprefix $(OBJS_DIR)/, $(SRCS:%.cpp=%.o))
 
