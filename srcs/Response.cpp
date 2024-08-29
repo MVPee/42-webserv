@@ -24,20 +24,11 @@
 // "./html" | 
 
 static std::string parse_requested_page(std::string receive_buffer){
-	std::stringstream full_request(receive_buffer);
-	std::string request_line;
-	std::string request;
-
-	std::getline(full_request, request_line);
-	if (full_request.fail())
+	char buffer[1024];
+	if (sscanf(receive_buffer.c_str(), "%*s %s %*s", buffer) != 1)
 		throw std::runtime_error("Error while parsing request");
 
-	std::size_t start = request_line.find_first_of(' ') + 1;
-	std::size_t end = request_line.find_last_of(' ');
-
-	if (start == std::string::npos || end == std::string::npos)
-		throw std::runtime_error("Bad server request");
-	request = request_line.substr(start, end - start);
+	std::string request(buffer);
 
     std::size_t pos;
     while ((pos = request.find("../")) != std::string::npos) {
