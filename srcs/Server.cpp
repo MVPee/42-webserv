@@ -36,7 +36,7 @@ Server::Server(const std::string config_text) :
 			s << map["methods"];
 			while (std::getline(s, line, ' ')) {
 				line.erase(std::remove_if(line.begin(), line.end(), isspace), line.end());
-				// std::cout << Y << "'" + line + "'" << C << std::endl; // DEBUG
+				// std::cout << Y << "'" + line + "'" << C << std::endl; //* DEBUG
 				if (line == "GET") this->methods[GET] = true;
 				else if (line == "POST") this->methods[POST] = true;
 				else if (line == "DELETE") this->methods[DELETE] = true;
@@ -72,7 +72,7 @@ Server::~Server() {
 */
 
 std::ostream &			operator<<( std::ostream & o, Server const & i ) {
-	o << M << "\n---------\n";
+	o << M << "\n----Server----\n";
 	o << "|Name: " << i.getName() << "\n";
 	o << "|Port: " << i.getPort() << "\n";
 	o << "|Method GET: " << (i.getMethods(GET) ? "True" : "False") << "\n";
@@ -82,7 +82,7 @@ std::ostream &			operator<<( std::ostream & o, Server const & i ) {
 	o << "|Root: " << i.getRoot() << "\n";
 	o << "|Index: " << i.getIndex() << "\n";
 	o << "|Error: " << i.getError() << "\n";
-	o << "---------\n" << C;
+	o << "-----End-----\n" << C;
 	return o;
 }
 
@@ -117,7 +117,7 @@ void Server::myListen(void) {
 		<< inet_ntoa(sock_address.sin_addr) 
 		<< " PORT: " << ntohs(sock_address.sin_port) 
 		<< " ***\n\n";
-	std::cout << ss.str() << std::endl;
+	std::cout << ss.str() << std::endl; //* DEBUG
 }
 
 void Server::process(void) {
@@ -126,7 +126,8 @@ void Server::process(void) {
 		throw std::runtime_error("Accept failed");
 
 	try {
-		_request = new Request(fd[ACCEPT]);
+		_request = new Request(fd[ACCEPT], *this);
+		std::cout << B << *_request << C << std::endl; //* DEBUG
 		_response = new Response(fd[ACCEPT], *_request, *this);
 	} catch (std::exception &e){
 		throw std::runtime_error(e.what());

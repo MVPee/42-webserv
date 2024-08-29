@@ -22,7 +22,7 @@ int main(int ac, char **av) {
 
     // std::cout << text << std::endl;
     Server test(text);
-	std::cout << test << std::endl;
+	std::cout << test << std::endl; //* DEBUG
     try {
         test.mySocket();
         test.myBind();
