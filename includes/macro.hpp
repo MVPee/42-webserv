@@ -18,9 +18,6 @@
 # include <sys/stat.h>
 # include <unistd.h>
 
-# include "Request.hpp"
-# include "Response.hpp"
-# include "Server.hpp"
 
 # define GET 0
 # define POST 1
@@ -30,6 +27,11 @@
 # define BIND 1
 # define LISTEN 2
 # define ACCEPT 3
+# define BUFFER_SIZE 2056
+
+# include "Request.hpp"
+# include "Response.hpp"
+# include "Server.hpp"
 
 enum extension {HTML = 1, PHP = 2, ICO = 3};
 

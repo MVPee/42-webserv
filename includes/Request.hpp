@@ -7,7 +7,7 @@ class Server;
 class Request {
 	private:
 		int 	_fd;
-		char 	_buffer[1024];
+		char 	_buffer[BUFFER_SIZE];
 		short	_method;
 		std::string	_extension;
 		std::string _path;

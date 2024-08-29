@@ -11,7 +11,9 @@
 Request::Request(int &client_fd, Server &s) : _fd(0), _extension("None") {
 	_fd = recv(client_fd, _buffer, sizeof(_buffer), 0);
 	if (_fd < 0) throw std::runtime_error("Receive failed");
-	// std::cout << "Message received: " << _buffer << std::endl; //* DEBUG
+	_buffer[_fd] = 0;
+
+	std::cout << "Message received: " << _buffer << std::endl; //* DEBUG
 	parse_request(s);
 	resolvePath(s);
 }
@@ -65,8 +67,8 @@ void Request::parse_extension( void ) {
 }
 
 void Request::parse_request(Server &s){
-	char path_buffer[1024];
-	char type_buffer[1024];
+	char path_buffer[BUFFER_SIZE];
+	char type_buffer[BUFFER_SIZE];
 
 	if (sscanf(this->_buffer, "%s %s %*s", type_buffer, path_buffer) != 2)
 		throw std::runtime_error("Error while parsing request");
