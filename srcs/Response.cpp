@@ -65,7 +65,7 @@ static void putContent(const std::ifstream &file, std::string &_content) {
 }
 
 void Response::getContent(Request &request, Server &server) {
-    std::ifstream file(request.getPath().c_str());
+    std::ifstream file(request.getPath().c_str(), std::ios::binary);
 
     _content += "HTTP/1.1 ";
     if (!file.is_open() || !file.good()) {
@@ -80,7 +80,8 @@ void Response::getContent(Request &request, Server &server) {
         _content += "200 OK\nContent-Type: " + get_content_type(request.getExtension()) + "\nContent-Length: ";
         putContent(file, _content);
     }
-    file.close();
+    if (file.is_open())
+        file.close();
 	_content_size = _content.size();
 }
 

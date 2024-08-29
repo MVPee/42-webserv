@@ -61,10 +61,6 @@ Server::~Server() {
 		close(fd[LISTEN]);
 	if (fd[ACCEPT])
 		close(fd[ACCEPT]);
-	if (_request)
-		delete _request;
-	if (_response)
-		delete _response;
 }
 
 /*
@@ -130,13 +126,15 @@ void Server::process(void) {
 		std::cout << B << *_request << C << std::endl; //* DEBUG
 		_response = new Response(fd[ACCEPT], *_request, *this);
 	} catch (std::exception &e){
+		if (_request)
+			delete _request;
+		if (_response)
+			delete _response;
 		throw std::runtime_error(e.what());
 	}
 
-	if (_request)
-		delete _request;
-	if (_response)
-		delete _response;
+	delete _request;
+	delete _response;
 	close(fd[ACCEPT]);
 }
 
