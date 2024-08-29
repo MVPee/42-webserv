@@ -5,6 +5,7 @@
 */
 
 Request::Request(int &client_fd) : _fd(0) {
+	std::fill(_buffer, _buffer + sizeof(_buffer), 0);
 	_fd = recv(client_fd, _buffer, sizeof(_buffer), 0);
 	if (_fd < 0)
 		throw std::runtime_error("Receive failed");
