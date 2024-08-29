@@ -135,6 +135,7 @@ void Server::myReceive(void) {
 	this->fd[RECEIVE] = recv(this->fd[ACCEPT], this->receive_buffer, 1024, 0);
 	if (this->fd[RECEIVE] < 0) throw std::runtime_error("Receive failed");
 	std::cout << "Message received: " << this->receive_buffer << std::endl;
+	close(fd[RECEIVE]);
 }
 
 // image/png, image/x-icon, image/jpeg, ...
@@ -231,8 +232,11 @@ void Server::mySend() {
 	std::cout << file << std::endl;
 	std::string content = getContent(file);
     this->fd[SEND] = send(this->fd[ACCEPT], content.c_str(), content.size(), 0);
-    if (this->fd[SEND] < 0)
+    if (this->fd[SEND] < 0) {
         throw std::runtime_error("Send failed");
+	}
+	close(fd[ACCEPT]);
+	close(fd[SEND]);
 }
 
 const std::map<std::string, std::string> Server::tokenize (const std::string config_text) const
