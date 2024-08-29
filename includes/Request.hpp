@@ -13,7 +13,8 @@ class Request {
 		std::string _path;
 
 		void parse_request(Server &s);
-		void getExtension( void );
+		void parse_extension( void );
+		void resolvePath(Server &s);
 	public:
 		Request(int &client_fd, Server &s);
 		~Request();

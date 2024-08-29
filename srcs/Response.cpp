@@ -19,60 +19,13 @@ std::string get_content_type(std::string extension)
 	else return "text/html";
 }
 
-// image/png, image/x-icon, image/jpeg, ...
-// text/css, text/html
-// application/javascript
-//code error
-//php html ico
-
-
-
-// static std::string getContent(std::string request)
-// {
-// 	std::size_t start;
-// 	std::string extension;
-
-// 	start = request.find('.');
-// 	if (start == std)
-// }
-
-// "./html" | 
-
-
-static std::string getFile(std::string page, Server &server) {
-	std::string extension = get_content_type(page);
-	if (page == (server.getRoot() + "/"))
-		return (page + server.getIndex());
-	if (extension == "None")
-		return (page + ".html");
-	return (page);
-}
-
-static std::string getContent(std::string page) {
-	std::ostringstream html;
-	struct stat stat_buf;
-	// std::cout << Y << page << C << std::endl; //* DEBUG
-	std::ifstream file(page.c_str(), std::ifstream::binary | std::ifstream::in);
-	if (!file.is_open() || !file.good())
-		return ("HTTP/1.1 404 NOT FOUND\nContent-Type:text/html\nContent-Length: 12\n\n<h1>404</h1>");
-	if (stat(page.c_str(), &stat_buf)) throw std::runtime_error("Error while retrieving request data");
-
-	std::ostringstream string_converter;
-	string_converter << stat_buf.st_size;
-
-	// std::cout << B << string_converter.str() << C << std::endl; //* DEBUG
-	std::ostringstream str1;
-	str1 << file.rdbuf();
-	std::string content = str1.str();
-	html << "HTTP/1.1 200 Ok\nContent-Type:" + get_content_type(page) + "\nContent-Length: " << content.size() << "\n\n" << content;
-	return (html.str());
-}
-
 Response::Response(int &client_fd, Request &request, Server &server) {
-	std::string file = getFile(request.getPath(), server);
-	// std::cout << file << std::endl; //* DEBUG
-	std::string content = getContent(file);
-    _fd = send(client_fd, content.c_str(), content.size(), 0);
+
+	std::cout << request.getPath() << std::endl;
+	std::cout << request.getExtension() << std::endl;
+
+	getContent(request, server);
+    _fd = send(client_fd, _content.c_str(), _content_size, 0);
     if (_fd < 0) {
         throw std::runtime_error("Send failed");
 	}
@@ -99,6 +52,34 @@ std::ostream &			operator<<( std::ostream & o, Response const & i ) {
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
+
+void Response::getContent(Request &request, Server &server) {
+    std::ostringstream temp;
+    std::ifstream file(request.getPath().c_str());
+
+    _content += "HTTP/1.1 ";
+    if (!file.is_open() || !file.good()) {
+        file.open(std::string(server.getRoot() + '/' + server.getError()).c_str());
+        _content += "404 NOT FOUND\nContent-Type: text/html\nContent-Length: ";
+        if (!file.is_open() || !file.good()) {
+            _content += "21\n\n<h1>default: 404</h1>";
+        } else {
+            temp << file.rdbuf();
+            std::string content = temp.str();
+            std::ostringstream sizeStream;
+            sizeStream << content.size();
+            _content += sizeStream.str() + "\n\n" + content;
+        }
+    } else {
+        _content += "200 OK\nContent-Type: " + get_content_type(request.getExtension()) + "\nContent-Length: ";
+        temp << file.rdbuf();
+        std::string content = temp.str();
+        std::ostringstream sizeStream;
+        sizeStream << content.size();
+        _content += sizeStream.str() + "\n\n" + content;
+    }
+	_content_size = _content.size();
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

@@ -1,11 +1,28 @@
 #include "../includes/Request.hpp"
 
+/*
+** ------------------------------- STATIC -------------------------------------
+*/
+
+// static resolvePath(Request &request) {
+// 	if (page == (server.getRoot() + "/")) return (page + server.getIndex());
+//     	if (extension == "None") return (page + ".html");
+// }
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-void Request::getExtension( void ) {
+
+void Request::resolvePath(Server &s) {
+	if (_path == (s.getRoot() + "/"))
+		_path += s.getIndex();
+    // else if (_extension == "None") {
+	// 	_path += ".html";
+	// }
+}
+
+void Request::parse_extension( void ) {
 	std::cout << R << _path << C << std::endl;
 	size_t start = _path.find('.', 1);
 	if (start != std::string::npos) {
@@ -20,6 +37,7 @@ Request::Request(int &client_fd, Server &s) : _fd(0), _extension("None") {
 	// std::cout << "Message received: " << _buffer << std::endl; //* DEBUG
 	parse_request(s);
 	getExtension();
+	resolvePath(s);
 }
 
 /*

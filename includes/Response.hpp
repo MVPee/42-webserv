@@ -9,6 +9,9 @@ class Server;
 class Response {
 	private:
 		int _fd;
+		std::string _content;
+		size_t		_content_size;
+		void getContent(Request &request, Server &server);
 	public:
 		Response(int &client_fd, Request &request, Server &server);
 		~Response();
