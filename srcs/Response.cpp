@@ -31,7 +31,7 @@ static std::string getExtension(std::string file) {
 
 	start += 1;
 	std::string extension = file.substr(start, file.size() - start);
-	std::cout << R << extension << C << std::endl;
+	// std::cout << R << extension << C << std::endl; //* DEBUG
 	if (extension == "php") return "text/php";
 	else if (extension == "ico") return "image/x-icon";
 	else return "text/html";
@@ -58,7 +58,7 @@ static std::string getContent(std::string page) {
 	std::ostringstream string_converter;
 	string_converter << stat_buf.st_size;
 
-	std::cout << B << string_converter.str() << C << std::endl;
+	// std::cout << B << string_converter.str() << C << std::endl; //* DEBUG
 	std::ostringstream str1;
 	str1 << file.rdbuf();
 	std::string content = str1.str();
@@ -68,7 +68,7 @@ static std::string getContent(std::string page) {
 
 Response::Response(int &client_fd, Request &request, Server &server) {
 	std::string file = getFile(request.getPath(), server);
-	std::cout << file << std::endl;
+	// std::cout << file << std::endl; //* DEBUG
 	std::string content = getContent(file);
     _fd = send(client_fd, content.c_str(), content.size(), 0);
     if (_fd < 0) {

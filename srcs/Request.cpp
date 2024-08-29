@@ -26,8 +26,13 @@ Request::~Request() {
 
 std::ostream &			operator<<( std::ostream & o, Request const & i ) {
 	o << Y << "\n----Request-----\n";
-	o << "Type: " << i.getType();
-	o << "Path: " << i.getPath();
+	o << "Type: ";
+	if (i.getType() == GET) o << "GET";
+	else if (i.getType() == POST) o << "POST";
+	else if (i.getType() == DELETE) o << "DELETE";
+	else o <<  R "UNKNOWN" Y;
+	o << "\n";
+	o << "Path: " << i.getPath() << "\n";
 	o << "------End------\n" << C;
 	return o;
 }
