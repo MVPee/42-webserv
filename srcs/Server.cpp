@@ -19,8 +19,6 @@ Server::Server(const std::string config_text) :
 	this->fd[BIND] = 0;
 	this->fd[LISTEN] = 0;
 	this->fd[ACCEPT] = 0;
-	this->fd[SEND] = 0;
-	this->fd[RECEIVE] = 0;
 
 	std::map<std::string, std::string> map;
 
@@ -54,7 +52,7 @@ Server::Server(const std::string config_text) :
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
 
-void Server::clearFileDescriptor(void) {
+Server::~Server() {
 	if (fd[SOCKET])
 		close(fd[SOCKET]);
 	if (fd[BIND])
@@ -63,14 +61,10 @@ void Server::clearFileDescriptor(void) {
 		close(fd[LISTEN]);
 	if (fd[ACCEPT])
 		close(fd[ACCEPT]);
-	if (fd[SEND])
-		close(fd[SEND]);
-	if (fd[RECEIVE])
-		close(fd[RECEIVE]);
-}
-
-Server::~Server() {
-	this->clearFileDescriptor();
+	if (_request)
+		delete _request;
+	if (_response)
+		delete _response;
 }
 
 /*
@@ -128,7 +122,8 @@ void Server::myListen(void) {
 
 void Server::process(void) {
 	this->fd[ACCEPT] = accept(this->fd[SOCKET], 0, 0);
-	if (this->fd[ACCEPT] < 0) throw std::runtime_error("Accept failed");
+	if (this->fd[ACCEPT] < 0)
+		throw std::runtime_error("Accept failed");
 
 	try {
 		_request = new Request(fd[ACCEPT]);

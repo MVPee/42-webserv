@@ -30,8 +30,6 @@
 # define BIND 1
 # define LISTEN 2
 # define ACCEPT 3
-# define SEND 4
-# define RECEIVE 5
 
 enum extension {HTML = 1, PHP = 2, ICO = 3};
 

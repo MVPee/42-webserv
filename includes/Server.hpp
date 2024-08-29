@@ -17,13 +17,12 @@ class Server {
 		std::string error;
 
 		sockaddr_in sock_address;
-		int fd[6];
+		int fd[4];
 
 		Request		*_request;
 		Response	*_response;
 	
 		const std::map<std::string, std::string> tokenize (const std::string config_text) const;
-		void clearFileDescriptor();
 	public:
 		Server(const std::string config_text);
 		~Server();
