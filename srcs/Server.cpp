@@ -72,7 +72,7 @@ Server::~Server() {
 */
 
 std::ostream &			operator<<( std::ostream & o, Server const & i ) {
-	o << M << "\n---------\n";
+	o << M << "\n----Server----\n";
 	o << "|Name: " << i.getName() << "\n";
 	o << "|Port: " << i.getPort() << "\n";
 	o << "|Method GET: " << (i.getMethods(GET) ? "True" : "False") << "\n";
@@ -82,7 +82,7 @@ std::ostream &			operator<<( std::ostream & o, Server const & i ) {
 	o << "|Root: " << i.getRoot() << "\n";
 	o << "|Index: " << i.getIndex() << "\n";
 	o << "|Error: " << i.getError() << "\n";
-	o << "---------\n" << C;
+	o << "-----End-----\n" << C;
 	return o;
 }
 
@@ -126,7 +126,7 @@ void Server::process(void) {
 		throw std::runtime_error("Accept failed");
 
 	try {
-		_request = new Request(fd[ACCEPT]);
+		_request = new Request(fd[ACCEPT], *this);
 		_response = new Response(fd[ACCEPT], *_request, *this);
 	} catch (std::exception &e){
 		throw std::runtime_error(e.what());

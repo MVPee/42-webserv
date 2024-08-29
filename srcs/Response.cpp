@@ -23,24 +23,11 @@
 
 // "./html" | 
 
-static std::string parse_requested_page(std::string receive_buffer){
-	char buffer[1024];
-	if (sscanf(receive_buffer.c_str(), "%*s %s %*s", buffer) != 1)
-		throw std::runtime_error("Error while parsing request");
-
-	std::string request(buffer);
-
-    std::size_t pos;
-    while ((pos = request.find("../")) != std::string::npos) {
-        request.erase(pos, 3);
-    }
-	return (request);
-}
 
 static std::string getExtension(std::string file) {
 	size_t start = file.find('.', 1);
 	if (start == std::string::npos)
-		return ("text/html");
+		return ("none");
 
 	start += 1;
 	std::string extension = file.substr(start, file.size() - start);
@@ -51,15 +38,10 @@ static std::string getExtension(std::string file) {
 }
 
 static std::string getFile(std::string page, Server &server) {
-	//! Extension ? Garder : mettre .html
-	//! Root ? => envoyer index
-	//! déterminer la taille du contenu (avec stat?)
-	//! determiner le type de contenu demandé
-	//!
 	std::string extension = getExtension(page);
 	if (page == (server.getRoot() + "/"))
 		return (page + server.getIndex());
-	if (extension == "text/html")
+	if (extension == "none")
 		return (page + ".html");
 	return (page);
 }
@@ -85,8 +67,7 @@ static std::string getContent(std::string page) {
 }
 
 Response::Response(int &client_fd, Request &request, Server &server) {
-	std::string page = server.getRoot() + parse_requested_page(request.getBuffer());
-	std::string file = getFile(page, server);
+	std::string file = getFile(request.getPath(), server);
 	std::cout << file << std::endl;
 	std::string content = getContent(file);
     _fd = send(client_fd, content.c_str(), content.size(), 0);
