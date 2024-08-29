@@ -4,11 +4,6 @@
 ** ------------------------------- STATIC -------------------------------------
 */
 
-// static resolvePath(Request &request) {
-// 	if (page == (server.getRoot() + "/")) return (page + server.getIndex());
-//     	if (extension == "None") return (page + ".html");
-// }
-
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -17,9 +12,9 @@
 void Request::resolvePath(Server &s) {
 	if (_path == (s.getRoot() + "/"))
 		_path += s.getIndex();
-    // else if (_extension == "None") {
-	// 	_path += ".html";
-	// }
+    else if (_extension == "None") {
+		_path += ".html";
+	}
 }
 
 void Request::parse_extension( void ) {
@@ -36,8 +31,8 @@ Request::Request(int &client_fd, Server &s) : _fd(0), _extension("None") {
 	if (_fd < 0) throw std::runtime_error("Receive failed");
 	// std::cout << "Message received: " << _buffer << std::endl; //* DEBUG
 	parse_request(s);
-	getExtension();
 	resolvePath(s);
+	parse_extension();
 }
 
 /*
