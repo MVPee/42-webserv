@@ -34,7 +34,7 @@ int main(int ac, char **av) {
     }
 
     test.myListen();
-    // while(1) {
+    while(1) {
         try {
             test.process();
         }
@@ -42,7 +42,7 @@ int main(int ac, char **av) {
             std::cerr << e.what() << std::endl;
             return (1);
         }
-    // }
+    }
 
     return (0);
 }
