@@ -20,11 +20,16 @@ std::string get_content_type(std::string extension)
 }
 
 Response::Response(int &client_fd, Request &request, Server &server) {
-	getContent(request, server);
-    _fd = send(client_fd, _content.c_str(), _content_size, 0);
-    if (_fd < 0) {
-        throw std::runtime_error("Send failed");
-	}
+    
+    if (request.getMethod() == POST)
+	    std::cout << R "POST" C << std::endl;
+    if (request.getMethod() == GET) {
+	    getContent(request, server);
+        _fd = send(client_fd, _content.c_str(), _content_size, 0);
+        if (_fd < 0) {
+            throw std::runtime_error("Send failed");
+        }
+    }
 }
 
 /*
