@@ -8,14 +8,16 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Request::Request(int &client_fd, Server &s) : _fd(0), _extension("None") {
+Request::Request(int &client_fd, Server &s) : _fd(0), _extension("None"), _accept(false) {
 	_fd = recv(client_fd, _buffer, sizeof(_buffer), 0);
 	if (_fd < 0) throw std::runtime_error("Receive failed");
 	_buffer[_fd] = 0;
 
 	std::cout << "Message received: " << _buffer << std::endl; //* DEBUG
 	parse_request(s);
-	resolvePath(s);
+	
+	if (s.getMethods((unsigned int)_method))
+		_accept = true;
 }
 
 /*
@@ -41,6 +43,7 @@ std::ostream &			operator<<( std::ostream & o, Request const & i ) {
 	o << "\n";
 	o << "Extension: " << i.getExtension() << "\n";
 	o << "Path: " << i.getPath() << "\n";
+	o << "Accept: " << (i.isAccepted() ? "true" : "false") << "\n";
 	o << "------End------\n" << C;
 	return o;
 }
@@ -87,6 +90,7 @@ void Request::parse_request(Server &s){
 	else if (request_method == "POST") this->_method = POST;
 	else this->_method = DELETE;
 	parse_extension();
+	resolvePath(s);
 }
 
 /*
@@ -98,5 +102,6 @@ const int 			&Request::getFd(void) const {return (_fd);}
 const short			&Request::getMethod(void) const {return (_method);}
 const std::string	&Request::getExtension(void) const {return (_extension);}
 const std::string 	&Request::getPath(void) const {return(_path);}
+const bool			&Request::isAccepted(void) const {return(_accept);}
 
 /* ************************************************************************** */

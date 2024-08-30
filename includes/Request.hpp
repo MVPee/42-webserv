@@ -9,6 +9,7 @@ class Request {
 		int 	_fd;
 		char 	_buffer[BUFFER_SIZE];
 		short	_method;
+		bool	_accept;
 		std::string	_extension;
 		std::string _path;
 
@@ -24,6 +25,7 @@ class Request {
 		const short			&getMethod(void) const;
 		const std::string	&getExtension(void) const;
 		const std::string	&getPath(void) const;
+		const bool			&isAccepted(void) const;
 };
 
 std::ostream &			operator<<( std::ostream & o, Request const & i );

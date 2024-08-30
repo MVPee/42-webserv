@@ -10,7 +10,8 @@ Server::Server(const std::string config_text) :
 	body(100),
 	root("./rsrcs/"),
 	index("index.html"),
-	error("404.html") {
+	error("404.html")
+{
 	this->methods[GET] = false;
 	this->methods[POST] = false;
 	this->methods[DELETE] = false;
@@ -121,11 +122,16 @@ void Server::process(void) {
 	if (this->fd[ACCEPT] < 0)
 		throw std::runtime_error("Accept failed");
 
+	_request = NULL;
+	_response = NULL;
+
 	try {
 		_request = new Request(fd[ACCEPT], *this);
 		std::cout << B << *_request << C << std::endl; //* DEBUG
-		_response = new Response(fd[ACCEPT], *_request, *this);
-	} catch (std::exception &e){
+		if (_request->isAccepted())
+			_response = new Response(fd[ACCEPT], *_request, *this);
+	}
+	catch (std::exception &e) {
 		if (_request)
 			delete _request;
 		if (_response)
@@ -133,8 +139,10 @@ void Server::process(void) {
 		throw std::runtime_error(e.what());
 	}
 
-	delete _request;
-	delete _response;
+	if (_request)
+		delete _request;
+	if (_response)
+		delete _response;
 	close(fd[ACCEPT]);
 }
 
