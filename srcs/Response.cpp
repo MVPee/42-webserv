@@ -21,9 +21,10 @@ std::string get_content_type(std::string extension)
 
 Response::Response(int &client_fd, Request &request, Server &server) {
     
-    if (request.getMethod() == POST)
+    if (request.getMethod() == POST) {
 	    std::cout << R "POST" C << std::endl;
-    if (request.getMethod() == GET) {
+    }
+    if (server.getMethods(GET)) {
 	    getContent(request, server);
         _fd = send(client_fd, _content.c_str(), _content_size, 0);
         if (_fd < 0) {
