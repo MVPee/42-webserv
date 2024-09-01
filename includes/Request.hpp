@@ -6,10 +6,10 @@ class Server;
 
 class Request {
 	private:
-		int 	_fd;
-		char 	_buffer[BUFFER_SIZE];
 		short	_method;
 		bool	_accept;
+		char	_content[4096];
+		std::string _httpRequest;
 		std::string	_extension;
 		std::string _path;
 
@@ -20,8 +20,8 @@ class Request {
 		Request(int &client_fd, Server &s);
 		~Request();
 		
-		const char			*getBuffer(void) const;
-		const int			&getFd(void) const;
+		const char			*getContent(void) const;
+		const std::string	&getHttpRequest(void) const;
 		const short			&getMethod(void) const;
 		const std::string	&getExtension(void) const;
 		const std::string	&getPath(void) const;

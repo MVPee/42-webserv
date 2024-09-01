@@ -8,16 +8,32 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Request::Request(int &client_fd, Server &s) : _fd(0), _extension("None"), _accept(false) {
-	_fd = recv(client_fd, _buffer, sizeof(_buffer), 0);
-	if (_fd < 0) throw std::runtime_error("Receive failed");
-	_buffer[_fd] = 0;
+Request::Request(int &client_fd, Server &s) : _extension("None"), _accept(false) {
+    char buffer[2];
+    int bytes_received;
 
-	std::cout << "Message received: " << _buffer << std::endl; //* DEBUG
-	parse_request(s);
-	
-	if (s.getMethods((unsigned int)_method))
-		_accept = true;
+    while ((bytes_received = recv(client_fd, buffer, sizeof(buffer) - 1, 0)) != 0) {
+        buffer[bytes_received] = '\0';
+        _httpRequest += buffer;
+		if (_httpRequest.find("\r\n\r\n") != std::string::npos) break;
+		if (bytes_received < 0) throw std::runtime_error("Receive failed");
+    }
+
+    if (bytes_received < 0) throw std::runtime_error("Receive failed");
+
+    std::cout << "Message received: " << _httpRequest << std::endl;
+
+    parse_request(s);
+
+	if (_method == POST) {
+		bytes_received = recv(client_fd, _content, sizeof(_content) - 1, 0);
+		if (bytes_received < 0) throw std::runtime_error("Receive failed");
+		_content[bytes_received] = '\0';
+	}
+
+    if (s.getMethods((unsigned int)_method)) {
+        _accept = true;
+    }
 }
 
 /*
@@ -25,8 +41,6 @@ Request::Request(int &client_fd, Server &s) : _fd(0), _extension("None"), _accep
 */
 
 Request::~Request() {
-	if (_fd >= 0)
-		close(_fd);
 }
 
 /*
@@ -73,7 +87,7 @@ void Request::parse_request(Server &s){
 	char path_buffer[BUFFER_SIZE];
 	char type_buffer[BUFFER_SIZE];
 
-	if (sscanf(this->_buffer, "%s %s %*s", type_buffer, path_buffer) != 2)
+	if (sscanf(this->_httpRequest.c_str(), "%s %s %*s", type_buffer, path_buffer) != 2)
 		throw std::runtime_error("Error while parsing request");
 
 	std::string request_path(path_buffer);
@@ -97,8 +111,8 @@ void Request::parse_request(Server &s){
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
-const char 			*Request::getBuffer(void) const {return (_buffer);}
-const int 			&Request::getFd(void) const {return (_fd);}
+const char			*Request::getContent(void) const {return (_content);}
+const std::string	&Request::getHttpRequest(void) const {return (_httpRequest);}
 const short			&Request::getMethod(void) const {return (_method);}
 const std::string	&Request::getExtension(void) const {return (_extension);}
 const std::string 	&Request::getPath(void) const {return(_path);}
