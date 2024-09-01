@@ -34,9 +34,22 @@ std::string get_content_type(std::string extension)
 #include <sstream>
 #include <stdexcept>
 
-static void post(Request &request, Server &server) {
-    std::string content = request.getContent();
-    std::string webkitFormBoundary;
+static void post(int &client_fd, Request &request, Server &server) {
+	//? Retrieve Body of request aka Content
+    char buffer;
+    std::ostringstream content_stream;
+    int fd = 0;
+
+	while ((fd = recv(client_fd, &buffer, 1, 0)) != 0)
+	{
+		if (fd < 0) throw std::runtime_error("Receive failed");
+		content_stream << buffer;
+		if ((content_stream.str()).find("\r\n\r\n") != std::string::npos) break;
+	}
+
+    std::string content = content_stream.str();
+	std::string header = request.getHeader();
+    std::string webkitFormBoundary = header.substr(header.find("boundary=") + 9, header.find('\n', header.find("boundary=")) - header.find("boundary="));
     std::string contentDisposition;
     std::string contentType;
     std::string filename;
@@ -44,10 +57,8 @@ static void post(Request &request, Server &server) {
 
     std::istringstream contentStream(content);
     std::string line;
-    
-    if (std::getline(contentStream, line)) {
-        webkitFormBoundary = line;
-    }
+
+	std::cout << M << content << C << std::endl;
 
     while (std::getline(contentStream, line)) {
         if (line.find("Content-Disposition:") != std::string::npos) {
@@ -77,14 +88,21 @@ static void post(Request &request, Server &server) {
             //? EMPTY LINE
             std::getline(contentStream, line);
 
+			std::ofstream output_file(std::string(server.getRoot() + "/" + filename).c_str(), std::ios::trunc | std::ios::binary);
+				if (!output_file.is_open() || !output_file.good()) throw std::runtime_error("Could not open file: " + filename);
+
             //? READ DATA UNTIL BOUNDARY
             std::ostringstream dataStream;
-            while (std::getline(contentStream, line)) {
-                if (line.find(webkitFormBoundary) == 0) break;
-                dataStream << line << "\n";
-            }
-            data = dataStream.str();
-            data += '\0';
+			for (std::size_t i = 0; i < request.getContent_Length() - content.size(); i++)
+			{
+				fd = recv(client_fd, &buffer, 1, 0);
+				if (fd < 0) throw std::runtime_error("Receive failed");
+				else if (fd == 0) throw std::runtime_error("connexion closed");
+				output_file << buffer;
+				if (buffer != 0)
+					dataStream << buffer;
+			}
+			output_file.close();
         }
     }
     std::cout << B << "Boundary: " << webkitFormBoundary << "\n";
@@ -98,7 +116,7 @@ Response::Response(int &client_fd, Request &request, Server &server) {
     
     if (request.getMethod() == POST) {
         std::cout << R "POST" C << std::endl;
-	    post(request, server);
+	    post(client_fd, request, server);
     }
     if (server.getMethods(GET)) {
 	    getContent(request, server);

@@ -8,28 +8,22 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Request::Request(int &client_fd, Server &s) : _extension("None"), _accept(false) {
+Request::Request(int &client_fd, Server &s) : _extension("None"), _accept(false), _content_length(0) {
     char buffer[2];
     int bytes_received;
 
     while ((bytes_received = recv(client_fd, buffer, sizeof(buffer) - 1, 0)) != 0) {
         buffer[bytes_received] = '\0';
-        _httpRequest += buffer;
-		if (_httpRequest.find("\r\n\r\n") != std::string::npos) break;
+        _header += buffer;
+		if (_header.find("\r\n\r\n") != std::string::npos) break;
 		if (bytes_received < 0) throw std::runtime_error("Receive failed");
     }
 
     if (bytes_received < 0) throw std::runtime_error("Receive failed");
 
-    std::cout << "Message received: " << _httpRequest << std::endl;
+    std::cout << "Message received: " << _header << std::endl;
 
     parse_request(s);
-
-	if (_method == POST) {
-		bytes_received = recv(client_fd, _content, sizeof(_content) - 1, 0);
-		if (bytes_received < 0) throw std::runtime_error("Receive failed");
-		_content[bytes_received] = '\0';
-	}
 
     if (s.getMethods((unsigned int)_method)) {
         _accept = true;
@@ -58,6 +52,7 @@ std::ostream &			operator<<( std::ostream & o, Request const & i ) {
 	o << "Extension: " << i.getExtension() << "\n";
 	o << "Path: " << i.getPath() << "\n";
 	o << "Accept: " << (i.isAccepted() ? "true" : "false") << "\n";
+	o << "Content-length: " << i.getContent_Length() << "\n";
 	o << "------End------\n" << C;
 	return o;
 }
@@ -87,7 +82,7 @@ void Request::parse_request(Server &s){
 	char path_buffer[BUFFER_SIZE];
 	char type_buffer[BUFFER_SIZE];
 
-	if (sscanf(this->_httpRequest.c_str(), "%s %s %*s", type_buffer, path_buffer) != 2)
+	if (sscanf(this->_header.c_str(), "%s %s %*s", type_buffer, path_buffer) != 2)
 		throw std::runtime_error("Error while parsing request");
 
 	std::string request_path(path_buffer);
@@ -105,14 +100,17 @@ void Request::parse_request(Server &s){
 	else this->_method = DELETE;
 	parse_extension();
 	resolvePath(s);
+
+	//? Temporary
+	std::string header(this->getHeader());
+	_content_length = std::atoi(header.substr(header.find("Content-Length: ") + 16, 10).c_str());
 }
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
-
-const char			*Request::getContent(void) const {return (_content);}
-const std::string	&Request::getHttpRequest(void) const {return (_httpRequest);}
+const std::size_t	&Request::getContent_Length(void) const {return (_content_length);};
+const std::string	&Request::getHeader(void) const {return (_header);}
 const short			&Request::getMethod(void) const {return (_method);}
 const std::string	&Request::getExtension(void) const {return (_extension);}
 const std::string 	&Request::getPath(void) const {return(_path);}

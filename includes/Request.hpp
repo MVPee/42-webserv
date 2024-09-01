@@ -8,10 +8,11 @@ class Request {
 	private:
 		short	_method;
 		bool	_accept;
-		char	_content[4096];
-		std::string _httpRequest;
+
+		std::string _header;
 		std::string	_extension;
 		std::string _path;
+		std::size_t _content_length;
 
 		void parse_request(Server &s);
 		void parse_extension( void );
@@ -19,9 +20,9 @@ class Request {
 	public:
 		Request(int &client_fd, Server &s);
 		~Request();
-		
-		const char			*getContent(void) const;
-		const std::string	&getHttpRequest(void) const;
+
+		const std::size_t	&getContent_Length(void) const;
+		const std::string	&getHeader(void) const;
 		const short			&getMethod(void) const;
 		const std::string	&getExtension(void) const;
 		const std::string	&getPath(void) const;
