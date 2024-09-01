@@ -19,11 +19,86 @@ std::string get_content_type(std::string extension)
 	else return "text/html";
 }
 
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <stdexcept>
+
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <stdexcept>
+
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <stdexcept>
+
+static void post(Request &request, Server &server) {
+    std::string content = request.getContent();
+    std::string webkitFormBoundary;
+    std::string contentDisposition;
+    std::string contentType;
+    std::string filename;
+    std::string data;
+
+    std::istringstream contentStream(content);
+    std::string line;
+    
+    if (std::getline(contentStream, line)) {
+        webkitFormBoundary = line;
+    }
+
+    while (std::getline(contentStream, line)) {
+        if (line.find("Content-Disposition:") != std::string::npos) {
+            contentDisposition = line;
+
+            //? CONTENT-DISPOSITION
+            size_t pos = line.find(":");
+            if (pos != std::string::npos) {
+                std::string dispositionType = line.substr(pos + 2);
+                size_t semicolonPos = dispositionType.find(";");
+                if (semicolonPos != std::string::npos)
+                    dispositionType = dispositionType.substr(0, semicolonPos);
+                contentDisposition = dispositionType;
+            }
+
+            //? FILENAME
+            size_t filenamePos = line.find("filename=\"");
+            if (filenamePos != std::string::npos) {
+                filename = line.substr(filenamePos + 10);
+                filename = filename.substr(0, filename.find("\""));
+            }
+
+            //? CONTENT-TYPE
+            if (std::getline(contentStream, line) && line.find("Content-Type:") != std::string::npos)
+                contentType = line.substr(14);
+
+            //? EMPTY LINE
+            std::getline(contentStream, line);
+
+            //? READ DATA UNTIL BOUNDARY
+            std::ostringstream dataStream;
+            while (std::getline(contentStream, line)) {
+                if (line.find(webkitFormBoundary) == 0) break;
+                dataStream << line << "\n";
+            }
+            data = dataStream.str();
+            data += '\0';
+        }
+    }
+    std::cout << B << "Boundary: " << webkitFormBoundary << "\n";
+    std::cout << "Content-Disposition: " << contentDisposition << "\n";
+    std::cout << "Filename: " << filename << "\n";
+    std::cout << "Content-Type: " << contentType << "\n";
+    std::cout << "Data: " << data << "\n" << C << std::endl;
+}
+
 Response::Response(int &client_fd, Request &request, Server &server) {
     
     if (request.getMethod() == POST) {
-	    std::cout << R "POST" << std::endl;
-        std::cout << request.getContent() << C << std::endl;
+        std::cout << R "POST" C << std::endl;
+	    post(request, server);
     }
     if (server.getMethods(GET)) {
 	    getContent(request, server);
