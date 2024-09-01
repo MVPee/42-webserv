@@ -92,15 +92,18 @@ static void post(int &client_fd, Request &request, Server &server) {
 				if (!output_file.is_open() || !output_file.good()) throw std::runtime_error("Could not open file: " + filename);
 
             //? READ DATA UNTIL BOUNDARY
-            std::ostringstream dataStream;
-			for (std::size_t i = 0; i < request.getContent_Length() - content.size(); i++)
+			char buffer2[1024];
+			std::size_t i = 0;
+			while(i < request.getContent_Length() - content.size())
 			{
-				fd = recv(client_fd, &buffer, 1, 0);
+				fd = recv(client_fd, &buffer2, sizeof(buffer2) - 1, 0);
 				if (fd < 0) throw std::runtime_error("Receive failed");
 				else if (fd == 0) throw std::runtime_error("connexion closed");
-				output_file << buffer;
-				if (buffer != 0)
-					dataStream << buffer;
+				buffer2[fd] = 0;
+
+				for (std::size_t j = 0; j < fd && j + i < request.getContent_Length() - content.size(); j++)
+					output_file << buffer2[j];
+				i+=fd;
 			}
 			output_file.close();
         }
