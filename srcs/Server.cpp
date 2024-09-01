@@ -126,6 +126,9 @@ void Server::process(void) {
 	_response = NULL;
 
 	try {
+		struct pollfd struct_fds = {fd[ACCEPT], POLLIN | POLLPRI | POLLOUT, 0};
+		if (poll(&struct_fds, 1, 0) <= 0) throw std::runtime_error("poll failed");
+
 		_request = new Request(fd[ACCEPT], *this);
 		std::cout << B << *_request << C << std::endl; //* DEBUG
 		if (_request->isAccepted())
