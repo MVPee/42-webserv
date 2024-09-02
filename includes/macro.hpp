@@ -35,7 +35,6 @@
 # include "Response.hpp"
 # include "Server.hpp"
 # include "Config.hpp"
-# include "Location.hpp"
 
 enum extension {HTML = 1, PHP = 2, ICO = 3};
 
