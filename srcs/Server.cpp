@@ -23,6 +23,9 @@ Server::Server(const std::string config_text) :
 
 	std::map<std::string, std::string> map;
 
+	Config config(config_text);
+	exit(0);
+
 	try {
 		map = tokenize(config_text);
 		if (map.count("name")) this->name = map["name"]; 
