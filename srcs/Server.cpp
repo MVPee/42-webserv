@@ -24,32 +24,41 @@ Server::Server(const std::string config_text) :
 	std::map<std::string, std::string> map;
 
 	Config config(config_text);
-	exit(0);
 
-	try {
-		map = tokenize(config_text);
-		if (map.count("name")) this->name = map["name"]; 
-		if (map.count("port")) this->port = std::atoll(map["port"].c_str());
-		if (map.count("body_size")) this->body = std::atoll(map["body_size"].c_str());
-		if (map.count("root")) this->root = map["root"];
-		if (map.count("index")) this->index = map["index"];
-		if (map.count("error_page")) this->error = map["error_page"];
-		if (map.count("methods")) {
-			std::stringstream s;
-			std::string line;
-			s << map["methods"];
-			while (std::getline(s, line, ' ')) {
-				line.erase(std::remove_if(line.begin(), line.end(), isspace), line.end());
-				// std::cout << Y << "'" + line + "'" << C << std::endl; //* DEBUG
-				if (line == "GET") this->methods[GET] = true;
-				else if (line == "POST") this->methods[POST] = true;
-				else if (line == "DELETE") this->methods[DELETE] = true;
-			}
-		}
-	}
-	catch (std::exception &e) {
-		throw std::runtime_error(e.what());
-	}
+	// try {
+	// 	map = tokenize(config_text);
+	// 	if (map.count("name")) this->name = map["name"]; 
+	// 	if (map.count("port")) this->port = std::atoll(map["port"].c_str());
+	// 	if (map.count("body_size")) this->body = std::atoll(map["body_size"].c_str());
+	// 	if (map.count("root")) this->root = map["root"];
+	// 	if (map.count("index")) this->index = map["index"];
+	// 	if (map.count("error_page")) this->error = map["error_page"];
+	// 	if (map.count("methods")) {
+	// 		std::stringstream s;
+	// 		std::string line;
+	// 		s << map["methods"];
+	// 		while (std::getline(s, line, ' ')) {
+	// 			line.erase(std::remove_if(line.begin(), line.end(), isspace), line.end());
+	// 			// std::cout << Y << "'" + line + "'" << C << std::endl; //* DEBUG
+	// 			if (line == "GET") this->methods[GET] = true;
+	// 			else if (line == "POST") this->methods[POST] = true;
+	// 			else if (line == "DELETE") this->methods[DELETE] = true;
+	// 		}
+	// 	}
+	// }
+	// catch (std::exception &e) {
+	// 	throw std::runtime_error(e.what());
+	// }
+
+	name = config.getServerName();
+	port = config.getPort();
+	body = config.getBody();
+	methods[GET] = config.getLocations().at(0)->getMethods(GET);
+	methods[POST] = config.getLocations().at(0)->getMethods(POST);
+	methods[DELETE] = config.getLocations().at(0)->getMethods(DELETE);
+	root = config.getLocations().at(0)->getRoot();
+	index = config.getLocations().at(0)->getIndex();
+	error = config.getLocations().at(0)->getErrorPage();
 }
 
 /*
