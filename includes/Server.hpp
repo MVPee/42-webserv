@@ -21,8 +21,6 @@ class Server {
 
 		Request		*_request;
 		Response	*_response;
-	
-		const std::map<std::string, std::string> tokenize (const std::string config_text) const;
 	public:
 		Server(const std::string config_text);
 		~Server();
