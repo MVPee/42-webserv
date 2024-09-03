@@ -34,6 +34,8 @@ Server::Server(const std::string config_text) :
 	root = config.getLocations().at(0)->getRoot();
 	index = config.getLocations().at(0)->getIndex();
 	error = config.getLocations().at(0)->getErrorPage();
+	_locations = config.getLocations();
+	//std::cout << _locations << std::endl; //* DEBUG
 }
 
 /*

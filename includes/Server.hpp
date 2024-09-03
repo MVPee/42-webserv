@@ -5,6 +5,7 @@
 
 class Request;
 class Response;
+class Location;
 
 class Server {
 	private:
@@ -21,6 +22,7 @@ class Server {
 
 		Request		*_request;
 		Response	*_response;
+		std::vector<Location *> 	_locations;
 	public:
 		Server(const std::string config_text);
 		~Server();

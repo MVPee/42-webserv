@@ -121,8 +121,8 @@ Config::Config(std::string config) :
 
 	}
 
-	std::cout << G << *this << C << std::endl;
-	std::cout << B << _locations << C << std::endl;
+	// std::cout << G << *this << C << std::endl; //* DEBUG
+	// std::cout << B << _locations << C << std::endl; //* DEBUG
 }
 
 /*
