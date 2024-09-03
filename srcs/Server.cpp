@@ -23,8 +23,10 @@ Server::Server(const std::string config_text) :
 
 	std::map<std::string, std::string> map;
 
+	//! Temporary
 	Config config(config_text);
 
+	//! Need to use and parse nicely in Request and Response
 	name = config.getServerName();
 	port = config.getPort();
 	body = config.getBody();
