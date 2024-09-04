@@ -53,6 +53,11 @@ Server::~Server() {
 		close(fd[LISTEN]);
 	if (fd[ACCEPT])
 		close(fd[ACCEPT]);
+	while(!_locations.empty() && _locations.size() > 0)
+	{
+		delete _locations.back();
+		_locations.pop_back();
+	}
 }
 
 /*

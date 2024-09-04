@@ -19,37 +19,65 @@ std::string get_content_type(std::string extension)
 	else return "text/html";
 }
 
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <stdexcept>
 
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <stdexcept>
+static std::string Receive_Content_Header(int &client_fd, Server &server, ssize_t &body_size) {
+	ssize_t				bytes_read = 0;
+    char				buffer = 0;
+    std::ostringstream	content_stream;
 
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <stdexcept>
-
-static void post(int &client_fd, Request &request, Server &server) {
-	//? Retrieve Body of request aka Content
-    char buffer;
-    std::ostringstream content_stream;
-    int fd = 0;
-
-	while ((fd = recv(client_fd, &buffer, 1, 0)) != 0)
-	{
-		if (fd < 0) throw std::runtime_error("Receive failed");
+	while ((bytes_read = recv(client_fd, &buffer, 1, 0)) > 0) {
+		body_size += bytes_read;
 		content_stream << buffer;
 		if ((content_stream.str()).find("\r\n\r\n") != std::string::npos) break;
 	}
+	if (bytes_read == (ssize_t) -1) throw std::runtime_error("Receive failed");
+	// if (bytes_read == 0) throw std::runtime_error("Connexion closed"); //? Necessary ?
+	if (body_size > server.getBody()) throw std::runtime_error("Body too large");
 
-    std::string content = content_stream.str();
+	return (content_stream.str());
+}
+
+static void Output_Content_Body(int &client_fd, ssize_t &body_size, Server &server, std::ofstream &output_file, std::string &boundary) {
+	ssize_t		 bytes_read 	= 0;
+	char		buffer[1024] = {0};
+	std::string	old_buffer;
+	bool		is_second_iteration = false;
+
+	//TODO: supprimer le fichier en cas d'érreur
+
+
+	//TODO: S'arréter à la boundary pour plusieurs images (stocker dans un buffer de réponse)
+	while((bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0)) > 0) {
+
+		if (is_second_iteration || bytes_read < (sizeof(buffer) - 1))
+		{
+			std::string full = old_buffer + std::string(buffer, bytes_read);
+			std::size_t end = full.find(boundary);
+			if (end != std::string::npos)
+			{
+				// std::cout << G << "found" << C << std::endl; //? DEBUG
+				output_file.write(full.c_str(), end);
+				break;
+			}
+			else output_file << full;
+		}
+		is_second_iteration = !is_second_iteration;
+		body_size += bytes_read;
+		old_buffer.assign(buffer, bytes_read);
+
+	}
+	if (bytes_read == (ssize_t) -1) throw std::runtime_error("Receive failed");
+	// if (bytes_read == 0) throw std::runtime_error("Connexion closed"); //? Necessary ?
+	if (body_size > server.getBody()) throw std::runtime_error("Body too large");
+	output_file.close();
+}
+
+static void post(int &client_fd, Request &request, Server &server) {
+
+	ssize_t body_size = 0;
+    std::string content = Receive_Content_Header(client_fd, server, body_size);
 	std::string header = request.getHeader();
-    std::string webkitFormBoundary = header.substr(header.find("boundary=") + 9, header.find('\n', header.find("boundary=")) - header.find("boundary="));
+    std::string webkitFormBoundary;
     std::string contentDisposition;
     std::string contentType;
     std::string filename;
@@ -58,12 +86,12 @@ static void post(int &client_fd, Request &request, Server &server) {
     std::istringstream contentStream(content);
     std::string line;
 
-	std::cout << M << content << C << std::endl;
+	getline(contentStream, webkitFormBoundary, '\r');
+	// std::cout << R << "'" + webkitFormBoundary + "'" << std::endl; //? DEBUG
 
     while (std::getline(contentStream, line)) {
         if (line.find("Content-Disposition:") != std::string::npos) {
             contentDisposition = line;
-
             //? CONTENT-DISPOSITION
             size_t pos = line.find(":");
             if (pos != std::string::npos) {
@@ -73,6 +101,7 @@ static void post(int &client_fd, Request &request, Server &server) {
                     dispositionType = dispositionType.substr(0, semicolonPos);
                 contentDisposition = dispositionType;
             }
+			else throw std::runtime_error("No ContentDisposition");
 
             //? FILENAME
             size_t filenamePos = line.find("filename=\"");
@@ -80,33 +109,21 @@ static void post(int &client_fd, Request &request, Server &server) {
                 filename = line.substr(filenamePos + 10);
                 filename = filename.substr(0, filename.find("\""));
             }
-
+			else throw std::runtime_error("No filename");
             //? CONTENT-TYPE
             if (std::getline(contentStream, line) && line.find("Content-Type:") != std::string::npos)
                 contentType = line.substr(14);
 
             //? EMPTY LINE
             std::getline(contentStream, line);
-
+			std::cout << R << "Opening: '" << server.getRoot() + "/" + filename << "'" << C << std::endl;
 			std::ofstream output_file(std::string(server.getRoot() + "/" + filename).c_str(), std::ios::trunc | std::ios::binary);
-				if (!output_file.is_open() || !output_file.good()) throw std::runtime_error("Could not open file: " + filename);
+			if (!output_file.is_open() || !output_file.good()) throw std::runtime_error("Could not open file: " + filename);
 
             //? READ DATA UNTIL BOUNDARY
-			char buffer2[1024];
-			std::size_t i = 0;
-			while(i < request.getContent_Length() - content.size())
-			{
-				fd = recv(client_fd, &buffer2, sizeof(buffer2) - 1, 0);
-				if (fd < 0) throw std::runtime_error("Receive failed");
-				else if (fd == 0) throw std::runtime_error("connexion closed");
-				buffer2[fd] = 0;
+			Output_Content_Body(client_fd, body_size, server, output_file, webkitFormBoundary);
+		}
 
-				for (std::size_t j = 0; j < fd && j + i < request.getContent_Length() - content.size(); j++)
-					output_file << buffer2[j];
-				i+=fd;
-			}
-			output_file.close();
-        }
     }
     std::cout << B << "Boundary: " << webkitFormBoundary << "\n";
     std::cout << "Content-Disposition: " << contentDisposition << "\n";
