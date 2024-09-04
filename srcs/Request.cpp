@@ -30,11 +30,6 @@ Request::Request(int &client_fd, Server &s) : _extension("None"), _accept(false)
 
     parse_request(s);
 
-	if (_method == POST) {
-		bytes_received = recv(client_fd, _content, sizeof(_content) - 1, 0);
-		if (bytes_received < 0) throw std::runtime_error("Receive failed");
-		_content[bytes_received] = '\0';
-	}
 
 	std::cout << R << _location->getLocation() << C << std::endl;
     if (_location->getMethods((unsigned int)_method)) {

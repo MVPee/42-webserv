@@ -7,7 +7,7 @@
 
 Post::Post(const int client_fd, Request &request, Server &server) : _client_fd(client_fd), _request(request), _server(server), _body_size(0)
 {
-	std::string header = request.getContent();
+	std::string header = request.getHttpRequest();
 	_boundary = header.substr(header.find("boundary=") + 9).c_str();
 	_boundary = _boundary.substr(0, _boundary.find('\r'));
 	bool flag = true;
@@ -111,7 +111,6 @@ void Post::output_Content_Body(std::ofstream &output_file) {
 	ssize_t		 bytes_read 	= 0;
 	char		buffer[1024] = {0};
 	std::string	old_buffer = _remaining_content;
-	bool		is_second_iteration = !_remaining_content.empty();
 
 	//TODO: supprimer le fichier en cas d'érreur
 
@@ -124,7 +123,6 @@ void Post::output_Content_Body(std::ofstream &output_file) {
 		{
 			output_file.write(full.c_str(), end);
 			_remaining_content = full.substr(end, full.size() - end);
-			is_second_iteration = false;
 			break;
 		}
 		else output_file << old_buffer;
@@ -144,16 +142,19 @@ std::string Post::receive_content_header(void) {
     char				buffer = 0;
     std::ostringstream	content_stream;
 
-	std::size_t pos = _remaining_content.find("\r\n\r\n");
-	if (pos != std::string::npos)
+	if(!_remaining_content.empty())
 	{
-		content_stream << _remaining_content.substr(0, pos + 4);
-		_remaining_content.erase(0, pos + 4);
-		return (content_stream.str());
-	}
+		std::size_t pos = _remaining_content.find("\r\n\r\n");
+		if (pos != std::string::npos)
+		{
+			content_stream << _remaining_content.substr(0, pos + 4);
+			_remaining_content.erase(0, pos + 4);
+			return (content_stream.str());
+		}
 
-	content_stream << _remaining_content;
-	_remaining_content.clear();
+		content_stream << _remaining_content;
+		_remaining_content.clear();
+	}
 
 	while (content_stream.str().find("\r\n\r\n") == std::string::npos && (bytes_read = recv(_client_fd, &buffer, 1, 0) > 0)) {
 		_body_size += bytes_read;
