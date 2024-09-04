@@ -31,7 +31,7 @@ Request::Request(int &client_fd, Server &s) : _extension("None"), _accept(false)
 		_content[bytes_received] = '\0';
 	}
 
-    if (s.getMethods((unsigned int)_method)) {
+    if (_location->getMethods((unsigned int)_method)) {
         _accept = true;
     }
 }
@@ -67,8 +67,8 @@ std::ostream &			operator<<( std::ostream & o, Request const & i ) {
 */
 
 void Request::resolvePath(Server &s) {
-	if (_path == (s.getRoot() + "/"))
-		_path += s.getIndex();
+	if (_path == (_location->getRoot() + "/"))
+		_path += _location->getIndex();
     else if (_extension == "None") {
         _path += ".html";
 	}
@@ -98,7 +98,14 @@ void Request::parse_request(Server &s){
         request_path.erase(pos, 3);
     }
 
-	this->_path = s.getRoot() + request_path;
+	_location = s.getLocations().at(0);
+	for (int i = 0; i < s.getLocations().size(); i++) {
+		if (s.getLocations().at(i)->getLocation() == request_path) {
+			_location = s.getLocations().at(i);
+		}
+	}
+
+	this->_path = _location->getRoot() + request_path;
 
 	if (request_method == "GET") this->_method = GET;
 	else if (request_method == "POST") this->_method = POST;
@@ -117,5 +124,6 @@ const short			&Request::getMethod(void) const {return (_method);}
 const std::string	&Request::getExtension(void) const {return (_extension);}
 const std::string 	&Request::getPath(void) const {return(_path);}
 const bool			&Request::isAccepted(void) const {return(_accept);}
+Location			*Request::getLocation(void) const { return (_location);}
 
 /* ************************************************************************** */
