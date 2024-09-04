@@ -5,7 +5,8 @@ SRCS = 	main.cpp \
 		srcs/Server.cpp \
 		srcs/Request.cpp \
 		srcs/Response.cpp \
-		srcs/Config.cpp
+		srcs/Config.cpp \
+		srcs/Post.cpp
 
 OBJS = $(addprefix $(OBJS_DIR)/, $(SRCS:%.cpp=%.o))
 

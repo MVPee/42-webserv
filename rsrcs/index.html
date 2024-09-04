@@ -40,16 +40,16 @@
         }
 
 		.image-container {
-    margin-bottom: 20px;
-    text-align: center;
-	}
+            margin-bottom: 20px;
+            text-align: center;
+		}
 
-	.responsive-img {
-		width: 100%;
-		max-width: 200px;
-		border-radius: 10px;
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	}
+		.responsive-img {
+			width: 100%;
+			max-width: 200px;
+			border-radius: 10px;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+		}
 
         .video-container {
             margin-bottom: 20px;
@@ -116,6 +116,7 @@
 		input[type="file"] {
             display: none;
         }
+
         label {
             display: inline-block;
             padding: 10px 20px;
@@ -126,15 +127,20 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
         label:hover {
             background-color: #0056b3;
         }
+
         .image-preview {
-            margin-top: 20px;
             max-width: 100%;
             max-height: 300px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #imagePreviewContainer img {
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -142,31 +148,42 @@
     <header>
         <h1>Super Page Web(serv)</h1>
     </header>
+
 	<div class="image-container">
 		<img src="./favicon.ico" alt="Icon" class="responsive-img">
 	</div>
 
     <div class="upload-container">
-        <h1>Upload a Picture</h1>
+        <h1>Upload Pictures</h1>
         <form id="uploadForm" action="/" method="post" enctype="multipart/form-data">
-            <input type="file" id="fileUpload" name="image" accept="image/*" onchange="previewImage(event)">
-            <label for="fileUpload">Choose an Image</label>
-            <img id="imagePreview" class="image-preview" src="" alt="Image Preview" style="display:none;">
-            <button type="submit">Upload Image</button>
+            <input type="file" id="fileUpload" name="images[]" accept="image/*" multiple onchange="previewImages(event)">
+            <label for="fileUpload">Choose Images</label>
+            <div id="imagePreviewContainer"></div>
+            <button type="submit">Upload Images</button>
         </form>
     </div>
 
     <script>
-        function previewImage(event) {
+        function previewImages(event) {
             const input = event.target;
-            const reader = new FileReader();
-            reader.onload = function() {
-                const imagePreview = document.getElementById('imagePreview');
-                imagePreview.src = reader.result;
-                imagePreview.style.display = 'block';
-            }
-            if (input.files && input.files[0]) {
-                reader.readAsDataURL(input.files[0]);
+            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+            
+            // Clear previous previews
+            imagePreviewContainer.innerHTML = '';
+
+            if (input.files) {
+                for (let i = 0; i < input.files.length; i++) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'image-preview';
+                        img.style.display = 'block';
+                        img.style.marginBottom = '10px';  // Add some margin between images
+                        imagePreviewContainer.appendChild(img);
+                    }
+                    reader.readAsDataURL(input.files[i]);
+                }
             }
         }
     </script>
