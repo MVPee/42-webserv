@@ -17,10 +17,8 @@ Post::Post(const int client_fd, Request &request, Server &server) : _client_fd(c
 
 	while (flag)
 	{
-		// std::cout << G << "HEYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY" << C << std::endl;
 		handle_post_request();
-		// std::cout << R "'" << _remaining_content << "'" C << std::endl;
-		if (_remaining_content.empty() || _remaining_content == _boundary + "--") flag = false;
+		if (_remaining_content.empty() || _remaining_content == _boundary + "--\r\n") flag = false;
 	}
 	
 
@@ -59,7 +57,7 @@ void Post::handle_post_request( void )
     std::istringstream contentStream(receive_content_header());
     std::string line;
 
-	std::cout << R  << "Header: " << contentStream.str() << C << std::endl;
+	std::cout << R << "header: " << contentStream.str() << C << std::endl;
     while (std::getline(contentStream, line)) {
         if (line.find("Content-Disposition:") != std::string::npos) {
             contentDisposition = line;
@@ -91,11 +89,12 @@ void Post::handle_post_request( void )
 			if (!output_file.is_open() || !output_file.good()) throw std::runtime_error("Could not open file: " + filename);
 
             //? READ DATA UNTIL BOUNDARY
-			pos = _remaining_content.find(_boundary + "--");
+			pos = _remaining_content.find(_boundary);
 			if (pos != std::string::npos)
 			{
 				output_file.write(_remaining_content.c_str(), pos);
-				_remaining_content.clear();
+				_remaining_content.erase(0, pos);
+				std::cout << G "HAAAAAAAAAAAAAAAAAAAAAAAAAAAAA: " << _remaining_content << C << std::endl;
 			}
 			else
 				output_Content_Body(output_file);
@@ -127,7 +126,7 @@ void Post::output_Content_Body(std::ofstream &output_file) {
 		{
 			std::cout << G << full.substr(end, full.size() - end) << C << std::endl; //? DEBUG
 			output_file.write(full.c_str(), end);
-			_remaining_content.assign(full, end, full.size() - end);
+			_remaining_content = full.substr(end, full.size() - end);
 			is_second_iteration = false;
 			break;
 		}
@@ -152,9 +151,12 @@ std::string Post::receive_content_header(void) {
 	if (pos != std::string::npos)
 	{
 		content_stream << _remaining_content.substr(0, pos + 4);
-		_remaining_content = _remaining_content.erase(0, pos + 4);
+		_remaining_content.erase(0, pos + 4);
 		return (content_stream.str());
 	}
+
+	content_stream << _remaining_content;
+	_remaining_content.clear();
 
 	while (content_stream.str().find("\r\n\r\n") == std::string::npos && (bytes_read = recv(_client_fd, &buffer, 1, 0) > 0)) {
 		_body_size += bytes_read;
