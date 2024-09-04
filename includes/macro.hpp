@@ -18,6 +18,7 @@
 # include <sys/stat.h>
 # include <unistd.h>
 # include <poll.h>
+# include <list>
 
 
 # define GET 0
@@ -33,6 +34,7 @@
 # include "Request.hpp"
 # include "Response.hpp"
 # include "Server.hpp"
+# include "Config.hpp"
 
 enum extension {HTML = 1, PHP = 2, ICO = 3};
 

@@ -5,6 +5,7 @@
 
 class Request;
 class Response;
+class Location;
 
 class Server {
 	private:
@@ -21,8 +22,7 @@ class Server {
 
 		Request		*_request;
 		Response	*_response;
-	
-		const std::map<std::string, std::string> tokenize (const std::string config_text) const;
+		std::vector<Location *> 	_locations;
 	public:
 		Server(const std::string config_text);
 		~Server();

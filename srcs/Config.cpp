@@ -1,0 +1,157 @@
+#include "../includes/Config.hpp"
+
+/*
+** ------------------------------- STATIC -------------------------------------
+*/
+
+static bool countAscii(std::string string) {
+	for (int i = 65; i < 123; i++) {
+		if (i == 91) i = 97;
+		if (string.find(i) != std::string::npos)
+			return (1);
+	}
+	return (0);
+}
+
+/*
+** ------------------------------- CONSTRUCTOR --------------------------------
+*/
+
+void Config::parse(std::string token, std::string line) {
+	// std::cout << R << token << ":\t" << B << line << C << std::endl;
+	char temp[3][500];
+
+	if (token == "name") {
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+		_serverName = temp[0];
+	}
+	else if (token == "listen") {
+		sscanf(line.c_str(), "%*s %s:%s", temp[0], temp[1]);
+		_address = temp[0];
+		_port = atoi(temp[1]);
+	}
+	else if (token == "body_size") {
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+		_body = atoi(temp[0]);
+	}
+	else if (token == "root") {
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+		_locations.at(0)->setRoot(temp[0]);
+	}
+	else if (token == "index") {
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+		_locations.at(0)->setIndex(temp[0]);
+	}
+	else if (token == "error_page") {
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+		_locations.at(0)->setErrorPage(temp[0]);
+	}
+	else if (token == "methods") {
+		sscanf(line.c_str(), "%*s %s %s %s", temp[0], temp[1], temp[2]);
+		if (std::string(temp[0]) == "GET" || std::string(temp[1]) == "GET" || std::string(temp[2]) == "GET") _locations.at(0)->acceptMethods(GET);
+		if (std::string(temp[0]) == "POST" || std::string(temp[1]) == "POST" || std::string(temp[2]) == "POST") _locations.at(0)->acceptMethods(POST);
+		if (std::string(temp[0]) == "DELETE" || std::string(temp[1]) == "DELETE" || std::string(temp[2]) == "DELETE") _locations.at(0)->acceptMethods(DELETE);
+	}
+}
+
+void Config::parseLocation(std::string token, std::string line, size_t size) {
+	char temp[3][500];
+
+	if (token == "location") {
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+		_locations.at(size)->setLocation(temp[0]);
+	}
+	else if (token == "root") {
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+		_locations.at(size)->setRoot(temp[0]);
+	}
+	else if (token == "index") {
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+		_locations.at(size)->setIndex(temp[0]);
+	}
+	else if (token == "error_page") {
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+		_locations.at(size)->setErrorPage(temp[0]);
+	}
+	else if (token == "methods") {
+		sscanf(line.c_str(), "%*s %s %s %s", temp[0], temp[1], temp[2]);
+		if (std::string(temp[0]) == "GET" || std::string(temp[1]) == "GET" || std::string(temp[2]) == "GET") _locations.at(size)->acceptMethods(GET);
+		if (std::string(temp[0]) == "POST" || std::string(temp[1]) == "POST" || std::string(temp[2]) == "POST") _locations.at(size)->acceptMethods(POST);
+		if (std::string(temp[0]) == "DELETE" || std::string(temp[1]) == "DELETE" || std::string(temp[2]) == "DELETE") _locations.at(size)->acceptMethods(DELETE);
+	}
+}
+
+Config::Config(std::string config) : 
+	_address("0.0.0.0"),
+	_port(8080),
+	_body(100) {
+	
+	_locations.push_back(new Location);
+
+	std::string location;
+	std::string temp;
+
+	{
+		std::stringstream file(config);
+		while (std::getline(file, temp)) {
+			if(temp[0] == ' ' && !temp.empty() && countAscii(temp)) {
+				std::string line = temp.erase(0, 4);
+				if (line.find("location") != std::string::npos || line.find("    ", 0) != std::string::npos) {
+					location += line + '\n';
+				}
+				else {
+					char token[500];
+					sscanf(line.c_str(), "%s", token);
+					parse(std::string(token), line);
+				}
+			}
+		}
+	}
+
+	if (location.empty())
+		std::cout << "Oui" << std::endl;
+	std::stringstream file(location);
+	while(std::getline(file, temp)) {
+		if (temp.find("location") != std::string::npos)
+			_locations.push_back(new Location);
+		// std::string line = temp.erase(0, 4);
+		char token[500];
+		sscanf(temp.c_str(), "%s", token);
+		parseLocation(std::string(token), temp, _locations.size() - 1);
+
+	}
+
+	// std::cout << G << *this << C << std::endl; //* DEBUG
+	// std::cout << B << _locations << C << std::endl; //* DEBUG
+}
+
+/*
+** -------------------------------- DESTRUCTOR --------------------------------
+*/
+
+Config::~Config() {
+}
+
+/*
+** --------------------------------- OVERLOAD ---------------------------------
+*/
+
+std::ostream &			operator<<( std::ostream & o, Config const & i ) {
+	o << "Name: " << i.getServerName() << '\n';
+	o << "Address: " << i.getAddress() << '\n';
+	o << "Port: " << i.getPort() << '\n';
+	o << "Body: " << i.getBody() << '\n';
+	return o;
+}
+
+/*
+** --------------------------------- METHODS ----------------------------------
+*/
+
+/*
+** --------------------------------- ACCESSOR ---------------------------------
+*/
+
+
+
+/* ************************************************************************** */

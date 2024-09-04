@@ -23,30 +23,21 @@ Server::Server(const std::string config_text) :
 
 	std::map<std::string, std::string> map;
 
-	try {
-		map = tokenize(config_text);
-		if (map.count("name")) this->name = map["name"]; 
-		if (map.count("port")) this->port = std::atoll(map["port"].c_str());
-		if (map.count("body_size")) this->body = std::atoll(map["body_size"].c_str());
-		if (map.count("root")) this->root = map["root"];
-		if (map.count("index")) this->index = map["index"];
-		if (map.count("error_page")) this->error = map["error_page"];
-		if (map.count("methods")) {
-			std::stringstream s;
-			std::string line;
-			s << map["methods"];
-			while (std::getline(s, line, ' ')) {
-				line.erase(std::remove_if(line.begin(), line.end(), isspace), line.end());
-				// std::cout << Y << "'" + line + "'" << C << std::endl; //* DEBUG
-				if (line == "GET") this->methods[GET] = true;
-				else if (line == "POST") this->methods[POST] = true;
-				else if (line == "DELETE") this->methods[DELETE] = true;
-			}
-		}
-	}
-	catch (std::exception &e) {
-		throw std::runtime_error(e.what());
-	}
+	//! Temporary
+	Config config(config_text);
+
+	//! Need to use and parse nicely in Request and Response
+	name = config.getServerName();
+	port = config.getPort();
+	body = config.getBody();
+	methods[GET] = config.getLocations().at(0)->getMethods(GET);
+	methods[POST] = config.getLocations().at(0)->getMethods(POST);
+	methods[DELETE] = config.getLocations().at(0)->getMethods(DELETE);
+	root = config.getLocations().at(0)->getRoot();
+	index = config.getLocations().at(0)->getIndex();
+	error = config.getLocations().at(0)->getErrorPage();
+	_locations = config.getLocations();
+	//std::cout << _locations << std::endl; //* DEBUG
 }
 
 /*
@@ -147,51 +138,6 @@ void Server::process(void) {
 	if (_response)
 		delete _response;
 	close(fd[ACCEPT]);
-}
-
-const std::map<std::string, std::string> Server::tokenize (const std::string config_text) const
-{
-	std::stringstream stream(config_text);
-	std::map<std::string, std::string> map;
-	std::string line;
-	bool first_line = true;
-	size_t i = 0;
-	size_t start = 0;
-	long current_level = 0;
-
-	while (std::getline(stream, line))
-	{
-		i = 0;
-		if (first_line)
-		{
-			first_line = false;
-			line.erase(std::remove_if(line.begin(), line.end(), isspace), line.end());
-			if (line.compare(0, 6, "server") != 0) throw std::runtime_error("missing 'server' label");
-			else if (line.length() > 6 ) line.erase(0, 6);
-			else continue;
-		}
-		while (i < line.length() && isspace(line[i])) i++;
-		start = i;
-		if (i < line.length() && line[i] == '{') current_level++;
-		else if (i < line.length() && line[i] == '}' && current_level > 0) current_level--;
-		else if  (i < line.length() && line[i] == '}' && current_level <= 0) throw std::runtime_error("wrong level"); //TODO: meilleur message
-		else
-		{
-			while (i < line.length() && !isspace(line[i])) i++;
-			if (i + 1 >= line.length()) throw std::runtime_error("empty data");
-			map.insert(std::pair<std::string, std::string>(line.substr(start, i - start), line.substr(i + 1, line.length() - i)));
-		}
-	}
-	if (current_level != 0) throw std::runtime_error("wrong level"); //TODO: meilleur message
-
-	// std::map<std::string, std::string>::const_iterator it = map.begin(); //* Debug
-	// while(it != map.end())
-	// {
-	// 	std::cout << it->first << "|" << it->second << "\n";
-	// 	it++;
-	// }
-
-	return (map);
 }
 
 /*
