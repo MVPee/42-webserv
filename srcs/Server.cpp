@@ -7,15 +7,7 @@
 Server::Server(const std::string config_text) :
 	name("default_server"), 
 	port(80), 
-	body(100),
-	root("./rsrcs/"),
-	index("index.html"),
-	error("404.html")
-{
-	this->methods[GET] = false;
-	this->methods[POST] = false;
-	this->methods[DELETE] = false;
-
+	body(100) {
 	this->fd[SOCKET] = 0;
 	this->fd[BIND] = 0;
 	this->fd[LISTEN] = 0;
@@ -30,12 +22,6 @@ Server::Server(const std::string config_text) :
 	name = config.getServerName();
 	port = config.getPort();
 	body = config.getBody();
-	methods[GET] = config.getLocations().at(0)->getMethods(GET);
-	methods[POST] = config.getLocations().at(0)->getMethods(POST);
-	methods[DELETE] = config.getLocations().at(0)->getMethods(DELETE);
-	root = config.getLocations().at(0)->getRoot();
-	index = config.getLocations().at(0)->getIndex();
-	error = config.getLocations().at(0)->getErrorPage();
 	_locations = config.getLocations();
 	//std::cout << _locations << std::endl; //* DEBUG
 }
@@ -68,13 +54,7 @@ std::ostream &			operator<<( std::ostream & o, Server const & i ) {
 	o << M << "\n----Server----\n";
 	o << "|Name: " << i.getName() << "\n";
 	o << "|Port: " << i.getPort() << "\n";
-	o << "|Method GET: " << (i.getMethods(GET) ? "True" : "False") << "\n";
-	o << "|Method POST: " << (i.getMethods(POST) ? "True" : "False") << "\n";
-	o << "|Method DELETE: " << (i.getMethods(DELETE) ? "True" : "False") << "\n";
 	o << "|Body: " << i.getBody() << "\n";
-	o << "|Root: " << i.getRoot() << "\n";
-	o << "|Index: " << i.getIndex() << "\n";
-	o << "|Error: " << i.getError() << "\n";
 	o << "-----End-----\n" << C;
 	return o;
 }
@@ -152,13 +132,6 @@ void Server::process(void) {
 const std::string &Server::getName(void) const { return (this->name); }
 const unsigned int &Server::getPort(void) const { return (this->port); } 
 const unsigned int &Server::getBody(void) const { return (this->body); }
-const std::string &Server::getRoot(void) const { return (this->root); }
-const std::string &Server::getIndex(void) const { return (this->index); }
-const std::string &Server::getError(void) const { return (this->error); }
-const bool &Server::getMethods(unsigned int index) const {
-	if (index >= 3)
-        throw std::out_of_range("Index out of range");
-	return (this->methods[index]);
-}
+const std::vector<Location *> &Server::getLocations(void) const { return (this->_locations); }
 
 /* ************************************************************************** */

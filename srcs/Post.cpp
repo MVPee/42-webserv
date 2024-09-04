@@ -7,7 +7,7 @@
 
 Post::Post(const int client_fd, Request &request, Server &server) : _client_fd(client_fd), _request(request), _server(server), _body_size(0)
 {
-	std::string header = request.getHeader();
+	std::string header = request.getContent();
 	_boundary = header.substr(header.find("boundary=") + 9).c_str();
 	_boundary = _boundary.substr(0, _boundary.find('\r'));
 	bool flag = true;
@@ -57,7 +57,6 @@ void Post::handle_post_request( void )
     std::istringstream contentStream(receive_content_header());
     std::string line;
 
-	std::cout << R << "header: " << contentStream.str() << C << std::endl;
     while (std::getline(contentStream, line)) {
         if (line.find("Content-Disposition:") != std::string::npos) {
             contentDisposition = line;
@@ -85,7 +84,7 @@ void Post::handle_post_request( void )
 
             //? EMPTY LINE
             std::getline(contentStream, line);
-			std::ofstream output_file(std::string(_server.getRoot() + "/" + filename).c_str(), std::ios::trunc | std::ios::binary);
+			std::ofstream output_file(std::string(_server.getLocations().at(0)->getRoot() + "/" + filename).c_str(), std::ios::trunc | std::ios::binary);
 			if (!output_file.is_open() || !output_file.good()) throw std::runtime_error("Could not open file: " + filename);
 
             //? READ DATA UNTIL BOUNDARY
@@ -94,7 +93,6 @@ void Post::handle_post_request( void )
 			{
 				output_file.write(_remaining_content.c_str(), pos);
 				_remaining_content.erase(0, pos);
-				std::cout << G "HAAAAAAAAAAAAAAAAAAAAAAAAAAAAA: " << _remaining_content << C << std::endl;
 			}
 			else
 				output_Content_Body(output_file);
@@ -124,7 +122,6 @@ void Post::output_Content_Body(std::ofstream &output_file) {
 		std::size_t end = full.find(_boundary);
 		if (end != std::string::npos)
 		{
-			std::cout << G << full.substr(end, full.size() - end) << C << std::endl; //? DEBUG
 			output_file.write(full.c_str(), end);
 			_remaining_content = full.substr(end, full.size() - end);
 			is_second_iteration = false;

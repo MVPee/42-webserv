@@ -11,7 +11,9 @@ class Location {
 		bool		_methods[3];
 	public:
 		Location() : _location("/") {
-
+			_methods[GET] = false;
+			_methods[POST] = false;
+			_methods[DELETE] = false;
 		}
 		~Location() {
 

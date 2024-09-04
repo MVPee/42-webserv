@@ -26,7 +26,7 @@ Response::Response(int &client_fd, Request &request, Server &server) {
         std::cout << R "POST" C << std::endl;
 		Post(client_fd, request, server);
     }
-    if (server.getMethods(GET)) {
+    if (request.getLocation()->getMethods(GET)) {
 	    getContent(request, server);
         _fd = send(client_fd, _content.c_str(), _content_size, 0);
         if (_fd < 0) {
@@ -73,7 +73,7 @@ void Response::getContent(Request &request, Server &server) {
 
     _content += "HTTP/1.1 ";
     if (!file.is_open() || !file.good()) {
-        file.open(std::string(server.getRoot() + '/' + server.getError()).c_str());
+        file.open(std::string(request.getLocation()->getRoot() + '/' + request.getLocation()->getErrorPage()).c_str());
         _content += "404 NOT FOUND\nContent-Type: text/html\nContent-Length: ";
         if (!file.is_open() || !file.good())
             _content += "21\n\n<h1>default: 404</h1>";

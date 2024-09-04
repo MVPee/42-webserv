@@ -3,16 +3,18 @@
 
 # include "macro.hpp"
 class Server;
+class Location;
 
 class Request {
 	private:
 		short	_method;
 		bool	_accept;
-
-		std::string _header;
+		char	_content[4096];
+		std::string _httpRequest;
 		std::string	_extension;
 		std::string _path;
-		std::size_t _content_length;
+
+		Location *_location;
 
 		void parse_request(Server &s);
 		void parse_extension( void );
@@ -20,13 +22,14 @@ class Request {
 	public:
 		Request(int &client_fd, Server &s);
 		~Request();
-
-		const std::size_t	&getContent_Length(void) const;
-		const std::string	&getHeader(void) const;
+		
+		const char			*getContent(void) const;
+		const std::string	&getHttpRequest(void) const;
 		const short			&getMethod(void) const;
 		const std::string	&getExtension(void) const;
 		const std::string	&getPath(void) const;
 		const bool			&isAccepted(void) const;
+		Location			*getLocation(void) const;
 };
 
 std::ostream &			operator<<( std::ostream & o, Request const & i );
