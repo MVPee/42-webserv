@@ -68,7 +68,15 @@ std::ostream &			operator<<( std::ostream & o, Request const & i ) {
 */
 
 void Request::resolvePath(Server &s) {
-	if (_path == (_location->getRoot() + "/"))
+	struct stat info;
+
+	if (stat(_path.c_str(), &info) == 0) {
+		if (info.st_mode & S_IFDIR && _path[_path.size() - 1] != '/')
+			_path += '/';
+	}
+	if (_path[_path.size() - 1] == '/')
+		_extension = "directory";
+	else if (_path == (_location->getRoot() + "/"))
 		_path += _location->getIndex();
     else if (_extension == "None") {
         _path += ".html";
@@ -95,22 +103,30 @@ void Request::parse_request(Server &s){
 	std::string request_method (type_buffer);
 
     std::size_t pos;
-    while ((pos = request_path.find("../")) != std::string::npos) {
+    while ((pos = request_path.find("../")) != std::string::npos)
         request_path.erase(pos, 3);
-    }
 
-	if ((pos = request_path.find("?")) != std::string::npos) {
-		request_path.erase(pos, request_path.size());
-	}
+	if ((pos = request_path.find("?")) != std::string::npos)
+		request_path.erase(pos);
 
 	_location = s.getLocations().at(0);
-	for (int i = 0; i < s.getLocations().size(); i++) {
-		if (s.getLocations().at(i)->getLocation() == request_path) {
-			_location = s.getLocations().at(i);
-		}
-	}
+    for (size_t i = 0; i < s.getLocations().size(); i++) {
+        Location* loc = s.getLocations().at(i);
+        if (request_path.find(loc->getLocation()) == 0)
+            if (!_location || loc->getLocation().size() > _location->getLocation().size())
+                _location = loc;
+    }
 
-	this->_path = _location->getRoot() + request_path;
+	//? Get the good path
+	if (!_location || _location->getLocation() == std::string("/")) {
+        _location = s.getLocations().at(0);
+		this->_path = _location->getRoot() + request_path;
+	}
+	else
+		this->_path = _location->getRoot() + request_path.erase(0, _location->getLocation().size());
+
+	std::cout << "PATH: "<< _path << std::endl;
+
 
 	if (request_method == "GET") this->_method = GET;
 	else if (request_method == "POST") this->_method = POST;
