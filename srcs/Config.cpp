@@ -126,17 +126,15 @@ Config::Config(std::string config) :
 		}
 	}
 
-	if (location.empty())
-		std::cout << "Oui" << std::endl;
 	std::stringstream file(location);
 	while(std::getline(file, temp)) {
 		if (temp.find("location") != std::string::npos)
 			_locations.push_back(new Location);
 		// std::string line = temp.erase(0, 4);
 		char token[500];
+		sscanf(temp.c_str(), "%s", token);
 		if (temp[0] != '#')
-			sscanf(temp.c_str(), "%s", token);
-		parseLocation(std::string(token), temp, _locations.size() - 1);
+			parseLocation(std::string(token), temp, _locations.size() - 1);
 
 	}
 

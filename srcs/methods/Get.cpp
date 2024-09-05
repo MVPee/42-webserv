@@ -5,13 +5,17 @@
 */
 
 Get::Get(const int client_fd, Request &request, Server &server) : _client_fd(client_fd), _request(request), _server(server), _fd(0) {
-    if (request.getExtension() == "listing")
+    if (request.getExtension() == "listing") {
         std::cout << "Need to do the listing" << std::endl;
-	getContent(request, server);
-	_fd = send(client_fd, _content.c_str(), _content_size, 0);
-	if (_fd < 0) {
-		throw std::runtime_error("Send failed");
-	}
+        std::cout << request.getPath() << std::endl;
+    }
+    else {
+        getContent(request, server);
+        _fd = send(client_fd, _content.c_str(), _content_size, 0);
+        if (_fd < 0) {
+            throw std::runtime_error("Send failed");
+        }
+    }
 }
 
 /*
