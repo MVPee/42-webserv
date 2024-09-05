@@ -35,9 +35,12 @@
 # define ACCEPT 3
 # define BUFFER_SIZE 256
 
+# define HTML_VERSION "HTTP/1.1"
+
 # define OK							200
 
 # define BAD_REQUEST				400
+# define FORBIDDEN                  403
 # define ERROR_NOT_FOUND			404
 # define ERROR_REQUEST_TIMEOUT 		408
 # define PAYLOAD_TOO_LARGE			413
