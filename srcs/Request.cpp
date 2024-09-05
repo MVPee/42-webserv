@@ -79,7 +79,10 @@ void Request::resolvePath(Server &s) {
 	if (_path == (_location->getRoot() + "/"))
 		_path += _location->getIndex();
     else if (_extension == "None") {
-        _path += ".html";
+		if (_path[_path.size() - 1] == '/')
+			_extension = "directory";
+		else
+        	_path += ".html";
 	}
 }
 
@@ -111,11 +114,13 @@ void Request::parse_request(Server &s){
 
 	_location = s.getLocations().at(0);
     for (size_t i = 0; i < s.getLocations().size(); i++) {
-        Location* loc = s.getLocations().at(i);
-        if (request_path.find(loc->getLocation()) == 0)
-            if (!_location || loc->getLocation().size() > _location->getLocation().size())
-                _location = loc;
-    }
+		Location* loc = s.getLocations().at(i);
+		
+		if (request_path.compare(0, loc->getLocation().size(), loc->getLocation()) == 0)
+			if (request_path.size() == loc->getLocation().size() || request_path[loc->getLocation().size()] == '/')
+				if (!_location || loc->getLocation().size() > _location->getLocation().size())
+					_location = loc;
+	}
 
 	//? Get the good path
 	if (!_location || _location->getLocation() == std::string("/")) {
