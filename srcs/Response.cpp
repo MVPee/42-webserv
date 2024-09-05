@@ -5,14 +5,14 @@
 */
 
 Response::Response(int &client_fd, Request &request, Server &server) {
+	size_t status_code = 200;
     
     if (request.getMethod() == POST) {
-        std::cout << R "POST" C << std::endl;
-		Post(client_fd, request, server);
+		Post Form(client_fd, request, server);
+		status_code = Form.get_status_code();
     }
     if (request.getLocation()->getMethods(GET)) {
-        std::cout << R "GET" C << std::endl;
-	    Get(client_fd, request, server);
+	    Get(client_fd, request, server, status_code);
     }
 }
 

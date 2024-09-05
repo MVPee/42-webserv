@@ -3,19 +3,31 @@
 
 # include "../macro.hpp"
 
+
+template <typename T>
+std::string ft_to_string(T value)
+{
+	std::ostringstream transformer;
+	transformer << value;
+	return (transformer.str());
+}
+
 class Get {
 	private:
 		const int		_client_fd;
 		const Request	&_request;
 		const Server	&_server;
-		int				status_code;
+		int				_status_code;
 		int				_fd;
 		std::string		_content;
 		size_t			_content_size;
 
 		void getContent(Request &request, Server &server);
+		void generate_response(size_t status_code, Request &request, const int &client_fd);
 	public:
 		Get(const int client_fd, Request &request, Server &server);
+		Get(const int client_fd, Request &request, Server &server, size_t status_code);
+
 		~Get();
 };
 

@@ -30,7 +30,7 @@ _status_code(OK) {
 		std::string	content_type = get_data_in_header(header, "Content-Type: ", ";");
 
 		if (_boundary.empty() || content_length.empty() || content_type.empty())
-			throw_and_set_status(INTERNAL_SERVER_ERROR, "boundary or content-length not found in header");
+			throw_and_set_status(ERROR_INTERNAL_SERVER, "boundary or content-length not found in header");
 
 		if (std::strtoul(content_length.c_str(), 0, 10) > server.getBody())
 			throw_and_set_status(BAD_REQUEST, "Body-size too long");
@@ -44,7 +44,7 @@ _status_code(OK) {
 	}
 	catch(const std::exception& e)
 	{
-		if (_status_code == OK) _status_code = INTERNAL_SERVER_ERROR;
+		if (_status_code == OK) _status_code = ERROR_INTERNAL_SERVER;
 		std::cerr << R << e.what() << C << '\n';
 	}
 	
@@ -89,7 +89,7 @@ void Post::handle_post_request(void) {
 	if (contentType.empty()) throw_and_set_status(BAD_REQUEST, "Content-Type missing");
 
 	std::ofstream output_file(std::string(filename).c_str(), std::ios::trunc | std::ios::binary);
-	if (!output_file.is_open() || !output_file.good()) throw_and_set_status(INTERNAL_SERVER_ERROR, "Couldn't open file");
+	if (!output_file.is_open() || !output_file.good()) throw_and_set_status(ERROR_INTERNAL_SERVER, "Couldn't open file");
 
 
 	std::size_t pos = _remaining_content.find(_boundary);
@@ -101,7 +101,7 @@ void Post::handle_post_request(void) {
 		if (!output_file.good())
 		{
 			remove(filename.c_str());
-			throw_and_set_status(INTERNAL_SERVER_ERROR, "Error with the output file");
+			throw_and_set_status(ERROR_INTERNAL_SERVER, "Error with the output file");
 		}
 	}
 	else
@@ -142,10 +142,10 @@ void Post::output_Content_Body(std::ofstream &output_file, std::string &filename
 	if (!output_file.good() || bytes_read == (ssize_t) -1 || bytes_read == 0 | _body_size > _server.getBody())
 		remove(filename.c_str());
 
-	if (bytes_read == (ssize_t) -1) throw_and_set_status(INTERNAL_SERVER_ERROR, "Recv failed");
+	if (bytes_read == (ssize_t) -1) throw_and_set_status(ERROR_INTERNAL_SERVER, "Recv failed");
 	else if (bytes_read == 0) throw_and_set_status(CLIENT_CLOSED_REQUEST, "Connexion closed");
 	else if (_body_size > _server.getBody()) throw_and_set_status(PAYLOAD_TOO_LARGE, "Body size exceeded");
-	else if (!output_file.good()) throw_and_set_status(INTERNAL_SERVER_ERROR, "Error with the output file");
+	else if (!output_file.good()) throw_and_set_status(ERROR_INTERNAL_SERVER, "Error with the output file");
 
 }
 
@@ -173,7 +173,7 @@ std::string Post::receive_content_header(void) {
 		content_stream << buffer;
 	}
 
-	if (bytes_read == (ssize_t) -1) throw_and_set_status(INTERNAL_SERVER_ERROR, "Recv failed");
+	if (bytes_read == (ssize_t) -1) throw_and_set_status(ERROR_INTERNAL_SERVER, "Recv failed");
 	else if (bytes_read == 0) throw_and_set_status(CLIENT_CLOSED_REQUEST, "Connexion closed");
 	else if (_body_size > _server.getBody()) throw_and_set_status(PAYLOAD_TOO_LARGE, "Body size exceeded");
 
@@ -189,6 +189,8 @@ void Post::throw_and_set_status(size_t status_code, std::string message)
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
+
+const size_t Post::get_status_code( void ) const {return (_status_code);};
 
 
 /* ************************************************************************** */

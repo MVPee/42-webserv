@@ -19,6 +19,7 @@
 # include <unistd.h>
 # include <poll.h>
 # include <list>
+# include <fcntl.h>
 
 
 # define GET 0
@@ -37,10 +38,12 @@
 # define OK							200
 
 # define BAD_REQUEST				400
+# define ERROR_NOT_FOUND			404
+# define ERROR_REQUEST_TIMEOUT 		408
 # define PAYLOAD_TOO_LARGE			413
 # define CLIENT_CLOSED_REQUEST		499
 
-# define INTERNAL_SERVER_ERROR		500
+# define ERROR_INTERNAL_SERVER		500
 # define NOT_IMPLEMENTED			501
 # define HTTP_VERSION_NOT_SUPPORTED	505
 

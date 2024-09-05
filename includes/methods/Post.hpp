@@ -22,6 +22,7 @@ class Post {
 
 	public:
 
+		const size_t get_status_code( void ) const;
 		Post(const int client_fd, Request &request, Server &server);
 		~Post();
 };
