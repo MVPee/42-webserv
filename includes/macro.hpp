@@ -32,16 +32,17 @@
 # define BIND 1
 # define LISTEN 2
 # define ACCEPT 3
-# define BUFFER_SIZE 2056
+# define BUFFER_SIZE 256
 
-# define OK						200
+# define OK							200
 
-# define BAD_REQUEST			400
-# define PAYLOAD_TOO_LARGE		413
-# define CLIENT_CLOSED_REQUEST	499
+# define BAD_REQUEST				400
+# define PAYLOAD_TOO_LARGE			413
+# define CLIENT_CLOSED_REQUEST		499
 
-# define INTERNAL_SERVER_ERROR	500
-# define NOT_IMPLEMENTED		501
+# define INTERNAL_SERVER_ERROR		500
+# define NOT_IMPLEMENTED			501
+# define HTTP_VERSION_NOT_SUPPORTED	505
 
 # include "Request.hpp"
 # include "Response.hpp"

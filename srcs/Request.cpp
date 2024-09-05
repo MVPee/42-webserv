@@ -103,13 +103,16 @@ void Request::parse_extension( void ) {
 void Request::parse_request(Server &s){
 	char path_buffer[BUFFER_SIZE];
 	char type_buffer[BUFFER_SIZE];
+	char http_version[BUFFER_SIZE];
 
-	if (sscanf(this->_httpRequest.c_str(), "%s %s %*s", type_buffer, path_buffer) != 2)
+	if (sscanf(this->_httpRequest.c_str(), "%s %s %s", type_buffer, path_buffer, http_version) != 3)
 		throw std::runtime_error("Error while parsing request");
-		//? vérifier que ça soit le bon HTTP/1.1 sinon 505
 
 	std::string request_path(path_buffer);
 	std::string request_method (type_buffer);
+
+	if (std::string(http_version) != "HTTP/1.1")
+		throw std::runtime_error("Not supported http version"); //TODO use error code 505 (defined)
 
     std::size_t pos;
     while ((pos = request_path.find("../")) != std::string::npos)
