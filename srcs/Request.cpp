@@ -74,9 +74,9 @@ void Request::resolvePath(Server &s) {
 		if (info.st_mode & S_IFDIR && _path[_path.size() - 1] != '/')
 			_path += '/';
 	}
-	if (_path[_path.size() - 1] == '/')
-		_extension = "directory";
-	else if (_path == (_location->getRoot() + "/"))
+	// if (_path[_path.size() - 1] == '/')
+	// 	_extension = "directory";
+	if (_path == (_location->getRoot() + "/"))
 		_path += _location->getIndex();
     else if (_extension == "None") {
         _path += ".html";
