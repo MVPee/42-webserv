@@ -120,8 +120,7 @@ void Get::generate_response(size_t status_code, Request &request, const int &cli
     _content = html_version + " " + ft_to_string(status_code) + " " + status_message + "\n" \
 								+ "Content-Type: " + content_type + "\n" + "Content-Length: " + ft_to_string(content.size()); \
 								+ "\n\n" + content + "\0";
-	std::cout << B << _content << C << std::endl;
-	_content += + "\n\n" + content + "\0";
+
 	_content_size = _content.size();
 }
 
