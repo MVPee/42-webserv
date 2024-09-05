@@ -82,7 +82,7 @@ void Request::resolvePath(Server &s) {
 			_extension = "listing";
 		else if (_path == (_location->getRoot() + "/") && _location->getIndex() != ""){
 			_path += _location->getIndex();
-			_extension = "index";
+			_extension = ".html";
 		}
 	}
     else if (_extension == "None") {

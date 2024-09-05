@@ -111,7 +111,7 @@ void Get::generate_response(size_t status_code, Request &request, const int &cli
 
 	const std::string html_version = "HTTP/1.1";
 	const std::string status_message = get_status_message(status_code);
-	const std::string content_type = "text/html"; //? change ? => get_content_type(request.getExtension())
+	const std::string content_type = get_content_type(request.getExtension());
 
 	if (file.is_open() && file.good())
 		content = get_page_content(file);
@@ -119,7 +119,7 @@ void Get::generate_response(size_t status_code, Request &request, const int &cli
 	_content.clear();
     _content = html_version + " " + ft_to_string(status_code) + " " + status_message + "\n" \
 								+ "Content-Type: " + content_type + "\n" + "Content-Length: " + ft_to_string(content.size()); \
-								// + "\n\n" + content + "\0";
+								+ "\n\n" + content + "\0";
 	std::cout << B << _content << C << std::endl;
 	_content += + "\n\n" + content + "\0";
 	_content_size = _content.size();
