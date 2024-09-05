@@ -20,12 +20,10 @@ class Get {
 		int				_status_code;
 		int				_fd;
 		std::string		_content;
-		size_t			_content_size;
 
 		void getContent(Request &request, Server &server);
 		void generate_response(size_t status_code, Request &request, const int &client_fd);
 	public:
-		Get(const int client_fd, Request &request, Server &server);
 		Get(const int client_fd, Request &request, Server &server, size_t status_code);
 
 		~Get();

@@ -32,8 +32,10 @@ _status_code(OK) {
 		if (_boundary.empty() || content_length.empty() || content_type.empty())
 			throw_and_set_status(ERROR_INTERNAL_SERVER, "boundary or content-length not found in header");
 
-		if (std::strtoul(content_length.c_str(), 0, 10) > server.getBody())
+		if (std::strtoul(content_length.c_str(), 0, 10) > server.getBody()) {
+			while (recv(client_fd, 0, 255, 0) == 255);
 			throw_and_set_status(PAYLOAD_TOO_LARGE, "Body-size too long");
+		}
 
 		if (content_type != "multipart/form-data")
 			throw_and_set_status(NOT_IMPLEMENTED, "Form is not a multipart/form-data");
