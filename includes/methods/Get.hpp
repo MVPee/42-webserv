@@ -1,7 +1,7 @@
 #ifndef GET_HPP
 # define GET_HPP
 
-# include "macro.hpp"
+# include "../macro.hpp"
 
 class Get {
 	private:

@@ -1,4 +1,4 @@
-#include "../includes/Get.hpp"
+#include "../../includes/methods/Get.hpp"
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------

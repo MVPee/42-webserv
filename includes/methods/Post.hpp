@@ -1,7 +1,7 @@
 #ifndef POST_HPP
 # define POST_HPP
 
-# include "macro.hpp"
+# include "../macro.hpp"
 
 class Post {
 

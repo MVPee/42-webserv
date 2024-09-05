@@ -35,8 +35,8 @@
 # include "Response.hpp"
 # include "Server.hpp"
 # include "Config.hpp"
-# include "Post.hpp"
-# include "Get.hpp"
+# include "methods/Post.hpp"
+# include "methods/Get.hpp"
 
 enum extension {HTML = 1, PHP = 2, ICO = 3};
 
