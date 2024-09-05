@@ -3,8 +3,7 @@
 
 # include "macro.hpp"
 
-class Post
-{
+class Post {
 
 	private:
 		const int _client_fd;
@@ -16,15 +15,13 @@ class Post
 		std::string _boundary;
 		int			status_code;
 
-		void		handle_post_request( void );
+		void		handle_post_request(void);
 		void 		output_Content_Body(std::ofstream &output_file);
 		std::string	receive_content_header(void);
 	public:
 
 		Post(const int client_fd, Request &request, Server &server);
 		~Post();
-
-
 };
 
 std::ostream &			operator<<( std::ostream & o, Post const & i );

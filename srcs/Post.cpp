@@ -5,8 +5,7 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Post::Post(const int client_fd, Request &request, Server &server) : _client_fd(client_fd), _request(request), _server(server), _body_size(0)
-{
+Post::Post(const int client_fd, Request &request, Server &server) : _client_fd(client_fd), _request(request), _server(server), _body_size(0) {
 	std::string header = request.getHttpRequest();
 	_boundary = header.substr(header.find("boundary=") + 9).c_str();
 	_boundary = _boundary.substr(0, _boundary.find('\r'));
@@ -15,10 +14,10 @@ Post::Post(const int client_fd, Request &request, Server &server) : _client_fd(c
 	if (_boundary.empty())
 		throw std::runtime_error("boundary not found in header");
 
-	while (flag)
-	{
+	while (flag) {
 		handle_post_request();
-		if (_remaining_content.empty() || _remaining_content == _boundary + "--\r\n") flag = false;
+		if (_remaining_content.empty() || _remaining_content == _boundary + "--\r\n")
+			flag = false;
 	}
 	
 
@@ -29,8 +28,7 @@ Post::Post(const int client_fd, Request &request, Server &server) : _client_fd(c
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
 
-Post::~Post()
-{
+Post::~Post() {
 }
 
 
@@ -38,8 +36,8 @@ Post::~Post()
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-std::ostream &			operator<<( std::ostream & o, Post const & i )
-{
+std::ostream &			operator<<( std::ostream & o, Post const & i ) {
+	(void)i;
 	//o << "Value = " << i.getValue();
 	return o;
 }
@@ -49,8 +47,7 @@ std::ostream &			operator<<( std::ostream & o, Post const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void Post::handle_post_request( void )
-{
+void Post::handle_post_request(void) {
     std::string contentDisposition;
     std::string contentType;
     std::string filename;
@@ -142,11 +139,9 @@ std::string Post::receive_content_header(void) {
     char				buffer = 0;
     std::ostringstream	content_stream;
 
-	if(!_remaining_content.empty())
-	{
+	if(!_remaining_content.empty()) {
 		std::size_t pos = _remaining_content.find("\r\n\r\n");
-		if (pos != std::string::npos)
-		{
+		if (pos != std::string::npos) {
 			content_stream << _remaining_content.substr(0, pos + 4);
 			_remaining_content.erase(0, pos + 4);
 			return (content_stream.str());
