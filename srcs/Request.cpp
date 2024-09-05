@@ -77,7 +77,7 @@ void Request::resolvePath(Server &s) {
 				_path += '/';
 		}
 	}
-	if (_path == (_location->getRoot() + "/")) {
+	if (_path == (_location->getRoot() + "/") || _extension == "directory") {
 		if (_location->getListing())
 			_extension = "listing";
 		else if (_location->getIndex() != ""){
