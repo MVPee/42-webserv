@@ -34,12 +34,14 @@
 # define ACCEPT 3
 # define BUFFER_SIZE 2056
 
-
-# define CLIENT_CLOSED_REQUEST	499
-# define INTERNAL_SERVER_ERROR	500
-# define PAYLOAD_TOO_LARGE		413
-# define BAD_REQUEST			400
 # define OK						200
+
+# define BAD_REQUEST			400
+# define PAYLOAD_TOO_LARGE		413
+# define CLIENT_CLOSED_REQUEST	499
+
+# define INTERNAL_SERVER_ERROR	500
+# define NOT_IMPLEMENTED		501
 
 # include "Request.hpp"
 # include "Response.hpp"
@@ -56,5 +58,7 @@ enum extension {HTML = 1, PHP = 2, ICO = 3};
 # define Y "\x1b[1;33m"
 # define M "\x1b[1;35m"
 # define C "\x1b[0m"
+
+std::string get_data_in_header(std::string &header, std::string first_delimiter, std::string end_delimiter);
 
 #endif

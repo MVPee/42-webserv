@@ -1,6 +1,6 @@
 #include "../../includes/methods/Post.hpp"
 
-static std::string get_data_in_header(std::string &header, std::string first_delimiter, std::string end_delimiter)
+std::string get_data_in_header(std::string &header, std::string first_delimiter, std::string end_delimiter)
 {
 	std::string ret = header.substr(header.find(first_delimiter) + first_delimiter.size());
 	return (ret.substr(0, ret.find(end_delimiter)));
@@ -20,12 +20,16 @@ _status_code(OK) {
 		std::string header = request.getHttpRequest();
 		_boundary = get_data_in_header(header, "boundary=", "\r");
 		std::string content_length = get_data_in_header(header, "Content-Length: ", "\r");
+		std::string	content_type = get_data_in_header(header, "Content-Type: ", ";");
 
-		if (_boundary.empty() || content_length.empty())
+		if (_boundary.empty() || content_length.empty() || content_type.empty())
 			throw_and_set_status(INTERNAL_SERVER_ERROR, "boundary or content-length not found in header");
 
 		if (std::strtoul(content_length.c_str(), 0, 10) > server.getBody())
 			throw_and_set_status(BAD_REQUEST, "Body-size too long");
+
+		if (content_type != "multipart/form-data")
+			throw_and_set_status(NOT_IMPLEMENTED, "Form is not a multipart/form-data");
 
 		while (_remaining_content != _boundary + "--\r\n") { //? check if this cause an issue
 			handle_post_request();

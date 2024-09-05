@@ -106,6 +106,7 @@ void Request::parse_request(Server &s){
 
 	if (sscanf(this->_httpRequest.c_str(), "%s %s %*s", type_buffer, path_buffer) != 2)
 		throw std::runtime_error("Error while parsing request");
+		//? vérifier que ça soit le bon HTTP/1.1 sinon 505
 
 	std::string request_path(path_buffer);
 	std::string request_method (type_buffer);
