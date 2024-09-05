@@ -71,17 +71,22 @@ void Request::resolvePath(Server &s) {
 	struct stat info;
 
 	if (stat(_path.c_str(), &info) == 0) {
-		if (info.st_mode & S_IFDIR && _path[_path.size() - 1] != '/')
-			_path += '/';
-	}
-	// if (_path[_path.size() - 1] == '/')
-	// 	_extension = "directory";
-	if (_path == (_location->getRoot() + "/"))
-		_path += _location->getIndex();
-    else if (_extension == "None") {
-		if (_path[_path.size() - 1] == '/')
+		if (info.st_mode & S_IFDIR) {
 			_extension = "directory";
-		else
+			if (_path[_path.size() - 1] != '/')
+				_path += '/';
+		}
+	}
+	if (_path == (_location->getRoot() + "/")) {
+		if (_location->getListing())
+			_extension = "listing";
+		else if (_location->getIndex() != ""){
+			_path += _location->getIndex();
+			_extension = "index";
+		}
+	}
+    else if (_extension == "None") {
+		if (_path[_path.size() - 1] != '/')
         	_path += ".html";
 	}
 }

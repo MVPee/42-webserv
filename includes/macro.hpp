@@ -25,6 +25,9 @@
 # define POST 1
 # define DELETE 2
 
+# define OFF 0
+# define ON 1
+
 # define SOCKET 0
 # define BIND 1
 # define LISTEN 2

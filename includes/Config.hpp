@@ -9,8 +9,9 @@ class Location {
 		std::string	_index;
 		std::string _errorPage;
 		bool		_methods[3];
+		bool		_listing;
 	public:
-		Location() : _location("/") {
+		Location() : _location("/"), _index(""), _errorPage("NONE"), _root("NONE"), _listing(false){
 			_methods[GET] = false;
 			_methods[POST] = false;
 			_methods[DELETE] = false;
@@ -23,12 +24,14 @@ class Location {
 		void setIndex(std::string index) { _index = index; }
 		void setErrorPage(std::string errorPage) { _errorPage = errorPage; }
 		void acceptMethods(short index) { _methods[index] = true; }
+		void acceptListing(bool value) { _listing = value;}
 
 		const std::string &getLocation() const { return (_location); }
 		const std::string &getRoot() const { return (_root); }
 		const std::string &getIndex() const { return (_index); }
 		const std::string &getErrorPage() const { return (_errorPage); }
 		const bool &getMethods(short index) const { return (_methods[index]); }
+		const bool &getListing() const { return (_listing); }
 };
 
 inline std::ostream &	operator<<( std::ostream & o, std::vector<Location *> &_locations) {

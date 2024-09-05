@@ -26,9 +26,16 @@ void Config::parse(std::string token, std::string line) {
 		_serverName = temp[0];
 	}
 	else if (token == "listen") {
-		sscanf(line.c_str(), "%*s %s:%s", temp[0], temp[1]);
-		_address = temp[0];
-		_port = atoi(temp[1]);
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+
+		std::string address_port(temp[0]);
+		std::string::size_type pos = address_port.find(":");
+		if (pos != std::string::npos) {
+			_address = address_port.substr(0, pos);
+			_port = atoi(address_port.substr(pos + 1).c_str());
+		}
+		std::cout << _address << std::endl;
+		std::cout << _port << std::endl;
 	}
 	else if (token == "body_size") {
 		sscanf(line.c_str(), "%*s %s", temp[0]);
@@ -45,6 +52,11 @@ void Config::parse(std::string token, std::string line) {
 	else if (token == "error_page") {
 		sscanf(line.c_str(), "%*s %s", temp[0]);
 		_locations.at(0)->setErrorPage(temp[0]);
+	}
+	else if (token == "listing") {
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+		if (std::string(temp[0]) == "ON")
+			_locations.at(0)->acceptListing(true);
 	}
 	else if (token == "methods") {
 		sscanf(line.c_str(), "%*s %s %s %s", temp[0], temp[1], temp[2]);
@@ -79,6 +91,11 @@ void Config::parseLocation(std::string token, std::string line, size_t size) {
 		if (std::string(temp[0]) == "POST" || std::string(temp[1]) == "POST" || std::string(temp[2]) == "POST") _locations.at(size)->acceptMethods(POST);
 		if (std::string(temp[0]) == "DELETE" || std::string(temp[1]) == "DELETE" || std::string(temp[2]) == "DELETE") _locations.at(size)->acceptMethods(DELETE);
 	}
+	else if (token == "listing") {
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+		if (std::string(temp[0]) == "ON")
+			_locations.at(size)->acceptListing(true);
+	}
 }
 
 Config::Config(std::string config) : 
@@ -102,7 +119,8 @@ Config::Config(std::string config) :
 				else {
 					char token[500];
 					sscanf(line.c_str(), "%s", token);
-					parse(std::string(token), line);
+					if (line[0] != '#')
+						parse(std::string(token), line);
 				}
 			}
 		}
@@ -116,7 +134,8 @@ Config::Config(std::string config) :
 			_locations.push_back(new Location);
 		// std::string line = temp.erase(0, 4);
 		char token[500];
-		sscanf(temp.c_str(), "%s", token);
+		if (temp[0] != '#')
+			sscanf(temp.c_str(), "%s", token);
 		parseLocation(std::string(token), temp, _locations.size() - 1);
 
 	}
