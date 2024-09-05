@@ -45,6 +45,7 @@ static std::string get_page_content(std::ifstream &file)
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
+//? TEMPORARY
 Get::Get(const int client_fd, Request &request, Server &server, size_t status_code) : _client_fd(client_fd), _request(request), _server(server), _fd(0) {
     if (request.getExtension() == "listing") {
         std::cout << "Need to do the listing" << std::endl;
@@ -102,15 +103,15 @@ void Get::generate_response(size_t status_code, Request &request, const int &cli
 		if (!file.is_open() || !file.good())
 			content = "<h1>default: 404</h1>";
 	}
+	else
+        content = get_page_content(file);
 
 	const std::string status_message = get_status_message(status_code);
 	const std::string content_type = get_content_type(request.getExtension());
 
-	if (file.is_open() && file.good())
-		content = get_page_content(file);
 
     _content = ft_to_string(HTML_VERSION) + " " + ft_to_string(status_code) + " " + status_message + "\n" \
-								+ "Content-Type: " + content_type + "\n" + "Content-Length: " + ft_to_string(content.size()); \
+								+ "Content-Type: " + content_type + "\n" + "Content-Length: " + ft_to_string(content.size()) \
 								+ "\n\n" + content + "\0";
 }
 
