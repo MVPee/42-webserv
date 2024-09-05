@@ -19,8 +19,6 @@ Post::Post(const int client_fd, Request &request, Server &server) : _client_fd(c
 		if (_remaining_content.empty() || _remaining_content == _boundary + "--\r\n")
 			flag = false;
 	}
-	
-
 }
 
 
