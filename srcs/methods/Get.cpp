@@ -47,19 +47,14 @@ static std::string get_page_content(std::ifstream &file)
 
 //? TEMPORARY
 Get::Get(const int client_fd, Request &request, Server &server, size_t status_code) : _client_fd(client_fd), _request(request), _server(server), _fd(0) {
+    if (request.getExtension() == "directory")
+        status_code = FORBIDDEN;
     if (request.getExtension() == "listing") {
         std::cout << "Need to do the listing" << std::endl;
         std::cout << request.getPath() << std::endl;
     }
-    if (request.getExtension() == "directory") {
-        std::cout << R << "FORBIDDEN" << C << std::endl;
-        generate_response(403, request, client_fd);
-        _fd = send(client_fd, _content.c_str(), _content.size(), 0);
-        if (_fd < 0) {
-            throw std::runtime_error("Send failed");
-        }
-    }
     else {
+        std::cout << "CODE: " << status_code << std::endl;
         generate_response(status_code, request, client_fd);
         _fd = send(client_fd, _content.c_str(), _content.size(), 0);
         if (_fd < 0) {
@@ -96,12 +91,11 @@ void Get::generate_response(size_t status_code, Request &request, const int &cli
     std::ifstream file(request.getPath().c_str());
 	std::string content;
 
-	if (!file.is_open() || !file.good())
-	{
-		status_code = ERROR_NOT_FOUND;
-        file.open(std::string(request.getLocation()->getRoot() + '/' + request.getLocation()->getErrorPage()).c_str());
-		if (!file.is_open() || !file.good())
-			content = "<h1>default: 404</h1>";
+    //? TEMPORAIRE
+	if (!file.is_open() || !file.good() || status_code >= 400) {
+        if (!file.is_open() || !file.good())
+		    status_code = ERROR_NOT_FOUND;
+		content = "<h1>default: " + ft_to_string(status_code) + " " + get_status_message(status_code) + "</h1>";
 	}
 	else
         content = get_page_content(file);
