@@ -44,21 +44,6 @@ static std::string get_page_content(std::ifstream &file)
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Get::Get(const int client_fd, Request &request, Server &server) : _client_fd(client_fd), _request(request), _server(server), _fd(0) {
-    if (request.getExtension() == "listing") {
-        std::cout << "Need to do the listing" << std::endl;
-        std::cout << request.getPath() << std::endl;
-    }
-    else {
-        generate_response(200, request, client_fd);
-        _fd = send(client_fd, _content.c_str(), _content_size, 0);
-        if (_fd < 0) {
-            throw std::runtime_error("Send failed");
-        }
-    }
-}
-
-//? TEMPORARY
 Get::Get(const int client_fd, Request &request, Server &server, size_t status_code) : _client_fd(client_fd), _request(request), _server(server), _fd(0) {
     if (request.getExtension() == "listing") {
         std::cout << "Need to do the listing" << std::endl;
@@ -66,7 +51,7 @@ Get::Get(const int client_fd, Request &request, Server &server, size_t status_co
     }
     else {
         generate_response(status_code, request, client_fd);
-        _fd = send(client_fd, _content.c_str(), _content_size, 0);
+        _fd = send(client_fd, _content.c_str(), _content.size(), 0);
         if (_fd < 0) {
             throw std::runtime_error("Send failed");
         }
@@ -108,20 +93,17 @@ void Get::generate_response(size_t status_code, Request &request, const int &cli
 		if (!file.is_open() || !file.good())
 			content = "<h1>default: 404</h1>";
 	}
+	else content = get_page_content(file);
 
 	const std::string html_version = "HTTP/1.1";
 	const std::string status_message = get_status_message(status_code);
 	const std::string content_type = get_content_type(request.getExtension());
 
-	if (file.is_open() && file.good())
-		content = get_page_content(file);
 
-	_content.clear();
     _content = html_version + " " + ft_to_string(status_code) + " " + status_message + "\n" \
 								+ "Content-Type: " + content_type + "\n" + "Content-Length: " + ft_to_string(content.size()); \
-								+ "\n\n" + content + "\0";
-
-	_content_size = _content.size();
+								+ "\n\n" + content + '\0';
+	std::cout << B << _content << C << std::endl;
 }
 
 /*
