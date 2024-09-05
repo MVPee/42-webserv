@@ -12,6 +12,7 @@ const char* get_status_message(const size_t status_code) {
         case ERROR_INTERNAL_SERVER:             return "INTERNAL SERVER ERROR";
         case NOT_IMPLEMENTED:                   return "NOT IMPLEMENTED";
         case HTTP_VERSION_NOT_SUPPORTED:        return "HTTP VERSION NOT SUPPORTED";
+        case FORBIDDEN:                         return "FORBIDDEN";
         default:                               	return "UNKNOWN STATUS CODE";
     }
 }
@@ -49,6 +50,13 @@ Get::Get(const int client_fd, Request &request, Server &server) : _client_fd(cli
         std::cout << "Need to do the listing" << std::endl;
         std::cout << request.getPath() << std::endl;
     }
+    else if (request.getExtension() == "directory") {
+        generate_response(FORBIDDEN, request, client_fd);
+        _fd = send(client_fd, _content.c_str(), _content_size, 0);
+        if (_fd < 0) {
+            throw std::runtime_error("Send failed");
+        }
+    }
     else {
         generate_response(200, request, client_fd);
         _fd = send(client_fd, _content.c_str(), _content_size, 0);
@@ -63,6 +71,14 @@ Get::Get(const int client_fd, Request &request, Server &server, size_t status_co
     if (request.getExtension() == "listing") {
         std::cout << "Need to do the listing" << std::endl;
         std::cout << request.getPath() << std::endl;
+    }
+    if (request.getExtension() == "directory") {
+        std::cout << R << "FORBIDDEN" << C << std::endl;
+        generate_response(403, request, client_fd);
+        _fd = send(client_fd, _content.c_str(), _content_size, 0);
+        if (_fd < 0) {
+            throw std::runtime_error("Send failed");
+        }
     }
     else {
         generate_response(status_code, request, client_fd);
@@ -109,7 +125,6 @@ void Get::generate_response(size_t status_code, Request &request, const int &cli
 			content = "<h1>default: 404</h1>";
 	}
 
-	const std::string html_version = "HTTP/1.1";
 	const std::string status_message = get_status_message(status_code);
 	const std::string content_type = get_content_type(request.getExtension());
 
@@ -117,10 +132,11 @@ void Get::generate_response(size_t status_code, Request &request, const int &cli
 		content = get_page_content(file);
 
 	_content.clear();
-    _content = html_version + " " + ft_to_string(status_code) + " " + status_message + "\n" \
+    _content = ft_to_string(HTML_VERSION) + " " + ft_to_string(status_code) + " " + status_message + "\n" \
 								+ "Content-Type: " + content_type + "\n" + "Content-Length: " + ft_to_string(content.size()); \
 								+ "\n\n" + content + "\0";
-
+	std::cout << B << _content << C << std::endl;
+	_content += + "\n\n" + content + "\0";
 	_content_size = _content.size();
 }
 
