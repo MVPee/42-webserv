@@ -90,15 +90,16 @@ void Post::handle_post_request(void) {
 	{
 		output_file.write(_remaining_content.c_str(), pos); //? check if any write fails
 		_remaining_content.erase(0, pos);
+
+		if (!output_file.good())
+		{
+			remove(filename.c_str());
+			throw_and_set_status(INTERNAL_SERVER_ERROR, "Error with the output file");
+		}
 	}
 	else
-		output_Content_Body(output_file);
+		output_Content_Body(output_file, filename);
 
-	if (!output_file.good())
-	{
-		remove(filename.c_str());
-		throw_and_set_status(INTERNAL_SERVER_ERROR, "Error with the output file");
-	}
 
 
     std::cout << B << "Boundary: " << _boundary<< "\n";
@@ -131,11 +132,14 @@ void Post::output_Content_Body(std::ofstream &output_file, std::string &filename
 	}
 
 	output_file.close();
-	// if (!output_file.good() || bytes_read == (ssize_t) -1 ||)
+
+	if (!output_file.good() || bytes_read == (ssize_t) -1 || bytes_read == 0 | _body_size > _server.getBody())
+		remove(filename.c_str());
 
 	if (bytes_read == (ssize_t) -1) throw_and_set_status(INTERNAL_SERVER_ERROR, "Recv failed");
 	else if (bytes_read == 0) throw_and_set_status(CLIENT_CLOSED_REQUEST, "Connexion closed");
 	else if (_body_size > _server.getBody()) throw_and_set_status(PAYLOAD_TOO_LARGE, "Body size exceeded");
+	else if (!output_file.good()) throw_and_set_status(INTERNAL_SERVER_ERROR, "Error with the output file");
 
 }
 
@@ -157,7 +161,7 @@ std::string Post::receive_content_header(void) {
 		_remaining_content.clear();
 	}
 
-	while (content_stream.str().find("\r\n\r\n") == std::string::npos && (bytes_read = recv(_client_fd, &buffer, 1, 0) > 0)) { //? What if no delimiter ?
+	while (_body_size <= _server.getBody() && content_stream.str().find("\r\n\r\n") == std::string::npos && (bytes_read = recv(_client_fd, &buffer, 1, 0) > 0)) { //? What if no delimiter ?
 		_body_size += bytes_read;
 		content_stream << buffer;
 	}
