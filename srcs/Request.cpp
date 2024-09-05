@@ -99,6 +99,10 @@ void Request::parse_request(Server &s){
         request_path.erase(pos, 3);
     }
 
+	if ((pos = request_path.find("?")) != std::string::npos) {
+		request_path.erase(pos, request_path.size());
+	}
+
 	_location = s.getLocations().at(0);
 	for (int i = 0; i < s.getLocations().size(); i++) {
 		if (s.getLocations().at(i)->getLocation() == request_path) {
