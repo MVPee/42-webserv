@@ -6,18 +6,20 @@
 class Post {
 
 	private:
-		const int _client_fd;
-		const Request &_request;
-		const Server &_server;
-		ssize_t		_body_size;
+		const int 		_client_fd;
+		const Request 	&_request;
+		const Server 	&_server;
+		ssize_t			_body_size;
 
-		std::string	_remaining_content;
-		std::string _boundary;
-		int			status_code;
+		std::string		_remaining_content;
+		std::string		_boundary;
+		size_t			_status_code;
 
 		void		handle_post_request(void);
-		void 		output_Content_Body(std::ofstream &output_file);
+		void 		output_Content_Body(std::ofstream &output_file, std::string &filename);
 		std::string	receive_content_header(void);
+		void		throw_and_set_status(size_t status_code, std::string message);
+
 	public:
 
 		Post(const int client_fd, Request &request, Server &server);

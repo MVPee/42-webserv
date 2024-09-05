@@ -34,6 +34,13 @@
 # define ACCEPT 3
 # define BUFFER_SIZE 2056
 
+
+# define CLIENT_CLOSED_REQUEST	499
+# define INTERNAL_SERVER_ERROR	500
+# define PAYLOAD_TOO_LARGE		413
+# define BAD_REQUEST			400
+# define OK						200
+
 # include "Request.hpp"
 # include "Response.hpp"
 # include "Server.hpp"
