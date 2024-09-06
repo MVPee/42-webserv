@@ -52,7 +52,6 @@ Get::Get(const int client_fd, Request &request, Server &server, size_t status_co
     else if (request.getExtension() == "listing") {
         generate_listing(status_code, request);
     }
-    std::cout << "CODE: " << status_code << std::endl;
     if (!_content.size())
         generate_response(status_code, request);
     _fd = send(client_fd, _content.c_str(), _content.size(), 0);
@@ -90,7 +89,7 @@ void Get::generate_listing(size_t status_code, Request &request) {
 
     DIR* dir = opendir(request.getPath().c_str());
     if (dir == NULL) {
-        status_code = BAD_REQUEST;
+        status_code = ERROR_NOT_FOUND;
         return;
     }
 
@@ -111,7 +110,7 @@ void Get::generate_listing(size_t status_code, Request &request) {
         std::cout << B << _content << C << std::endl;
     }
     else
-        status_code = BAD_REQUEST;
+        status_code = ERROR_NOT_FOUND;
     closedir(dir);
 }
 
