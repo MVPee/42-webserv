@@ -58,6 +58,10 @@ void Config::parse(std::string token, std::string line) {
 		if (std::string(temp[0]) == "ON")
 			_locations.at(0)->acceptListing(true);
 	}
+	else if (token == "upload") {
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+		_locations.at(0)->setUpload(temp[0]);
+	}
 	else if (token == "methods") {
 		sscanf(line.c_str(), "%*s %s %s %s", temp[0], temp[1], temp[2]);
 		if (std::string(temp[0]) == "GET" || std::string(temp[1]) == "GET" || std::string(temp[2]) == "GET") _locations.at(0)->acceptMethods(GET);
@@ -84,6 +88,10 @@ void Config::parseLocation(std::string token, std::string line, size_t size) {
 	else if (token == "error_page") {
 		sscanf(line.c_str(), "%*s %s", temp[0]);
 		_locations.at(size)->setErrorPage(temp[0]);
+	}
+	else if (token == "upload") {
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+		_locations.at(size)->setUpload(temp[0]);
 	}
 	else if (token == "methods") {
 		sscanf(line.c_str(), "%*s %s %s %s", temp[0], temp[1], temp[2]);

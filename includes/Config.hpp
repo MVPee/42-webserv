@@ -8,10 +8,11 @@ class Location {
 		std::string	_root;
 		std::string	_index;
 		std::string _errorPage;
+		std::string _upload;
 		bool		_methods[3];
 		bool		_listing;
 	public:
-		Location() : _location("/"), _index(""), _errorPage("NONE"), _root("NONE"), _listing(false){
+		Location() : _location("/"), _index(""), _errorPage("NONE"), _root("NONE"), _upload("./"), _listing(false){
 			_methods[GET] = false;
 			_methods[POST] = false;
 			_methods[DELETE] = false;
@@ -23,6 +24,7 @@ class Location {
 		void setRoot(std::string root) { _root = root; }
 		void setIndex(std::string index) { _index = index; }
 		void setErrorPage(std::string errorPage) { _errorPage = errorPage; }
+		void setUpload(std::string upload) { _upload = upload; }
 		void acceptMethods(short index) { _methods[index] = true; }
 		void acceptListing(bool value) { _listing = value;}
 
@@ -30,6 +32,7 @@ class Location {
 		const std::string &getRoot() const { return (_root); }
 		const std::string &getIndex() const { return (_index); }
 		const std::string &getErrorPage() const { return (_errorPage); }
+		const std::string &getUpload() const { return (_upload); }
 		const bool &getMethods(short index) const { return (_methods[index]); }
 		const bool &getListing() const { return (_listing); }
 };
