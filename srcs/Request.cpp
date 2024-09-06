@@ -78,12 +78,13 @@ void Request::resolvePath(Server &s) {
 		}
 	}
 	if (_path == (_location->getRoot() + "/") || _extension == "directory") {
-		if (_location->getListing())
-			_extension = "listing";
-		else if (_path == (_location->getRoot() + "/") && _location->getIndex() != ""){
+		if (_path == (_location->getRoot() + "/") && _location->getIndex() != ""){
+			std::cout << "Here" << std::endl;
 			_path += _location->getIndex();
 			_extension = ".html";
 		}
+		else if (_location->getListing())
+			_extension = "listing";
 	}
     else if (_extension == "None") {
 		if (_path[_path.size() - 1] != '/')
