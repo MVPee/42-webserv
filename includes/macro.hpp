@@ -23,6 +23,7 @@
 # include <filesystem>
 # include <dirent.h>
 
+# define MAX_CLIENT 100
 # define GET 0
 # define POST 1
 # define DELETE 2
