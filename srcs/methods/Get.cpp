@@ -83,9 +83,11 @@ std::ostream &			operator<<( std::ostream & o, Get const & i ) {
 */
 
 void Get::generate_listing(size_t status_code, Request &request) {
+    struct dirent* entry;
     std::string content;
+    std::string dirname;
+    std::string absolutePath;
     std::string path = request.getPath();
-    std::string::size_type pos = path.find(request.getLocation()->getLocation());
 
     DIR* dir = opendir(request.getPath().c_str());
     if (dir == NULL) {
@@ -93,24 +95,18 @@ void Get::generate_listing(size_t status_code, Request &request) {
         return;
     }
 
-    if (pos != std::string::npos) {
-        std::string absolutePath = path.erase(0, pos);
-        std::cout << "Absolute path: " << absolutePath << std::endl;
-        struct dirent* entry;
-        while ((entry = readdir(dir)) != NULL) {
-            std::string dirname = entry->d_name;
-            if (entry->d_type == DT_DIR)
-                content += "<a href=\"" + absolutePath + dirname + "\">" + dirname + "/" + "</a><br>" + '\n';
-            if (entry->d_type == DT_REG)
-                content += "<a href=\"" + absolutePath + dirname + "\">" + dirname + "</a><br>" + '\n';
-        }
-        _content = ft_to_string(HTML_VERSION) + " " + ft_to_string(status_code) + " " + get_status_message(status_code) + "\n" \
-                                + "Content-Type: text/html\n" + "Content-Length: " + ft_to_string(content.size()) \
-                                + "\n\n" + content + "\0";
-        std::cout << B << _content << C << std::endl;
+    absolutePath = request.getLocation()->getLocation() + path.erase(0, request.getLocation()->getRoot().size());
+    while ((entry = readdir(dir)) != NULL) {
+        dirname = entry->d_name;
+        if (entry->d_type == DT_DIR)
+            content += "<a href=\"" + absolutePath + dirname + "\">" + dirname + "/" + "</a><br>" + '\n';
+        if (entry->d_type == DT_REG)
+            content += "<a href=\"" + absolutePath + dirname + "\">" + dirname + "</a><br>" + '\n';
     }
-    else
-        status_code = ERROR_NOT_FOUND;
+    _content = ft_to_string(HTML_VERSION) + " " + ft_to_string(status_code) + " " + get_status_message(status_code) + "\n" \
+                            + "Content-Type: text/html\n" + "Content-Length: " + ft_to_string(content.size()) \
+                            + "\n\n" + content + "\0";
+    // std::cout << B << _content << C << std::endl; //? DEBUG
     closedir(dir);
 }
 
