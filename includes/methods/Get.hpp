@@ -22,7 +22,8 @@ class Get {
 		std::string		_content;
 
 		void getContent(Request &request, Server &server);
-		void generate_response(size_t status_code, Request &request, const int &client_fd);
+		void generate_response(size_t status_code, Request &request);
+		void generate_listing(size_t status_code, Request &request);
 	public:
 		Get(const int client_fd, Request &request, Server &server, size_t status_code);
 

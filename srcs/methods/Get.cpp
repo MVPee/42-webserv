@@ -49,17 +49,15 @@ static std::string get_page_content(std::ifstream &file)
 Get::Get(const int client_fd, Request &request, Server &server, size_t status_code) : _client_fd(client_fd), _request(request), _server(server), _fd(0) {
     if (request.getExtension() == "directory")
         status_code = FORBIDDEN;
-    if (request.getExtension() == "listing") {
-        std::cout << "Need to do the listing" << std::endl;
-        std::cout << request.getPath() << std::endl;
+    else if (request.getExtension() == "listing") {
+        generate_listing(status_code, request);
     }
-    else {
-        std::cout << "CODE: " << status_code << std::endl;
-        generate_response(status_code, request, client_fd);
-        _fd = send(client_fd, _content.c_str(), _content.size(), 0);
-        if (_fd < 0) {
-            throw std::runtime_error("Send failed");
-        }
+    std::cout << "CODE: " << status_code << std::endl;
+    if (!_content.size())
+        generate_response(status_code, request);
+    _fd = send(client_fd, _content.c_str(), _content.size(), 0);
+    if (_fd < 0) {
+        throw std::runtime_error("Send failed");
     }
 }
 
@@ -85,8 +83,39 @@ std::ostream &			operator<<( std::ostream & o, Get const & i ) {
 ** --------------------------------- METHODS ----------------------------------
 */
 
+void Get::generate_listing(size_t status_code, Request &request) {
+    std::string content;
+    std::string path = request.getPath();
+    std::string::size_type pos = path.find(request.getLocation()->getLocation());
 
-void Get::generate_response(size_t status_code, Request &request, const int &client_fd)
+    DIR* dir = opendir(request.getPath().c_str());
+    if (dir == NULL) {
+        status_code = BAD_REQUEST;
+        return;
+    }
+
+    if (pos != std::string::npos) {
+        std::string absolutePath = path.erase(0, pos);
+        std::cout << "Absolute path: " << absolutePath << std::endl;
+        struct dirent* entry;
+        while ((entry = readdir(dir)) != NULL) {
+            std::string dirname = entry->d_name;
+            if (entry->d_type == DT_DIR)
+                content += "<a href=\"" + absolutePath + dirname + "\">" + dirname + "/" + "</a><br>" + '\n';
+            if (entry->d_type == DT_REG)
+                content += "<a href=\"" + absolutePath + dirname + "\">" + dirname + "</a><br>" + '\n';
+        }
+        _content = ft_to_string(HTML_VERSION) + " " + ft_to_string(status_code) + " " + get_status_message(status_code) + "\n" \
+                                + "Content-Type: text/html\n" + "Content-Length: " + ft_to_string(content.size()) \
+                                + "\n\n" + content + "\0";
+        std::cout << B << _content << C << std::endl;
+    }
+    else
+        status_code = BAD_REQUEST;
+    closedir(dir);
+}
+
+void Get::generate_response(size_t status_code, Request &request)
 {
     std::ifstream file(request.getPath().c_str());
 	std::string content;
