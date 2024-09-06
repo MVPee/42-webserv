@@ -11,21 +11,27 @@ std::string ft_to_string(T value)
 	transformer << value;
 	return (transformer.str());
 }
+/**
+ * @param status_code the error code (for example: 404)
+ * 
+ * @return the string meaning of the error code (for example: 'PAGE NOT FOUND')
+ */
+const char* get_status_message(const size_t status_code);
 
 class Get {
 	private:
 		const int		_client_fd;
 		const Request	&_request;
 		const Server	&_server;
-		int				_status_code;
+		size_t			&_status_code;
 		int				_fd;
 		std::string		_content;
 
-		void getContent(Request &request, Server &server);
-		void generate_response(size_t status_code, Request &request);
-		void generate_listing(size_t status_code, Request &request);
+		void getContent( void );
+		void generate_response( void );
+		void generate_listing( void );
 	public:
-		Get(const int client_fd, Request &request, Server &server, size_t status_code);
+		Get(const int client_fd, Request &request, Server &server);
 
 		~Get();
 };

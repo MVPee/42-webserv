@@ -4,15 +4,21 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Response::Response(int &client_fd, Request &request, Server &server) {
-	size_t status_code = 200;
-    
-    if (request.getMethod() == POST) {
+Response::Response(int &client_fd, Request &request, Server &server): _status_code(request.get_status_code()) {
+
+    if (request.getMethod() == POST && request.isAccepted()) {
 		Post Form(client_fd, request, server);
-		status_code = Form.get_status_code();
     }
+	else if (request.getMethod() == DELETE  && request.isAccepted())
+	{
+		if (access(request.getPath().c_str(), F_OK) != 0)
+			_status_code = ERROR_NOT_FOUND;
+		else if (remove(request.getPath().c_str()))
+			_status_code = ERROR_INTERNAL_SERVER;
+	}
     if (request.getLocation()->getMethods(GET)) {
-	    Get(client_fd, request, server, status_code);
+		std::cout << B << _status_code << C << std::endl;
+	    Get(client_fd, request, server);
     }
 }
 

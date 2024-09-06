@@ -45,15 +45,19 @@ static std::string get_page_content(std::ifstream &file)
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-//? TEMPORARY
-Get::Get(const int client_fd, Request &request, Server &server, size_t status_code) : _client_fd(client_fd), _request(request), _server(server), _fd(0) {
+Get::Get(const int client_fd, Request &request, Server &server) : 
+_client_fd(client_fd), 
+_request(request), 
+_server(server), 
+_fd(0),
+_status_code(request.get_status_code()) {
     if (request.getExtension() == "directory")
-        status_code = FORBIDDEN;
+        _status_code = FORBIDDEN;
     else if (request.getExtension() == "listing") {
-        generate_listing(status_code, request);
+        generate_listing();
     }
-    if (!_content.size())
-        generate_response(status_code, request);
+    if (_content.empty())
+        generate_response();
     _fd = send(client_fd, _content.c_str(), _content.size(), 0);
     if (_fd < 0) {
         throw std::runtime_error("Send failed");
@@ -82,23 +86,23 @@ std::ostream &			operator<<( std::ostream & o, Get const & i ) {
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void Get::generate_listing(size_t status_code, Request &request) {
+void Get::generate_listing( void ) {
     struct dirent* entry;
     std::string content;
     std::string dirname;
     std::string absolutePath;
-    std::string path = request.getPath();
+    std::string path = _request.getPath();
 
-    DIR* dir = opendir(request.getPath().c_str());
+    DIR* dir = opendir(_request.getPath().c_str());
     if (dir == NULL) {
-        status_code = ERROR_NOT_FOUND;
+        _status_code = ERROR_NOT_FOUND;
         return;
     }
 
-    if (request.getLocation()->getLocation() == "/")
-        absolutePath = path.erase(0, request.getLocation()->getRoot().size());
+    if (_request.getLocation()->getLocation() == "/")
+        absolutePath = path.erase(0, _request.getLocation()->getRoot().size());
     else
-        absolutePath = request.getLocation()->getLocation() + path.erase(0, request.getLocation()->getRoot().size());
+        absolutePath = _request.getLocation()->getLocation() + path.erase(0, _request.getLocation()->getRoot().size());
     std::cout << R << absolutePath << C << std::endl;
     while ((entry = readdir(dir)) != NULL) {
         dirname = entry->d_name;
@@ -107,34 +111,35 @@ void Get::generate_listing(size_t status_code, Request &request) {
         if (entry->d_type == DT_REG)
             content += "<a href=\"" + absolutePath + dirname + "\">" + dirname + "</a><br>" + '\n';
     }
-    _content = ft_to_string(HTML_VERSION) + " " + ft_to_string(status_code) + " " + get_status_message(status_code) + "\n" \
+    _content = ft_to_string(HTML_VERSION) + " " + ft_to_string(_status_code) + " " + get_status_message(_status_code) + "\n" \
                             + "Content-Type: text/html\n" + "Content-Length: " + ft_to_string(content.size()) \
                             + "\n\n" + content + "\0";
     std::cout << B << _content << C << std::endl; //? DEBUG
     closedir(dir);
 }
 
-void Get::generate_response(size_t status_code, Request &request)
+void Get::generate_response( void )
 {
-    std::ifstream file(request.getPath().c_str());
-	std::string content;
+    std::ifstream file(_request.getPath().c_str());
+	std::string page_content;
 
     //? TEMPORAIRE
-	if (!file.is_open() || !file.good() || status_code >= 400) {
-        if (!file.is_open() || !file.good())
-		    status_code = ERROR_NOT_FOUND;
-		content = "<h1>default: " + ft_to_string(status_code) + " " + get_status_message(status_code) + "</h1>";
+	if (!file.is_open() || !file.good() || _status_code >= 400 || _request.getMethod() == DELETE) {
+        if ((!file.is_open() || !file.good()) && _status_code < 400 && _request.getMethod() != DELETE)
+		    _status_code = ERROR_NOT_FOUND;
+		page_content = "<h1>default: " + ft_to_string(_status_code) + " " + get_status_message(_status_code) + "</h1>";
 	}
 	else
-        content = get_page_content(file);
+        page_content = get_page_content(file);
 
-	const std::string status_message = get_status_message(status_code);
-	const std::string content_type = get_content_type(request.getExtension());
+	const std::string status_message = get_status_message(_status_code);
+	const std::string content_type = get_content_type(_request.getExtension());
 
 
-    _content = ft_to_string(HTML_VERSION) + " " + ft_to_string(status_code) + " " + status_message + "\n" \
-								+ "Content-Type: " + content_type + "\n" + "Content-Length: " + ft_to_string(content.size()) \
-								+ "\n\n" + content + "\0";
+    _content = ft_to_string(HTML_VERSION) + " " + ft_to_string(_status_code) + " " + status_message + "\n" \
+								+ "Content-Type: " + content_type + "\n" + "Content-Length: " + ft_to_string(page_content.size()) \
+								+ "Connection: close" \
+								+ "\n\n" + page_content + "\0";
 }
 
 /*

@@ -4,37 +4,47 @@
 ** ------------------------------- STATIC -------------------------------------
 */
 
+
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Request::Request(int &client_fd, Server &s) : _extension("None"), _accept(false) {
-    char buffer[2];
-    int bytes_received;
+Request::Request(int &client_fd, Server &s) : 
+_extension("None"), 
+_accept(false),
+_status_code (FORBIDDEN) {
+	try{
+		char buffer[2];
+		int bytes_received;
 
-    while ((bytes_received = recv(client_fd, buffer, sizeof(buffer) - 1, 0)) != 0) {
-        buffer[bytes_received] = '\0';
-        _httpRequest += buffer;
-		if (_httpRequest.find("\r\n\r\n") != std::string::npos) break;
-		if (bytes_received < 0) throw std::runtime_error("Receive failed");
-    }
+		while ((bytes_received = recv(client_fd, buffer, sizeof(buffer) - 1, 0)) > 0) {
+			buffer[bytes_received] = '\0';
+			_httpRequest += buffer;
+			if (_httpRequest.find("\r\n\r\n") != std::string::npos) break;
+		}
 
-    if (bytes_received < 0) throw std::runtime_error("Receive failed");
+		if (bytes_received < 0) throw_and_set_status(ERROR_INTERNAL_SERVER, "Receive failed");
+		else if (bytes_received == 0) throw_and_set_status(CLIENT_CLOSED_REQUEST, "Connexion closed");
 
-    std::cout << "Message received: " << _httpRequest << std::endl;
-	if (_httpRequest.empty()) //? TEMPORARY to try to fix empty message
-	{
-		_accept = false;
-		return;
+		std::cout << "Message received: " << _httpRequest  << std::endl; //* DEBUG
+
+		parse_request(s);
+
+
+		std::cout << R << _location->getLocation() << C << std::endl;
+		if (_location->getMethods((unsigned int)_method)) {
+			_accept = true;
+			_status_code = OK;
+		}
 	}
-
-    parse_request(s);
-
-
-	std::cout << R << _location->getLocation() << C << std::endl;
-    if (_location->getMethods((unsigned int)_method)) {
-        _accept = true;
-    }
+	catch(const std::exception& e)
+	{
+		//? change ?
+		if (_status_code == OK) _status_code = ERROR_INTERNAL_SERVER;
+		std::string content = "<h1>default: " + ft_to_string(_status_code) + " " + get_status_message(_status_code) + "</h1>";
+		std::cerr << R << e.what() << C << '\n';
+	}
 }
 
 /*
@@ -107,13 +117,13 @@ void Request::parse_request(Server &s){
 	char http_version[BUFFER_SIZE];
 
 	if (sscanf(this->_httpRequest.c_str(), "%s %s %s", type_buffer, path_buffer, http_version) != 3)
-		throw std::runtime_error("Error while parsing request");
+		throw_and_set_status(BAD_REQUEST, "Error while parsing request");
 
 	std::string request_path(path_buffer);
 	std::string request_method (type_buffer);
 
 	if (std::string(http_version) != "HTTP/1.1")
-		throw std::runtime_error("Not supported http version"); //TODO use error code 505 (defined)
+		throw_and_set_status(HTTP_VERSION_NOT_SUPPORTED, "Not supported http version");
 
     std::size_t pos;
     while ((pos = request_path.find("../")) != std::string::npos)
@@ -150,6 +160,13 @@ void Request::parse_request(Server &s){
 	resolvePath(s);
 }
 
+
+void Request::throw_and_set_status(const size_t status_code, std::string message)
+{
+	_status_code = status_code;
+	throw std::runtime_error(message);
+}
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
@@ -161,5 +178,6 @@ const std::string	&Request::getExtension(void) const {return (_extension);}
 const std::string 	&Request::getPath(void) const {return(_path);}
 const bool			&Request::isAccepted(void) const {return(_accept);}
 Location			*Request::getLocation(void) const { return (_location);}
+size_t 				&Request::get_status_code( void ) {return(_status_code);};
 
 /* ************************************************************************** */

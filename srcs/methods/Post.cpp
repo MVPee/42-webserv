@@ -22,7 +22,7 @@ _client_fd(client_fd),
 _request(request), 
 _server(server), 
 _body_size(0), 
-_status_code(OK) {
+_status_code(request.get_status_code()) {
 	try{
 		std::string header = request.getHttpRequest();
 		_boundary = get_data_in_header(header, "boundary=", "\r");
@@ -30,10 +30,11 @@ _status_code(OK) {
 		std::string	content_type = get_data_in_header(header, "Content-Type: ", ";");
 
 		if (_boundary.empty() || content_length.empty() || content_type.empty())
-			throw_and_set_status(ERROR_INTERNAL_SERVER, "boundary or content-length not found in header");
+			throw_and_set_status(BAD_REQUEST, "boundary or content-length not found in header");
 
 		if (std::strtoul(content_length.c_str(), 0, 10) > server.getBody()) {
-			while (recv(client_fd, 0, 255, 0) == 255);
+			// fcntl(client_fd, F_SETFL, O_NONBLOCK);
+			// while (recv(client_fd, 0, 255, 0) > 0); //* still a problem when uploading big files and exceeding body size limit (bad response)
 			throw_and_set_status(PAYLOAD_TOO_LARGE, "Body-size too long");
 		}
 
@@ -184,7 +185,7 @@ std::string Post::receive_content_header(void) {
 	return (content_stream.str());
 }
 
-void Post::throw_and_set_status(size_t status_code, std::string message)
+void Post::throw_and_set_status(const size_t status_code, std::string message)
 {
 	_status_code = status_code;
 	throw std::runtime_error(message);
@@ -194,7 +195,6 @@ void Post::throw_and_set_status(size_t status_code, std::string message)
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
-const size_t Post::get_status_code( void ) const {return (_status_code);};
 
 
 /* ************************************************************************** */

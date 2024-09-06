@@ -107,8 +107,7 @@ void Server::process(void) {
 
 		_request = new Request(fd[ACCEPT], *this);
 		std::cout << B << *_request << C << std::endl; //* DEBUG
-		if (_request->isAccepted())
-			_response = new Response(fd[ACCEPT], *_request, *this);
+		_response = new Response(fd[ACCEPT], *_request, *this);
 	}
 	catch (std::exception &e) {
 		if (_request)
