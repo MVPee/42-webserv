@@ -95,7 +95,11 @@ void Get::generate_listing(size_t status_code, Request &request) {
         return;
     }
 
-    absolutePath = request.getLocation()->getLocation() + path.erase(0, request.getLocation()->getRoot().size());
+    if (request.getLocation()->getLocation() == "/")
+        absolutePath = path.erase(0, request.getLocation()->getRoot().size());
+    else
+        absolutePath = request.getLocation()->getLocation() + path.erase(0, request.getLocation()->getRoot().size());
+    std::cout << R << absolutePath << C << std::endl;
     while ((entry = readdir(dir)) != NULL) {
         dirname = entry->d_name;
         if (entry->d_type == DT_DIR)
@@ -106,7 +110,7 @@ void Get::generate_listing(size_t status_code, Request &request) {
     _content = ft_to_string(HTML_VERSION) + " " + ft_to_string(status_code) + " " + get_status_message(status_code) + "\n" \
                             + "Content-Type: text/html\n" + "Content-Length: " + ft_to_string(content.size()) \
                             + "\n\n" + content + "\0";
-    // std::cout << B << _content << C << std::endl; //? DEBUG
+    std::cout << B << _content << C << std::endl; //? DEBUG
     closedir(dir);
 }
 
