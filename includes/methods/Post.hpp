@@ -15,7 +15,7 @@ class Post {
 		std::string		_boundary;
 		size_t			_status_code;
 
-		void		handle_post_request(void);
+		void		handle_post_request(Location *location);
 		void 		output_Content_Body(std::ofstream &output_file, std::string &filename);
 		std::string	receive_content_header(void);
 		void		throw_and_set_status(size_t status_code, std::string message);

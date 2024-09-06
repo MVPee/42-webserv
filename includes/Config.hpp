@@ -12,7 +12,7 @@ class Location {
 		bool		_methods[3];
 		bool		_listing;
 	public:
-		Location() : _location("/"), _index(""), _errorPage("NONE"), _root("NONE"), _upload("./"), _listing(false){
+		Location() : _location("/"), _index(""), _errorPage("NONE"), _root("NONE"), _upload(""), _listing(false){
 			_methods[GET] = false;
 			_methods[POST] = false;
 			_methods[DELETE] = false;

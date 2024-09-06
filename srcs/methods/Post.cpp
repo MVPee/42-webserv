@@ -41,7 +41,7 @@ _status_code(OK) {
 			throw_and_set_status(NOT_IMPLEMENTED, "Form is not a multipart/form-data");
 
 		while (_remaining_content != _boundary + "--\r\n") { //? check if this cause an issue
-			handle_post_request();
+			handle_post_request(request.getLocation());
 		}
 	}
 	catch(const std::exception& e)
@@ -76,7 +76,7 @@ std::ostream &			operator<<( std::ostream & o, Post const & i ) {
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void Post::handle_post_request(void) {
+void Post::handle_post_request(Location *location) {
     std::string body_header (receive_content_header());
 
 
@@ -84,8 +84,10 @@ void Post::handle_post_request(void) {
 	if (contentDisposition.empty()) throw_and_set_status(BAD_REQUEST, "Content-disposition missing");
 
 	std::string filename = get_data_in_header(body_header, "filename=\"", "\"");
+	//? FOR DAN: RM si plus besoin
 	if (filename.empty()) throw_and_set_status(BAD_REQUEST, "filename missing");
-	filename = _server.getLocations().at(0)->getRoot() + "/" + filename;
+	filename = location->getRoot() + location->getUpload() + "/" + filename;
+	std::cout << B << filename << C << std::endl; //? DEBUG
 
     std::string contentType = get_data_in_header(body_header, "Content-Type: ", "\r");
 	if (contentType.empty()) throw_and_set_status(BAD_REQUEST, "Content-Type missing");
