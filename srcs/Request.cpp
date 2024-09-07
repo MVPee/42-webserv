@@ -14,7 +14,7 @@ Request::Request(int &client_fd, Server &s, int &sd) :
 _extension("None"), 
 _accept(false),
 _status_code (FORBIDDEN),
-_succed(true) {
+_success(true) {
 	try{
 		char buffer[2];
 		int bytes_received;
@@ -26,11 +26,11 @@ _succed(true) {
 		}
 
 		if (bytes_received < 0) {
-			_succed = false;
+			_success = false;
 			throw_and_set_status(ERROR_INTERNAL_SERVER, "Receive failed");
 		}
 		else if (bytes_received == 0) {
-			_succed = false;
+			_success = false;
 			throw_and_set_status(CLIENT_CLOSED_REQUEST, "Connexion closed");
 		}
 		// std::cout << "Message received: " << _httpRequest  << std::endl; //* DEBUG
@@ -181,6 +181,6 @@ const std::string 	&Request::getPath(void) const {return(_path);}
 const bool			&Request::isAccepted(void) const {return(_accept);}
 Location			*Request::getLocation(void) const { return (_location);}
 size_t 				&Request::get_status_code( void ) {return(_status_code);}
-const bool			&Request::getSucced(void) const {return (_succed); }
+const bool			&Request::getSuccess(void) const {return (_success); }
 
 /* ************************************************************************** */
