@@ -144,8 +144,6 @@ void Get::generate_response()
             if (file.is_open())
                 file.close();
             file.open(ft_to_string(_request.getLocation()->getRoot() + '/' + _request.getLocation()->getErrorPage(_status_code)).c_str());
-            std::cout << R << _request.getLocation()->getRoot() + '/' + _request.getLocation()->getErrorPage(_status_code) << C << std::endl;
-            std::cout << R << file.is_open() << " " <<file.good() << C << std::endl;
             if (file.is_open() && file.good()) {
                 page_content = ft_to_string(file.rdbuf());
             }
@@ -165,6 +163,8 @@ void Get::generate_response()
 								+ "Content-Type: " + content_type + "\n" + "Content-Length: " + ft_to_string(page_content.size()) \
 								+ "Connection: close" \
 								+ "\n\n" + page_content + "\0";
+    if (file.is_open())
+        file.close();
 }
 
 /*
