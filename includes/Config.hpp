@@ -7,13 +7,13 @@ class Location {
 		std::string _location;
 		std::string	_root;
 		std::string	_index;
-		std::string _errorPage;
+		std::string _errorPage[305];
 		std::string _upload;
 		std::string	_redirection;
 		bool		_methods[3];
 		bool		_listing;
 	public:
-		Location() : _location("/"), _index(""), _errorPage("NONE"), _root("NONE"), _upload(""), _listing(false){
+		Location() : _location("/"), _index(""), _root("NONE"), _upload(""), _listing(false){
 			_methods[GET] = false;
 			_methods[POST] = false;
 			_methods[DELETE] = false;
@@ -24,7 +24,7 @@ class Location {
 		void setLocation(std::string location) { _location = location; }
 		void setRoot(std::string root) { _root = root; }
 		void setIndex(std::string index) { _index = index; }
-		void setErrorPage(std::string errorPage) { _errorPage = errorPage; }
+		void setErrorPage(std::string errorPage, int code) { if (code - 200 <= 305) _errorPage[code - 200] = errorPage; }
 		void setUpload(std::string upload) { _upload = upload; }
 		void setRedirection(std::string redirection) { _redirection = redirection; }
 		void acceptMethods(short index) { _methods[index] = true; }
@@ -33,7 +33,7 @@ class Location {
 		const std::string &getLocation() const { return (_location); }
 		const std::string &getRoot() const { return (_root); }
 		const std::string &getIndex() const { return (_index); }
-		const std::string &getErrorPage() const { return (_errorPage); }
+		const std::string &getErrorPage(int code) const { return (_errorPage[code - 200]); }
 		const std::string &getUpload() const { return (_upload); }
 		const std::string &getRedirection() const { return (_redirection); }
 		const bool &getMethods(short index) const { return (_methods[index]); }
@@ -46,7 +46,6 @@ inline std::ostream &	operator<<( std::ostream & o, std::vector<Location *> &_lo
         o << "Location: " << _locations.at(count)->getLocation() << "\n";
         o << "Root: " << _locations.at(count)->getRoot() << "\n";
         o << "Index: " << _locations.at(count)->getIndex() << "\n";
-        o << "Error_Page: " << _locations.at(count)->getErrorPage() << "\n";
         o << "POST: " << _locations.at(count)->getMethods(0) << "\n";
         o << "GET: " << _locations.at(count)->getMethods(1) << "\n";
         o << "DELETE: " << _locations.at(count)->getMethods(2) << "\n\n";

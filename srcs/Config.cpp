@@ -49,9 +49,10 @@ void Config::parse(std::string token, std::string line) {
 		sscanf(line.c_str(), "%*s %s", temp[0]);
 		_locations.at(0)->setIndex(temp[0]);
 	}
-	else if (token == "error_page") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
-		_locations.at(0)->setErrorPage(temp[0]);
+	else if (token == "error") {
+		int code;
+		sscanf(line.c_str(), "%*s %i %s", &code, temp[0]);
+		_locations.at(0)->setErrorPage(temp[0], code);
 	}
 	else if (token == "redirection") {
 		sscanf(line.c_str(), "%*s %s", temp[0]);
@@ -89,9 +90,10 @@ void Config::parseLocation(std::string token, std::string line, size_t size) {
 		sscanf(line.c_str(), "%*s %s", temp[0]);
 		_locations.at(size)->setIndex(temp[0]);
 	}
-	else if (token == "error_page") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
-		_locations.at(size)->setErrorPage(temp[0]);
+	else if (token == "error") {
+		int code;
+		sscanf(line.c_str(), "%*s %i %s", &code, temp[0]);
+		_locations.at(size)->setErrorPage(temp[0], code);
 	}
 	else if (token == "upload") {
 		sscanf(line.c_str(), "%*s %s", temp[0]);

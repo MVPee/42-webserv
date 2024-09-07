@@ -129,22 +129,36 @@ void Get::generate_listing( void ) {
     closedir(dir);
 }
 
-void Get::generate_response( void )
+void Get::generate_response()
 {
     std::ifstream file(_request.getPath().c_str());
 	std::string page_content;
+    std::string content_type;
 
     //? TEMPORAIRE
 	if (!file.is_open() || !file.good() || _status_code >= 400 || _request.getMethod() == DELETE) {
+        content_type = "text/html";
         if ((!file.is_open() || !file.good()) && _status_code < 400 && _request.getMethod() != DELETE)
 		    _status_code = ERROR_NOT_FOUND;
-		page_content = "<h1>default: " + ft_to_string(_status_code) + " " + get_status_message(_status_code) + "</h1>";
+        if (!_request.getLocation()->getErrorPage(_status_code).empty()) {
+            if (file.is_open())
+                file.close();
+            file.open(ft_to_string(_request.getLocation()->getRoot() + '/' + _request.getLocation()->getErrorPage(_status_code)).c_str());
+            std::cout << R << _request.getLocation()->getRoot() + '/' + _request.getLocation()->getErrorPage(_status_code) << C << std::endl;
+            std::cout << R << file.is_open() << " " <<file.good() << C << std::endl;
+            if (file.is_open() && file.good()) {
+                page_content = ft_to_string(file.rdbuf());
+            }
+        }
+        if (page_content.empty())
+		    page_content = "<h1>default: " + ft_to_string(_status_code) + " " + get_status_message(_status_code) + "</h1>";
 	}
 	else
         page_content = get_page_content(file);
 
 	const std::string status_message = get_status_message(_status_code);
-	const std::string content_type = get_content_type(_request.getExtension());
+    if (content_type.empty())
+        content_type = get_content_type(_request.getExtension());
 
 
     _content = ft_to_string(HTML_VERSION) + " " + ft_to_string(_status_code) + " " + status_message + "\n" \
