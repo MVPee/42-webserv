@@ -15,10 +15,8 @@ Response::Response(int &client_fd, Request &request, Server &server): _status_co
 		else if (remove(request.getPath().c_str()))
 			_status_code = ERROR_INTERNAL_SERVER;
 	}
-    if (request.getLocation()->getMethods(GET) || request.getExtension() == "redirection") {
-		std::cout << B << _status_code << C << std::endl;
-	    Get(client_fd, request, server);
-    }
+	std::cout << B << _status_code << C << std::endl;
+	Get(client_fd, request, server);
 }
 
 /*

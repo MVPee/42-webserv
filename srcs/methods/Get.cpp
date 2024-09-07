@@ -52,10 +52,10 @@ _request(request),
 _server(server), 
 _fd(0),
 _status_code(request.get_status_code()) {
-    if (request.getExtension() == "redirection")
-        generate_redirection(request.getLocation()->getRedirection());
-    else if (request.getExtension() == "directory")
+    if (!request.isAccepted() || request.getExtension() == "directory")
         _status_code = FORBIDDEN;
+    else if (request.getExtension() == "redirection")
+        generate_redirection(request.getLocation()->getRedirection());
     else if (request.getExtension() == "listing")
         generate_listing();
     if (_content.empty())
