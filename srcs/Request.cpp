@@ -27,12 +27,10 @@ _status_code (FORBIDDEN) {
 		if (bytes_received < 0) throw_and_set_status(ERROR_INTERNAL_SERVER, "Receive failed");
 		else if (bytes_received == 0) throw_and_set_status(CLIENT_CLOSED_REQUEST, "Connexion closed");
 
-		std::cout << "Message received: " << _httpRequest  << std::endl; //* DEBUG
+		// std::cout << "Message received: " << _httpRequest  << std::endl; //* DEBUG
 
 		parse_request(s);
 
-
-		std::cout << R << _location->getLocation() << C << std::endl;
 		if (_location->getMethods((unsigned int)_method) || _extension == "redirection") {
 			_accept = true;
 			_status_code = OK;
@@ -41,9 +39,7 @@ _status_code (FORBIDDEN) {
 	}
 	catch(const std::exception& e)
 	{
-		//? change ?
 		if (_status_code == OK) _status_code = ERROR_INTERNAL_SERVER;
-		std::string content = "<h1>default: " + ft_to_string(_status_code) + " " + get_status_message(_status_code) + "</h1>";
 		std::cerr << R << e.what() << C << '\n';
 	}
 }

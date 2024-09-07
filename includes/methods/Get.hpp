@@ -28,7 +28,7 @@ class Get {
 		std::string		_content;
 
 		void getContent( void );
-		void generate_response();
+		void get_file( void );
 		void generate_listing( void );
 		void generate_redirection(std::string redirection);
 	public:
