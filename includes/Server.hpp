@@ -9,13 +9,18 @@ class Location;
 
 class Server {
 	private:
+		int _client_socket[MAX_CLIENT];
+		//time_t _connection_times[MAX_CLIENT];
+		fd_set _readfds;
+		int _max_sd, _sd, _new_socket;
+
 		std::string name;
 		unsigned int port;
 		unsigned int body;
 		std::vector<Location *> 	_locations;
 
 		sockaddr_in sock_address;
-		int fd[4];
+		int _fd_socket;
 
 		Request		*_request;
 		Response	*_response;

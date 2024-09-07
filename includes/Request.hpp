@@ -14,6 +14,8 @@ class Request {
 		std::string		_extension;
 		std::string 	_path;
 		size_t			_status_code;
+		bool			_succed;
+
 
 		Location *_location;
 
@@ -23,7 +25,7 @@ class Request {
 
 		void throw_and_set_status(const size_t status_code, std::string message);
 	public:
-		Request(int &client_fd, Server &s);
+		Request(int &client_fd, Server &s, int &sd);
 		~Request();
 		
 		const char			*getContent(void) const;
@@ -34,6 +36,7 @@ class Request {
 		const bool			&isAccepted(void) const;
 		Location			*getLocation(void) const;
 		size_t 				&get_status_code( void );
+		const bool			&getSucced(void) const;
 };
 
 std::ostream &			operator<<( std::ostream & o, Request const & i );

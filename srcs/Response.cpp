@@ -21,13 +21,13 @@ static std::string get_content_type(std::string extension) {
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Response::Response(int &client_fd, Request &request, Server &server):
+Response::Response(int &client_fd, Request &request, Server &server, int &sd):
 _status_code(request.get_status_code()),
 _request(request) {
 	std::string response_header;
 
     if (request.getMethod() == POST && request.isAccepted())
-		Post Form(client_fd, request, server);
+		Post Form(sd, request, server);
 	if (request.getMethod() == DELETE) {
 		if (request.isAccepted()) {
 			if (access(request.getPath().c_str(), F_OK) != 0)
@@ -53,12 +53,12 @@ const std::string Response::generate_response(const std::string &page_content) c
     std::string content_type = _status_code < 400 ? get_content_type(_request.getExtension()) : "text/html";
 	const std::string status_message = get_status_message(_status_code);
 
-	std::string response = ft_to_string(HTML_VERSION) + " " + ft_to_string(_status_code) + " " + status_message + '\n' \
-								+ "Content-Type: " + content_type + '\n' \
-								+ "Content-Length: " + ft_to_string(page_content.size()) + '\n'\
+	std::string response = ft_to_string(HTML_VERSION) + " " + ft_to_string(_status_code) + " " + status_message + "\r\n" \
+								+ "Content-Type: " + content_type + "\r\n" \
+								+ "Content-Length: " + ft_to_string(page_content.size()) + "\r\n"\
 								+ "Connection: close" \
-								+ ((_request.getExtension() == "redirection") ? ("\nLocation: " + _request.getLocation()->getRedirection() + '\n') : ("")) \
-								+ "\n\n" + page_content + '\0';
+								+ ((_request.getExtension() == "redirection") ? ("\r\nLocation: " + _request.getLocation()->getRedirection() + "\r\n") : ("")) \
+								+ "\r\n\r\n" + page_content + '\0';
 	return (response);
 }
 

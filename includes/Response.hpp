@@ -13,7 +13,7 @@ class Response {
 
 		const std::string		generate_response(const std::string &page_content) const;
 	public:
-		Response(int &client_fd, Request &request, Server &server);
+		Response(int &client_fd, Request &request, Server &server, int &sd);
 		~Response();
 };
 

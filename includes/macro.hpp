@@ -2,6 +2,7 @@
 #define MACRO_HPP
 
 # include <iostream>
+# include <cstring>
 # include <string>
 # include <vector>
 # include <sstream>
@@ -23,6 +24,7 @@
 # include <filesystem>
 # include <dirent.h>
 
+# define TIME_OUT 5
 # define MAX_CLIENT 100
 # define GET 0
 # define POST 1

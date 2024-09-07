@@ -10,23 +10,29 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Request::Request(int &client_fd, Server &s) : 
+Request::Request(int &client_fd, Server &s, int &sd) : 
 _extension("None"), 
 _accept(false),
-_status_code (FORBIDDEN) {
+_status_code (FORBIDDEN),
+_succed(true) {
 	try{
 		char buffer[2];
 		int bytes_received;
 
-		while ((bytes_received = recv(client_fd, buffer, sizeof(buffer) - 1, 0)) > 0) {
+		while ((bytes_received = recv(sd, buffer, sizeof(buffer) - 1, 0)) > 0) {
 			buffer[bytes_received] = '\0';
 			_httpRequest += buffer;
 			if (_httpRequest.find("\r\n\r\n") != std::string::npos) break;
 		}
 
-		if (bytes_received < 0) throw_and_set_status(ERROR_INTERNAL_SERVER, "Receive failed");
-		else if (bytes_received == 0) throw_and_set_status(CLIENT_CLOSED_REQUEST, "Connexion closed");
-
+		if (bytes_received < 0) {
+			_succed = false;
+			throw_and_set_status(ERROR_INTERNAL_SERVER, "Receive failed");
+		}
+		else if (bytes_received == 0) {
+			_succed = false;
+			throw_and_set_status(CLIENT_CLOSED_REQUEST, "Connexion closed");
+		}
 		// std::cout << "Message received: " << _httpRequest  << std::endl; //* DEBUG
 
 		parse_request(s);
@@ -174,6 +180,7 @@ const std::string	&Request::getExtension(void) const {return (_extension);}
 const std::string 	&Request::getPath(void) const {return(_path);}
 const bool			&Request::isAccepted(void) const {return(_accept);}
 Location			*Request::getLocation(void) const { return (_location);}
-size_t 				&Request::get_status_code( void ) {return(_status_code);};
+size_t 				&Request::get_status_code( void ) {return(_status_code);}
+const bool			&Request::getSucced(void) const {return (_succed); }
 
 /* ************************************************************************** */

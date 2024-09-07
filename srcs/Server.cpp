@@ -8,11 +8,6 @@ Server::Server(const std::string config_text) :
 	name("default_server"), 
 	port(80), 
 	body(100) {
-	this->fd[SOCKET] = 0;
-	this->fd[BIND] = 0;
-	this->fd[LISTEN] = 0;
-	this->fd[ACCEPT] = 0;
-
 	std::map<std::string, std::string> map;
 
 	//! Temporary
@@ -31,14 +26,8 @@ Server::Server(const std::string config_text) :
 */
 
 Server::~Server() {
-	if (fd[SOCKET])
-		close(fd[SOCKET]);
-	if (fd[BIND])
-		close(fd[BIND]);
-	if (fd[LISTEN])
-		close(fd[LISTEN]);
-	if (fd[ACCEPT])
-		close(fd[ACCEPT]);
+	if (_fd_socket)
+		close(_fd_socket);
 	while(!_locations.empty() && _locations.size() > 0)
 	{
 		delete _locations.back();
@@ -64,8 +53,13 @@ std::ostream &			operator<<( std::ostream & o, Server const & i ) {
 */
 
 void Server::mySocket(void) {
-	this->fd[SOCKET] = socket(AF_INET, SOCK_STREAM, 0);
-	if (this->fd[SOCKET] < 0) throw std::runtime_error("Socked failed");
+	// memset(_client_socket, 0, MAX_CLIENT * sizeof(int));
+	for (int i = 0; i < MAX_CLIENT; i++) {
+        _client_socket[i] = 0;
+    }
+
+	if ((_fd_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+		throw std::runtime_error("Socked failed");
 
 	this->sock_address.sin_family = AF_INET;
     this->sock_address.sin_port = htons(this->port);
@@ -73,17 +67,17 @@ void Server::mySocket(void) {
 }
 
 void Server::myBind(void) {
-	std::ostringstream str1;
 	int opt = 1;
-    setsockopt(this->fd[SOCKET], SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-	this->fd[BIND] = bind(this->fd[SOCKET], (sockaddr *) &this->sock_address, sizeof(this->sock_address));
-	str1 << fd[BIND];
-	if (this->fd[BIND] < 0) throw std::runtime_error("Bind failed " + str1.str());
+	if (setsockopt(_fd_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+		throw std::runtime_error("setsockopt failed");
+	}
+	if (bind(_fd_socket, (sockaddr *) &this->sock_address, sizeof(this->sock_address)) < 0)
+		throw std::runtime_error("Bind failed");
 }
 
 void Server::myListen(void) {
-	this->fd[LISTEN] = listen(this->fd[SOCKET], MAX_CLIENT);
-	if (this->fd[LISTEN] < 0) throw std::runtime_error("Listen failed");
+	if (listen(_fd_socket, MAX_CLIENT) < 0)
+		throw std::runtime_error("Listen failed");
 
 	std::ostringstream ss;
 	ss << "\n*** Listening on ADDRESS: " 
@@ -94,34 +88,54 @@ void Server::myListen(void) {
 }
 
 void Server::process(void) {
-	this->fd[ACCEPT] = accept(this->fd[SOCKET], 0, 0);
-	if (this->fd[ACCEPT] < 0)
-		throw std::runtime_error("Accept failed");
+	FD_ZERO(&_readfds);
+	FD_SET(_fd_socket, &_readfds);
+	_max_sd = _fd_socket;
 
-	_request = NULL;
-	_response = NULL;
+	for (int i = 0; i < MAX_CLIENT; i++) {
+		_sd = _client_socket[i];
 
-	try {
-		struct pollfd struct_fds = {fd[ACCEPT], POLLIN | POLLPRI | POLLOUT, 0};
-		if (poll(&struct_fds, 1, 0) <= 0) throw std::runtime_error("poll failed");
+		// Si le socket est valide, on l’ajoute au set
+		if (_sd > 0)
+			FD_SET(_sd, &_readfds);
 
-		_request = new Request(fd[ACCEPT], *this);
-		std::cout << B << *_request << C << std::endl; //* DEBUG
-		_response = new Response(fd[ACCEPT], *_request, *this);
-	}
-	catch (std::exception &e) {
-		if (_request)
-			delete _request;
-		if (_response)
-			delete _response;
-		throw std::runtime_error(e.what());
+		// On identifie le plus grand descripteur pour `select()`
+		if (_sd > _max_sd)
+			_max_sd = _sd;
 	}
 
-	if (_request)
-		delete _request;
-	if (_response)
-		delete _response;
-	close(fd[ACCEPT]);
+	if ((select(_max_sd + 1, &_readfds, NULL, NULL, NULL) < 0) && (errno != EINTR)) {
+		std::cerr << "Erreur avec select(), errno: " << strerror(errno) << std::endl;
+	}
+
+	if (FD_ISSET(_fd_socket, &_readfds)) {
+		int addrlen = sizeof(this->sock_address);
+		if ((_new_socket = accept(_fd_socket, (sockaddr *) &this->sock_address, (socklen_t *)&addrlen)) < 0)
+			throw std::runtime_error("Accept failed");
+		for (int i = 0; i < MAX_CLIENT; i++) {
+			if (_client_socket[i] == 0) {
+				_client_socket[i] = _new_socket;
+				break;
+			}
+		}
+	}
+
+	for (int i = 0; i < MAX_CLIENT; i++) {
+        _sd = _client_socket[i];
+		if (FD_ISSET(_sd, &_readfds)) {
+			_request = new Request(_client_socket[i], *this, _sd);
+			std::cout << *_request << std::endl;
+			if (!_request->getSucced()) {
+				close(_sd);
+				_client_socket[i] = 0;
+			}
+			else {
+				_response = new Response(_client_socket[i], *_request, *this, _sd);
+				close(_sd);
+				_client_socket[i] = 0;
+			}
+		}
+	}
 }
 
 /*
