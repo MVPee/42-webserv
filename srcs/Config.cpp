@@ -53,6 +53,10 @@ void Config::parse(std::string token, std::string line) {
 		sscanf(line.c_str(), "%*s %s", temp[0]);
 		_locations.at(0)->setErrorPage(temp[0]);
 	}
+	else if (token == "redirection") {
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+		_locations.at(0)->setRedirection(temp[0]);
+	}
 	else if (token == "listing") {
 		sscanf(line.c_str(), "%*s %s", temp[0]);
 		if (std::string(temp[0]) == "ON")
@@ -92,6 +96,10 @@ void Config::parseLocation(std::string token, std::string line, size_t size) {
 	else if (token == "upload") {
 		sscanf(line.c_str(), "%*s %s", temp[0]);
 		_locations.at(size)->setUpload(temp[0]);
+	}
+	else if (token == "redirection") {
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+		_locations.at(size)->setRedirection(temp[0]);
 	}
 	else if (token == "methods") {
 		sscanf(line.c_str(), "%*s %s %s %s", temp[0], temp[1], temp[2]);

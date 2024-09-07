@@ -4,6 +4,7 @@
 const char* get_status_message(const size_t status_code) {
     switch (status_code) {
         case OK:                                return "OK";
+        case REDIRECTION_PERMANENTLY:           return "Moved Permanently";
         case BAD_REQUEST:                       return "BAD REQUEST";
         case ERROR_NOT_FOUND:                   return "NOT FOUND";
         case ERROR_REQUEST_TIMEOUT:             return "REQUEST TIMEOUT";
@@ -51,11 +52,12 @@ _request(request),
 _server(server), 
 _fd(0),
 _status_code(request.get_status_code()) {
-    if (request.getExtension() == "directory")
+    if (request.getExtension() == "redirection")
+        generate_redirection(request.getLocation()->getRedirection());
+    else if (request.getExtension() == "directory")
         _status_code = FORBIDDEN;
-    else if (request.getExtension() == "listing") {
+    else if (request.getExtension() == "listing")
         generate_listing();
-    }
     if (_content.empty())
         generate_response();
     _fd = send(client_fd, _content.c_str(), _content.size(), 0);
@@ -85,6 +87,15 @@ std::ostream &			operator<<( std::ostream & o, Get const & i ) {
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
+
+void Get::generate_redirection(std::string redirection) {
+    std::string content = ft_to_string(get_status_message(_status_code)) + ". Redirecting to " + redirection;
+        _content =  ft_to_string(HTML_VERSION) + " " + ft_to_string(_status_code) + "\n" \
+                    + "Location: " + redirection + '\n' \
+                    + "Content-Length: " + ft_to_string(content.size()) + '\n' \
+                    + "Connection: close" + "\n\n" \
+                    + content + '\0';
+}
 
 void Get::generate_listing( void ) {
     struct dirent* entry;

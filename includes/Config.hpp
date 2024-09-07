@@ -9,6 +9,7 @@ class Location {
 		std::string	_index;
 		std::string _errorPage;
 		std::string _upload;
+		std::string	_redirection;
 		bool		_methods[3];
 		bool		_listing;
 	public:
@@ -25,6 +26,7 @@ class Location {
 		void setIndex(std::string index) { _index = index; }
 		void setErrorPage(std::string errorPage) { _errorPage = errorPage; }
 		void setUpload(std::string upload) { _upload = upload; }
+		void setRedirection(std::string redirection) { _redirection = redirection; }
 		void acceptMethods(short index) { _methods[index] = true; }
 		void acceptListing(bool value) { _listing = value;}
 
@@ -33,6 +35,7 @@ class Location {
 		const std::string &getIndex() const { return (_index); }
 		const std::string &getErrorPage() const { return (_errorPage); }
 		const std::string &getUpload() const { return (_upload); }
+		const std::string &getRedirection() const { return (_redirection); }
 		const bool &getMethods(short index) const { return (_methods[index]); }
 		const bool &getListing() const { return (_listing); }
 };

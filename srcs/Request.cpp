@@ -33,9 +33,10 @@ _status_code (FORBIDDEN) {
 
 
 		std::cout << R << _location->getLocation() << C << std::endl;
-		if (_location->getMethods((unsigned int)_method)) {
+		if (_location->getMethods((unsigned int)_method) || _extension == "redirection") {
 			_accept = true;
 			_status_code = OK;
+			if (_extension == "redirection") _status_code = REDIRECTION_PERMANENTLY;
 		}
 	}
 	catch(const std::exception& e)
@@ -80,7 +81,9 @@ std::ostream &			operator<<( std::ostream & o, Request const & i ) {
 void Request::resolvePath(Server &s) {
 	struct stat info;
 
-	if (stat(_path.c_str(), &info) == 0) {
+	if (!_location->getRedirection().empty())
+		_extension = "redirection";
+	else if (stat(_path.c_str(), &info) == 0) {
 		if (info.st_mode & S_IFDIR) {
 			_extension = "directory";
 			if (_path[_path.size() - 1] != '/')
@@ -89,7 +92,6 @@ void Request::resolvePath(Server &s) {
 	}
 	if (_path == (_location->getRoot() + "/") || _extension == "directory") {
 		if (_path == (_location->getRoot() + "/") && _location->getIndex() != ""){
-			std::cout << "Here" << std::endl;
 			_path += _location->getIndex();
 			_extension = ".html";
 		}

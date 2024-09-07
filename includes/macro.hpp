@@ -41,6 +41,8 @@
 
 # define OK							200
 
+# define REDIRECTION_PERMANENTLY    301
+
 # define BAD_REQUEST				400
 # define FORBIDDEN                  403
 # define ERROR_NOT_FOUND			404

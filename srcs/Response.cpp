@@ -5,7 +5,6 @@
 */
 
 Response::Response(int &client_fd, Request &request, Server &server): _status_code(request.get_status_code()) {
-
     if (request.getMethod() == POST && request.isAccepted()) {
 		Post Form(client_fd, request, server);
     }
@@ -16,7 +15,7 @@ Response::Response(int &client_fd, Request &request, Server &server): _status_co
 		else if (remove(request.getPath().c_str()))
 			_status_code = ERROR_INTERNAL_SERVER;
 	}
-    if (request.getLocation()->getMethods(GET)) {
+    if (request.getLocation()->getMethods(GET) || request.getExtension() == "redirection") {
 		std::cout << B << _status_code << C << std::endl;
 	    Get(client_fd, request, server);
     }
