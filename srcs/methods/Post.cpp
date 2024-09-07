@@ -1,15 +1,13 @@
 #include "../../includes/methods/Post.hpp"
 
-std::string get_data_in_header(std::string &header, std::string first_delimiter, std::string end_delimiter)
-{
+std::string get_data_in_header(std::string &header, std::string first_delimiter, std::string end_delimiter) {
 	std::size_t start = header.find(first_delimiter);
-	if (start == std::string::npos) return (std::string());
-
+	if (start == std::string::npos)
+		return (std::string());
 	std::string ret = header.substr(start + first_delimiter.size());
-
 	std::size_t end = ret.find(end_delimiter);
-	if (end == std::string::npos) return (std::string());
-
+	if (end == std::string::npos)
+		return (std::string());
 	return (ret.substr(0, end));
 }
 
@@ -23,7 +21,7 @@ _request(request),
 _server(server), 
 _body_size(0), 
 _status_code(request.get_status_code()) {
-	try{
+	try {
 		std::string header = request.getHttpRequest();
 		_boundary = get_data_in_header(header, "boundary=", "\r");
 		std::string content_length = get_data_in_header(header, "Content-Length: ", "\r");
@@ -41,12 +39,10 @@ _status_code(request.get_status_code()) {
 		if (content_type != "multipart/form-data")
 			throw_and_set_status(NOT_IMPLEMENTED, "Form is not a multipart/form-data");
 
-		while (_remaining_content != _boundary + "--\r\n") { //? check if this cause an issue
+		while (_remaining_content != _boundary + "--\r\n") //? check if this cause an issue
 			handle_post_request(request.getLocation());
-		}
 	}
-	catch(const std::exception& e)
-	{
+	catch(const std::exception& e) {
 		if (_status_code == OK) _status_code = ERROR_INTERNAL_SERVER;
 		std::cerr << R << e.what() << C << '\n';
 	}

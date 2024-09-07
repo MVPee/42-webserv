@@ -41,9 +41,7 @@ _status_code(request.get_status_code()) {
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
 
-Get::~Get() {
-
-}
+Get::~Get() {}
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
@@ -102,7 +100,6 @@ void Get::get_file() {
 		else 
 			_content = ft_to_string(file.rdbuf());
 	}
-
 
 	if (_status_code >= 400) {
 		file.open(ft_to_string(_request.getLocation()->getRoot() + '/' + _request.getLocation()->getErrorPage(_status_code)).c_str());
