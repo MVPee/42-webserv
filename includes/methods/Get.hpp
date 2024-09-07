@@ -33,6 +33,7 @@ class Get {
 		void generate_redirection(std::string redirection);
 	public:
 		Get(const int client_fd, Request &request, Server &server);
+		const std::string &get_content( void ) const;
 
 		~Get();
 };
