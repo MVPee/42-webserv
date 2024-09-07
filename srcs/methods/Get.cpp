@@ -23,11 +23,9 @@ const char* get_status_message(const size_t status_code) {
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Get::Get(const int client_fd, Request &request, Server &server) : 
-_client_fd(client_fd), 
+Get::Get(Request &request, Server &server) :  
 _request(request), 
-_server(server), 
-_fd(0),
+_server(server),
 _status_code(request.get_status_code()) {
     if (!request.isAccepted() || request.getExtension() == "directory")
         _status_code = FORBIDDEN;
@@ -44,8 +42,7 @@ _status_code(request.get_status_code()) {
 */
 
 Get::~Get() {
-	if (_fd >= 0)
-		close(_fd);
+
 }
 
 /*

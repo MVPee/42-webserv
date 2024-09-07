@@ -43,13 +43,14 @@ Response::Response(int &client_fd, Request &request, Server &server):
 		}
 	}
 	else
-		response_header = Get (client_fd, request, server).get_content();
+		response_header = Get (request, server).get_content();
 
-	const std::string response = generate_response(response_header);
+	std::string response = generate_response(response_header);
     int fd = send(client_fd, response.c_str(), response.size(), 0);
     if (fd < 0) {
         throw std::runtime_error("Send failed"); //? Catch ?
     }
+	else close(fd);
 
 
 }
