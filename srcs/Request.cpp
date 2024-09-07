@@ -33,7 +33,7 @@ _status_code (FORBIDDEN) {
 
 		if (_location->getMethods((unsigned int)_method) || _extension == "redirection") {
 			_accept = true;
-			_status_code = OK;
+			_status_code = (_method == POST || _method == DELETE) ? NO_CONTENT : OK;
 			if (_extension == "redirection") _status_code = REDIRECTION_PERMANENTLY;
 		}
 	}

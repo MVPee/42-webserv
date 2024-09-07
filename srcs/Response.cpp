@@ -30,7 +30,7 @@ Response::Response(int &client_fd, Request &request, Server &server):
     if (request.getMethod() == POST && request.isAccepted()) {
 		Post Form(client_fd, request, server);
     }
-	if (request.getMethod() == DELETE)
+	else if (request.getMethod() == DELETE)
 	{
 		if (request.isAccepted())
 		{
