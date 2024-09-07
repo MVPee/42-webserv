@@ -14,6 +14,7 @@ const char* get_status_message(const size_t status_code) {
         case NOT_IMPLEMENTED:                   return "NOT IMPLEMENTED";
         case HTTP_VERSION_NOT_SUPPORTED:        return "HTTP VERSION NOT SUPPORTED";
         case FORBIDDEN:                         return "FORBIDDEN";
+		case NO_CONTENT:						return "NO_CONTENT";
         default:                               	return "UNKNOWN STATUS CODE";
     }
 }

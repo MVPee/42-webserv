@@ -25,19 +25,27 @@ static std::string get_content_type(std::string extension)
 Response::Response(int &client_fd, Request &request, Server &server):
  _status_code(request.get_status_code()),
  _request(request) {
+	std::string response_header;
+
     if (request.getMethod() == POST && request.isAccepted()) {
 		Post Form(client_fd, request, server);
     }
-	else if (request.getMethod() == DELETE  && request.isAccepted())
+	if (request.getMethod() == DELETE)
 	{
-		if (access(request.getPath().c_str(), F_OK) != 0)
-			_status_code = ERROR_NOT_FOUND;
-		else if (remove(request.getPath().c_str()))
-			_status_code = ERROR_INTERNAL_SERVER;
+		if (request.isAccepted())
+		{
+			if (access(request.getPath().c_str(), F_OK) != 0)
+				_status_code = ERROR_NOT_FOUND;
+			else if (remove(request.getPath().c_str()))
+				_status_code = ERROR_INTERNAL_SERVER;
+			else 
+				_status_code = NO_CONTENT;
+		}
 	}
-	Get get(client_fd, request, server);
+	else
+		response_header = Get (client_fd, request, server).get_content();
 
-	const std::string response = generate_response(get.get_content());
+	const std::string response = generate_response(response_header);
     int fd = send(client_fd, response.c_str(), response.size(), 0);
     if (fd < 0) {
         throw std::runtime_error("Send failed"); //? Catch ?

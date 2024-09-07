@@ -40,6 +40,7 @@
 # define HTML_VERSION "HTTP/1.1"
 
 # define OK							200
+# define NO_CONTENT					204
 
 # define REDIRECTION_PERMANENTLY    301
 
