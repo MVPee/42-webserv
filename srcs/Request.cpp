@@ -152,8 +152,6 @@ void Request::parse_request(Server &s){
 	else
 		this->_path = _location->getRoot() + request_path.erase(0, _location->getLocation().size());
 
-	std::cout << "PATH: "<< _path << std::endl;
-
 
 	if (request_method == "GET") this->_method = GET;
 	else if (request_method == "POST") this->_method = POST;
