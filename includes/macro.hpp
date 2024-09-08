@@ -22,6 +22,7 @@
 # include <list>
 # include <fcntl.h>
 # include <filesystem>
+# include <pthread.h>
 # include <dirent.h>
 
 # define TIME_OUT 5
