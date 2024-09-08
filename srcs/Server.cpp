@@ -157,6 +157,7 @@ void Server::process(void) {
 					time_t current_time = time(NULL);
 					if (difftime(current_time, _connection_times[_sd]) > TIME_OUT) {
 						std::cout << "Client " << _sd << " took too long to send request. Closing connection." << std::endl;
+						//Need to send 408 probably
 						close(_sd);
 						_client_socket[i] = 0;
 						_requests.erase(_sd);
