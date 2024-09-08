@@ -41,7 +41,7 @@ extern volatile bool stopRequested;
 # define BIND 1
 # define LISTEN 2
 # define ACCEPT 3
-# define BUFFER_SIZE 256
+# define BUFFER_SIZE 2048
 
 # define HTML_VERSION "HTTP/1.1"
 

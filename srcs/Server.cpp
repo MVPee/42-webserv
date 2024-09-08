@@ -139,11 +139,11 @@ void Server::process(void) {
 				if (_requests[_sd].find("\r\n\r\n") != std::string::npos) {
 					std::string full_request = _requests[_sd];
 					//!	REQUEST		/
-					// std::cout << Y << "Socket " << _sd << " :\n" << full_request << C << std::endl;
+					//! std::cout << Y << "Socket " << _sd << " :\n" << full_request << C << std::endl;
 					_response = new Response(*this, full_request);
 					std::string httpResponse = _response->getHttpResponse();
 					//!	RESPONSE	/
-					// std::cout << B << httpResponse << C << std::endl;
+					//! std::cout << B << httpResponse << C << std::endl;
 					_responses[_sd] = httpResponse;
 					delete _response;
 					_requests.erase(_sd);
