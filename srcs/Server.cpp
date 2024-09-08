@@ -136,10 +136,13 @@ void Server::process(void) {
 			if (!_request->getSuccess()) {
 				close(_sd);
 				_client_socket[i] = 0;
+				delete _request;
 			}
 			else {
 				_response = new Response(_client_socket[i], *_request, *this, _sd);
 				_responses[_sd] = _response->getResponse();
+				delete _response;
+				delete _request;
 			}
 		}
 		if (FD_ISSET(_sd, &_writefds)) {
@@ -162,6 +165,7 @@ void Server::process(void) {
 					response_data = response_data.substr(bytes_sent);
 			}
 		}
+
 		if (stopRequested) return;
 	}
 }
