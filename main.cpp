@@ -1,9 +1,26 @@
 # include "includes/macro.hpp"
 
+static void* serverThread(void* arg) {
+    Server* server = static_cast<Server*>(arg);
+    try {
+        server->mySocket();
+        server->myBind();
+        server->myListen();
+
+        while (true) {
+            server->process();
+        }
+    }
+    catch (std::exception &e) {
+        std::cerr << e.what() << std::endl;
+    }
+    return NULL;
+}
+
 int main(int ac, char **av) {
     std::string line;
     std::string text;
-    
+
     if (ac != 2)
         return (1);
 
@@ -32,28 +49,16 @@ int main(int ac, char **av) {
         i++;
     }
 
+    std::vector<pthread_t> server_threads;
     for (size_t i = 0; i < servers.size(); i++) {
-        // std::cout << test << std::endl; //* DEBUG
-        try {
-            servers.at(i)->mySocket();
-            servers.at(i)->myBind();
-        }
-        catch (std::exception &e) {
-            std::cerr << e.what() << std::endl;
-            return (1);
-        }
-        servers.at(i)->myListen();
+        pthread_t thread;
+        pthread_create(&thread, NULL, serverThread, static_cast<void*>(servers[i]));
+        server_threads.push_back(thread);
     }
-    while(1) {
-        for (size_t i = 0; i < servers.size(); i++) {
-            try {
-                servers.at(i)->process();
-            }
-            catch (std::exception &e) {
-                std::cerr << e.what() << std::endl;
-                return (1);
-            }
-        }
+    
+    for (size_t i = 0; i < server_threads.size(); i++) {
+        pthread_join(server_threads[i], NULL);
     }
+
     return (0);
 }
