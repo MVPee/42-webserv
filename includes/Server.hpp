@@ -11,7 +11,7 @@ class Server {
 	private:
 		int _client_socket[MAX_CLIENT];
 		//time_t _connection_times[MAX_CLIENT];
-		fd_set _readfds;
+		fd_set _readfds, _writefds;
 		int _max_sd, _sd, _new_socket;
 
 		std::string name;

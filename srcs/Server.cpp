@@ -89,22 +89,27 @@ void Server::myListen(void) {
 
 void Server::process(void) {
 	FD_ZERO(&_readfds);
-	FD_SET(_fd_socket, &_readfds);
+    FD_ZERO(&_writefds);
+
+    FD_SET(_fd_socket, &_readfds);
+    FD_SET(_fd_socket, &_writefds);
 	_max_sd = _fd_socket;
 
 	for (int i = 0; i < MAX_CLIENT; i++) {
 		_sd = _client_socket[i];
 
 		// Si le socket est valide, on l’ajoute au set
-		if (_sd > 0)
+		if (_sd > 0) {
 			FD_SET(_sd, &_readfds);
-
-		// On identifie le plus grand descripteur pour `select()`
+			FD_SET(_sd, &_writefds);
+		}
 		if (_sd > _max_sd)
 			_max_sd = _sd;
+
+		// On identifie le plus grand descripteur pour `select()`
 	}
 
-	if ((select(_max_sd + 1, &_readfds, NULL, NULL, NULL) < 0) && (errno != EINTR)) {
+	if ((select(_max_sd + 1, &_readfds, &_writefds, NULL, NULL) < 0) && (errno != EINTR)) {
 		std::cerr << "Erreur avec select(), errno: " << strerror(errno) << std::endl;
 	}
 
@@ -129,7 +134,7 @@ void Server::process(void) {
 				close(_sd);
 				_client_socket[i] = 0;
 			}
-			else {
+			else if (FD_ISSET(_sd, &_writefds)) {
 				_response = new Response(_client_socket[i], *_request, *this, _sd);
 				close(_sd);
 				_client_socket[i] = 0;

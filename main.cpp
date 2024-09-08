@@ -4,7 +4,6 @@ int main(int ac, char **av) {
     std::string line;
     std::string text;
     
-
     if (ac != 2)
         return (1);
 
