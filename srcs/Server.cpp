@@ -152,12 +152,11 @@ void Server::process(void) {
 					_requests.erase(_sd);
 					_connection_times.erase(_sd);
 				}
-				else {
-					//! TIME OUT
+				else { //! TIME OUT
 					time_t current_time = time(NULL);
 					if (difftime(current_time, _connection_times[_sd]) > TIME_OUT) {
 						std::cout << "Client " << _sd << " took too long to send request. Closing connection." << std::endl;
-						//Need to send 408 probably
+						send(_sd, "HTTP/1.1 408 Request Timeout\r\n\r\n", 36 * sizeof(char), 0);
 						close(_sd);
 						_client_socket[i] = 0;
 						_requests.erase(_sd);
@@ -165,14 +164,13 @@ void Server::process(void) {
 					}
 				}
 			}
-			else if (bytes_received == 0) {
-				std::cout << "Client close connexion..." << std::endl;
-				close(_sd);
-				_client_socket[i] = 0;
-			}
 			else {
+				if (bytes_received == 0)
+					std::cout << "Client close connexion..." << std::endl;
 				close(_sd);
 				_client_socket[i] = 0;
+				_requests.erase(_sd);
+				_connection_times.erase(_sd);
 			}
 		}
 		if (FD_ISSET(_sd, &_writefds)) {
