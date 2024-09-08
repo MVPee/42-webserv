@@ -23,7 +23,10 @@
 # include <fcntl.h>
 # include <filesystem>
 # include <pthread.h>
+# include <signal.h>
 # include <dirent.h>
+
+extern volatile bool stopRequested;
 
 # define TIME_OUT 5
 # define MAX_CLIENT 100

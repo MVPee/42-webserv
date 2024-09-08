@@ -1,13 +1,24 @@
 # include "includes/macro.hpp"
 
+volatile bool stopRequested = false;
+
+void handleSignal(int signal) {
+    if (signal == SIGINT) {
+        std::cout << R << "\nShutdown the server(s)..." << C << std::endl;
+        stopRequested = true;
+    }
+    else if (signal == SIGQUIT) {
+        exit(1);
+    }
+}
+
 static void* serverThread(void* arg) {
     Server* server = static_cast<Server*>(arg);
     try {
         server->mySocket();
         server->myBind();
         server->myListen();
-
-        while (true) {
+        while (!stopRequested) {
             server->process();
         }
     }
@@ -56,8 +67,19 @@ int main(int ac, char **av) {
         server_threads.push_back(thread);
     }
     
+    struct sigaction sa;
+    sa.sa_handler = handleSignal;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGQUIT, &sa, NULL);
+
     for (size_t i = 0; i < server_threads.size(); i++) {
         pthread_join(server_threads[i], NULL);
+    }
+
+    for (size_t i = 0; i < servers.size(); i++) {
+        delete servers.at(i);
     }
 
     return (0);

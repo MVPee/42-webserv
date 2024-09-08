@@ -88,6 +88,7 @@ void Server::myListen(void) {
 }
 
 void Server::process(void) {
+	if (stopRequested) return;
 	FD_ZERO(&_readfds);
     FD_ZERO(&_writefds);
 
@@ -105,9 +106,13 @@ void Server::process(void) {
 		}
 	}
 
+	if (stopRequested) return;
+
 	if ((select(_max_sd + 1, &_readfds, &_writefds, NULL, NULL) < 0) && (errno != EINTR)) {
 		std::cerr << "Erreur avec select(), errno: " << strerror(errno) << std::endl;
 	}
+
+	if (stopRequested) return;
 
 	if (FD_ISSET(_fd_socket, &_readfds)) {
 		int addrlen = sizeof(this->sock_address);
@@ -120,6 +125,8 @@ void Server::process(void) {
 			}
 		}
 	}
+
+	if (stopRequested) return;
 
 	for (int i = 0; i < MAX_CLIENT; i++) {
         _sd = _client_socket[i];
@@ -155,6 +162,7 @@ void Server::process(void) {
 					response_data = response_data.substr(bytes_sent);
 			}
 		}
+		if (stopRequested) return;
 	}
 }
 
