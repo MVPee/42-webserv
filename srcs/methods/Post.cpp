@@ -81,10 +81,9 @@ void Post::handle_post_request(Location *location) {
 	if (contentDisposition.empty()) throw_and_set_status(BAD_REQUEST, "Content-disposition missing");
 
 	std::string filename = get_data_in_header(body_header, "filename=\"", "\"");
-	//? FOR DAN: RM si plus besoin
 	if (filename.empty()) throw_and_set_status(BAD_REQUEST, "filename missing");
 	filename = location->getRoot() + location->getUpload() + "/" + filename;
-	std::cout << B << filename << C << std::endl; //? DEBUG
+	// std::cout << B << filename << C << std::endl; //* DEBUG
 
     std::string contentType = get_data_in_header(body_header, "Content-Type: ", "\r");
 	if (contentType.empty()) throw_and_set_status(BAD_REQUEST, "Content-Type missing");

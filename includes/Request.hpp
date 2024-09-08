@@ -14,7 +14,7 @@ class Request {
 		std::string		_extension;
 		std::string 	_path;
 		size_t			_status_code;
-		bool			_succed;
+		bool			_success;
 
 
 		Location *_location;
@@ -36,7 +36,7 @@ class Request {
 		const bool			&isAccepted(void) const;
 		Location			*getLocation(void) const;
 		size_t 				&get_status_code( void );
-		const bool			&getSucced(void) const;
+		const bool			&getSuccess(void) const;
 };
 
 std::ostream &			operator<<( std::ostream & o, Request const & i );

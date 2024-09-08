@@ -130,7 +130,7 @@ void Server::process(void) {
 		if (FD_ISSET(_sd, &_readfds)) {
 			_request = new Request(_client_socket[i], *this, _sd);
 			std::cout << *_request << std::endl;
-			if (!_request->getSucced()) {
+			if (!_request->getSuccess()) {
 				close(_sd);
 				_client_socket[i] = 0;
 			}
