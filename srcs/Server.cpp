@@ -132,16 +132,14 @@ void Server::process(void) {
 	for (int i = 0; i < MAX_CLIENT; i++) {
         _sd = _client_socket[i];
 		if (FD_ISSET(_sd, &_readfds)) {
-			if (_connection_times.find(_sd) == _connection_times.end()) {
-				std::cout << "new connection time" << std::endl;
+			if (_connection_times.find(_sd) == _connection_times.end())
 				_connection_times[_sd] = time(NULL);
-			}
-			int bytes_received = recv(_sd, _buffer, BUFFER_SIZE - 1, 0);
+			int bytes_received = recv(_sd, _buffer, 1, 0);
 			if (bytes_received > 0) {
 				_buffer[bytes_received] = '\0';
-				_requests[_sd] += std::string(_buffer);
-				if (_requests[_sd].find("\r\n\r\n") != std::string::npos) {
-					std::string full_request = _requests[_sd];
+				_header[_sd] += std::string(_buffer);
+				if (_header[_sd].find("\r\n\r\n") != std::string::npos) {
+					std::string full_request = _header[_sd];
 					//!	REQUEST		/
 					//! std::cout << Y << "Socket " << _sd << " :\n" << full_request << C << std::endl;
 					_response = new Response(*this, full_request);
@@ -150,7 +148,7 @@ void Server::process(void) {
 					//! std::cout << B << httpResponse << C << std::endl;
 					_responses[_sd] = httpResponse;
 					delete _response;
-					_requests.erase(_sd);
+					_header.erase(_sd);
 					_connection_times.erase(_sd);
 				}
 				else { //! TIME OUT
@@ -161,7 +159,7 @@ void Server::process(void) {
 						send(_sd, "HTTP/1.1 408 Request Timeout\r\n\r\n", 36 * sizeof(char), 0);
 						close(_sd);
 						_client_socket[i] = 0;
-						_requests.erase(_sd);
+						_header.erase(_sd);
 						_connection_times.erase(_sd);
 					}
 				}
@@ -171,7 +169,7 @@ void Server::process(void) {
 					std::cout << "Client close connexion..." << std::endl;
 				close(_sd);
 				_client_socket[i] = 0;
-				_requests.erase(_sd);
+				_header.erase(_sd);
 				_connection_times.erase(_sd);
 			}
 		}

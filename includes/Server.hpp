@@ -11,12 +11,13 @@ class Server {
 	private:
 		int _client_socket[MAX_CLIENT];
 		std::map<int, std::string> _responses;
-		std::map<int, std::string> _requests;
+		std::map<int, std::string> _header;
+		std::map<int, std::string> _body;
 		std::map<int, time_t> _connection_times;
 		fd_set _readfds, _writefds;
 		int _max_sd, _sd, _new_socket;
 
-		char _buffer[BUFFER_SIZE];
+		char _buffer[2048];
 
 		std::string name;
 		unsigned int port;
@@ -28,6 +29,8 @@ class Server {
 
 		Request		*_request;
 		Response	*_response;
+
+		void handleRequest(int &_sd);
 	public:
 		Server(const std::string config_text);
 		~Server();
