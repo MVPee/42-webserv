@@ -136,12 +136,28 @@ void Server::process(void) {
 			}
 			else {
 				_response = new Response(_client_socket[i], *_request, *this, _sd);
-				close(_sd);
-				_client_socket[i] = 0;
+				_responses[_sd] = _response->getResponse();
 			}
 		}
 		if (FD_ISSET(_sd, &_writefds)) {
-			
+			if (_responses.find(_sd) != _responses.end()) {
+				std::string &response_data = _responses[_sd];
+				ssize_t bytes_sent = send(_sd, response_data.c_str(), response_data.size(), 0);
+
+				if (bytes_sent < 0) {
+					std::cerr << "Error sending data, errno: " << strerror(errno) << std::endl;
+					close(_sd);
+					_client_socket[i] = 0;
+					_responses.erase(_sd);
+				}
+				else if (bytes_sent == response_data.size()) {
+					_responses.erase(_sd);
+					close(_sd);
+					_client_socket[i] = 0;
+				}
+				else
+					response_data = response_data.substr(bytes_sent);
+			}
 		}
 	}
 }

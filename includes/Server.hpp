@@ -10,6 +10,7 @@ class Location;
 class Server {
 	private:
 		int _client_socket[MAX_CLIENT];
+		std::map<int, std::string> _responses;
 		//time_t _connection_times[MAX_CLIENT];
 		fd_set _readfds, _writefds;
 		int _max_sd, _sd, _new_socket;

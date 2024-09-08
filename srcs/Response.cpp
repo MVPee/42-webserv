@@ -41,11 +41,7 @@ _request(request) {
 	else
 		response_header = Get (request, server).get_content();
 
-	std::string response = generate_response(response_header);
-    int fd = send(client_fd, response.c_str(), response.size(), 0);
-    if (fd < 0)
-        throw std::runtime_error("Send failed"); //? Catch ?
-	else close(fd);
+	_response = generate_response(response_header);
 }
 
 
