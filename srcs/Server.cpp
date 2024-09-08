@@ -134,11 +134,14 @@ void Server::process(void) {
 				close(_sd);
 				_client_socket[i] = 0;
 			}
-			else if (FD_ISSET(_sd, &_writefds)) {
+			else {
 				_response = new Response(_client_socket[i], *_request, *this, _sd);
 				close(_sd);
 				_client_socket[i] = 0;
 			}
+		}
+		if (FD_ISSET(_sd, &_writefds)) {
+			
 		}
 	}
 }
