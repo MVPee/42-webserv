@@ -130,23 +130,36 @@ void Server::process(void) {
 
 	for (int i = 0; i < MAX_CLIENT; i++) {
         _sd = _client_socket[i];
+		fcntl(_sd, F_SETFL, O_NONBLOCK);
 		if (FD_ISSET(_sd, &_readfds)) {
-			_request = new Request(_client_socket[i], *this, _sd);
-			std::cout << *_request << std::endl;
-			if (!_request->getSuccess()) {
+			int bytes_received = recv(_sd, _buffer, BUFFER_SIZE - 1, 0);
+			if (bytes_received > 0) {
+				_buffer[bytes_received] = '\0';
+				_requests[_sd] += std::string(_buffer);
+				if (_requests[_sd].find("\r\n\r\n") != std::string::npos) {
+					std::string full_request = _requests[_sd];
+					//!	REQUEST		/
+					// std::cout << Y << "Socket " << _sd << " :\n" << full_request << C << std::endl;
+					_response = new Response(*this, full_request);
+					std::string httpResponse = _response->getHttpResponse();
+					//!	RESPONSE	/
+					// std::cout << B << httpResponse << C << std::endl;
+					_responses[_sd] = httpResponse;
+					delete _response;
+					_requests.erase(_sd);
+				}
+				else {
+					//CHECK TIME OUT;
+				}
+			}
+			else if (bytes_received == 0) {
+				std::cout << "Client close connexion..." << std::endl;
 				close(_sd);
 				_client_socket[i] = 0;
-				delete _request;
-			//TOUS RECEVOIR
-			//SI RECOIT PAS TOUS AVANT TIME OUT => BAN
-			//Tous mettre dans une map selon le _sd
-			//Tous gerer dans response si la map selon _sd est fini par \r\n\r\n
 			}
 			else {
-				_response = new Response(_client_socket[i], *_request, *this, _sd);
-				_responses[_sd] = _response->getResponse();
-				delete _response;
-				delete _request;
+				close(_sd);
+				_client_socket[i] = 0;
 			}
 		}
 		if (FD_ISSET(_sd, &_writefds)) {

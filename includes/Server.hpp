@@ -16,6 +16,8 @@ class Server {
 		fd_set _readfds, _writefds;
 		int _max_sd, _sd, _new_socket;
 
+		char _buffer[BUFFER_SIZE];
+
 		std::string name;
 		unsigned int port;
 		unsigned int body;

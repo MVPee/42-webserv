@@ -23,15 +23,15 @@ const char* get_status_message(const size_t status_code) {
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Get::Get(Request &request, Server &server) :  
-_request(request), 
+Get::Get(Response &response, const Server &server) :  
+_response(response), 
 _server(server),
-_status_code(request.get_status_code()) {
-    if (!request.isAccepted() || request.getExtension() == "directory")
+_status_code(response.get_status_code()) {
+    if (!response.isAccepted() || response.getExtension() == "directory")
         _status_code = FORBIDDEN;
-    else if (request.getExtension() == "redirection")
-        generate_redirection(request.getLocation()->getRedirection());
-    else if (request.getExtension() == "listing")
+    else if (response.getExtension() == "redirection")
+        generate_redirection(response.getLocation()->getRedirection());
+    else if (response.getExtension() == "listing")
         generate_listing();
     if (_content.empty())
         get_file();
@@ -65,18 +65,18 @@ void Get::generate_listing( void ) {
     std::string listing_content;
     std::string dirname;
     std::string absolutePath;
-    std::string path = _request.getPath();
+    std::string path = _response.getPath();
 
-    DIR* dir = opendir(_request.getPath().c_str());
+    DIR* dir = opendir(_response.getPath().c_str());
     if (dir == NULL) {
         _status_code = ERROR_NOT_FOUND;
         return;
     }
 
-    if (_request.getLocation()->getLocation() == "/")
-        absolutePath = path.erase(0, _request.getLocation()->getRoot().size());
+    if (_response.getLocation()->getLocation() == "/")
+        absolutePath = path.erase(0, _response.getLocation()->getRoot().size());
     else
-        absolutePath = _request.getLocation()->getLocation() + path.erase(0, _request.getLocation()->getRoot().size());
+        absolutePath = _response.getLocation()->getLocation() + path.erase(0, _response.getLocation()->getRoot().size());
 
     while ((entry = readdir(dir)) != NULL) {
         dirname = entry->d_name;
@@ -94,7 +94,7 @@ void Get::get_file() {
     std::ifstream file;
 
 	if (_status_code == OK) {
-		file.open(_request.getPath().c_str());
+		file.open(_response.getPath().c_str());
 		if (!file.is_open() || !file.good())
 			_status_code = ERROR_NOT_FOUND;
 		else 
@@ -102,7 +102,7 @@ void Get::get_file() {
 	}
 
 	if (_status_code >= 400) {
-		file.open(ft_to_string(_request.getLocation()->getRoot() + '/' + _request.getLocation()->getErrorPage(_status_code)).c_str());
+		file.open(ft_to_string(_response.getLocation()->getRoot() + '/' + _response.getLocation()->getErrorPage(_status_code)).c_str());
 		_content = ft_to_string(file.rdbuf());
 	}
     if (!_content.empty())
