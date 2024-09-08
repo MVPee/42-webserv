@@ -88,7 +88,6 @@ void Server::myListen(void) {
 }
 
 void Server::process(void) {
-	if (stopRequested) return;
 	FD_ZERO(&_readfds);
     FD_ZERO(&_writefds);
 
@@ -106,9 +105,10 @@ void Server::process(void) {
 		}
 	}
 
-	if (stopRequested) return;
-
-	if ((select(_max_sd + 1, &_readfds, &_writefds, NULL, NULL) < 0) && (errno != EINTR)) {
+	struct timeval timeout;
+	timeout.tv_sec = 2;
+	timeout.tv_usec = 0;
+	if ((select(_max_sd + 1, &_readfds, &_writefds, NULL, &timeout) < 0) && (errno != EINTR)) {
 		std::cerr << "Erreur avec select(), errno: " << strerror(errno) << std::endl;
 	}
 
@@ -121,6 +121,7 @@ void Server::process(void) {
 		for (int i = 0; i < MAX_CLIENT; i++) {
 			if (_client_socket[i] == 0) {
 				_client_socket[i] = _new_socket;
+				_connection_times[i] = time(NULL);
 				break;
 			}
 		}
@@ -130,8 +131,10 @@ void Server::process(void) {
 
 	for (int i = 0; i < MAX_CLIENT; i++) {
         _sd = _client_socket[i];
-		fcntl(_sd, F_SETFL, O_NONBLOCK);
 		if (FD_ISSET(_sd, &_readfds)) {
+			if (_connection_times.find(_sd) == _connection_times.end()) {
+				_connection_times[_sd] = time(NULL);
+			}
 			int bytes_received = recv(_sd, _buffer, BUFFER_SIZE - 1, 0);
 			if (bytes_received > 0) {
 				_buffer[bytes_received] = '\0';
@@ -147,9 +150,18 @@ void Server::process(void) {
 					_responses[_sd] = httpResponse;
 					delete _response;
 					_requests.erase(_sd);
+					_connection_times.erase(_sd);
 				}
 				else {
-					//CHECK TIME OUT;
+					//! TIME OUT
+					time_t current_time = time(NULL);
+					if (difftime(current_time, _connection_times[_sd]) > TIME_OUT) {
+						std::cout << "Client " << _sd << " took too long to send request. Closing connection." << std::endl;
+						close(_sd);
+						_client_socket[i] = 0;
+						_requests.erase(_sd);
+						_connection_times.erase(_sd);
+					}
 				}
 			}
 			else if (bytes_received == 0) {
