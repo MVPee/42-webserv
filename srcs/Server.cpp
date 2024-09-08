@@ -137,6 +137,10 @@ void Server::process(void) {
 				close(_sd);
 				_client_socket[i] = 0;
 				delete _request;
+			//TOUS RECEVOIR
+			//SI RECOIT PAS TOUS AVANT TIME OUT => BAN
+			//Tous mettre dans une map selon le _sd
+			//Tous gerer dans response si la map selon _sd est fini par \r\n\r\n
 			}
 			else {
 				_response = new Response(_client_socket[i], *_request, *this, _sd);
