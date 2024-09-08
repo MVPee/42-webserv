@@ -97,16 +97,12 @@ void Server::process(void) {
 
 	for (int i = 0; i < MAX_CLIENT; i++) {
 		_sd = _client_socket[i];
-
-		// Si le socket est valide, on l’ajoute au set
 		if (_sd > 0) {
 			FD_SET(_sd, &_readfds);
 			FD_SET(_sd, &_writefds);
+			if (_sd > _max_sd)
+				_max_sd = _sd;
 		}
-		if (_sd > _max_sd)
-			_max_sd = _sd;
-
-		// On identifie le plus grand descripteur pour `select()`
 	}
 
 	if ((select(_max_sd + 1, &_readfds, &_writefds, NULL, NULL) < 0) && (errno != EINTR)) {
