@@ -133,6 +133,7 @@ void Server::process(void) {
         _sd = _client_socket[i];
 		if (FD_ISSET(_sd, &_readfds)) {
 			if (_connection_times.find(_sd) == _connection_times.end()) {
+				std::cout << "new connection time" << std::endl;
 				_connection_times[_sd] = time(NULL);
 			}
 			int bytes_received = recv(_sd, _buffer, BUFFER_SIZE - 1, 0);
@@ -154,8 +155,9 @@ void Server::process(void) {
 				}
 				else { //! TIME OUT
 					time_t current_time = time(NULL);
+					// std::cout << difftime(current_time, _connection_times[_sd]) << std::endl; //* DEBUG
 					if (difftime(current_time, _connection_times[_sd]) > TIME_OUT) {
-						std::cout << "Client " << _sd << " took too long to send request. Closing connection." << std::endl;
+						std::cout << "Client " << _sd << " took too long. Closing connection." << std::endl;
 						send(_sd, "HTTP/1.1 408 Request Timeout\r\n\r\n", 36 * sizeof(char), 0);
 						close(_sd);
 						_client_socket[i] = 0;
