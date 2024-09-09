@@ -143,6 +143,7 @@ void Server::process(void) {
 				close(_sd);
 				_client_socket[i] = 0;
 				_header.erase(_sd);
+				_body.erase(_sd);
 				_connection_times.erase(_sd);
 			}
 		}
@@ -168,8 +169,26 @@ void Server::process(void) {
 						_connection_times.erase(_sd);
 					}
 					else if (_header[_sd].find("POST") != std::string::npos) {
-						//...
-						;
+						std::string::size_type pos = _header[_sd].find("Content-Length");
+						if (pos != std::string::npos) {
+							std::string::size_type end_pos = _header[_sd].find("\r\n", pos);
+							std::string length = _header[_sd].substr(pos + 16, end_pos - pos - 16);
+							if (atoi(length.c_str()) != _body[_sd].size()) {
+								bytes_received = recv(_sd, _buffer, sizeof(char) * sizeof(_buffer), 0);
+								_buffer[bytes_received] = '\0';
+								_body[_sd] += std::string(_buffer);
+								if (atoi(length.c_str()) == _body[_sd].size()) {
+									std::cout << "here" << std::endl;
+									std::cout << _body[_sd] << std::endl;
+									//Need to do some extrem calcul here
+									close(_sd);
+									_client_socket[i] = 0;
+									_header.erase(_sd);
+									_body.erase(_sd);
+									_connection_times.erase(_sd);
+								}
+							}
+						}
 					}
 				}
 			}
@@ -179,6 +198,7 @@ void Server::process(void) {
 				close(_sd);
 				_client_socket[i] = 0;
 				_header.erase(_sd);
+				_body.erase(_sd);
 				_connection_times.erase(_sd);
 			}
 		}
