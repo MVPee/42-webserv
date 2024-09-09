@@ -180,7 +180,8 @@ void Server::process(void) {
 								if (atoi(length.c_str()) == _body[_sd].size()) {
 									std::cout << "here" << std::endl;
 									std::cout << _body[_sd] << std::endl;
-									//Need to do some extrem calcul here
+									std::string no_content = "HTTP/1.1 204 No Content\r\nConnection: close\r\n\r\n";
+									send(_sd, no_content.c_str(), no_content.size(), 0);
 									close(_sd);
 									_client_socket[i] = 0;
 									_header.erase(_sd);
