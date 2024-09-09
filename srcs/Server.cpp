@@ -129,6 +129,7 @@ void Server::process(void) {
 
 	if (stopRequested) return;
 
+	int bytes_received;
 	for (int i = 0; i < MAX_CLIENT; i++) {
         _sd = _client_socket[i];
 		if (FD_ISSET(_sd, &_readfds) || FD_ISSET(_sd, &_writefds)) {
@@ -145,9 +146,11 @@ void Server::process(void) {
 				_connection_times.erase(_sd);
 			}
 		}
+
 		if (FD_ISSET(_sd, &_readfds)) {
-			int bytes_received = recv(_sd, _buffer, 1, 0);
-			if (bytes_received > 0) {
+			if (_header[_sd].find("\r\n\r\n") == std::string::npos)
+				bytes_received = recv(_sd, _buffer, 1, 0);
+			if (bytes_received > 0 || _header[_sd].find("\r\n\r\n") != std::string::npos) {
 				_buffer[bytes_received] = '\0';
 				_header[_sd] += std::string(_buffer);
 				if (_header[_sd].find("\r\n\r\n") != std::string::npos) {
