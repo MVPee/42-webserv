@@ -151,17 +151,23 @@ void Server::process(void) {
 				_buffer[bytes_received] = '\0';
 				_header[_sd] += std::string(_buffer);
 				if (_header[_sd].find("\r\n\r\n") != std::string::npos) {
-					std::string full_request = _header[_sd];
-					//!	REQUEST		/
-					//! std::cout << Y << "Socket " << _sd << " :\n" << full_request << C << std::endl;
-					_response = new Response(*this, full_request);
-					std::string httpResponse = _response->getHttpResponse();
-					//!	RESPONSE	/
-					//! std::cout << B << httpResponse << C << std::endl;
-					_responses[_sd] = httpResponse;
-					delete _response;
-					_header.erase(_sd);
-					_connection_times.erase(_sd);
+					if (_header[_sd].find("GET") != std::string::npos || _header[_sd].find("DELETE") != std::string::npos) {
+						std::string full_request = _header[_sd];
+						//!	REQUEST		/
+						//! std::cout << Y << "Socket " << _sd << " :\n" << full_request << C << std::endl;
+						_response = new Response(*this, full_request);
+						std::string httpResponse = _response->getHttpResponse();
+						//!	RESPONSE	/
+						//! std::cout << B << httpResponse << C << std::endl;
+						_responses[_sd] = httpResponse;
+						delete _response;
+						_header.erase(_sd);
+						_connection_times.erase(_sd);
+					}
+					else if (_header[_sd].find("POST") != std::string::npos) {
+						//...
+						;
+					}
 				}
 			}
 			else {
