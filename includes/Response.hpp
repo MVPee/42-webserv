@@ -3,38 +3,20 @@
 
 # include "macro.hpp"
 
+class Request;
 class Server;
-class Location;
 
 class Response {
 	private:
-		std::string _httpRequest;
-		std::string _httpResponse;
-		
-		size_t _status_code;
-		bool _accept;
+		size_t			&_status_code;
+		Request			&_request;
+		std::string		_response;
 
-		Location *_location;
-
-		std::string _path;
-		std::string _extension;
-		int _method;
-
-
-		void throw_and_set_status(const size_t status_code, std::string message);
-		void parse_request(const Server &s);
-		void parse_extension( void );
-		void resolvePath(const Server &s);
-		const std::string generate_response(const std::string &page_content) const;
+		const std::string		generate_response(const std::string &page_content) const;
 	public:
-		Response(const Server &s, std::string full_request);
+		Response(int &client_fd, Request &request, Server &server, int &sd);
 		~Response();
-		const std::string &getHttpResponse(void) { return (_httpResponse); }
-		const std::string &getPath(void) { return (_path); }
-		size_t &get_status_code(void) { return (_status_code); }
-		const bool &isAccepted(void) { return (_accept); }
-		const std::string &getExtension(void) { return (_extension); }
-		Location *getLocation(void) { return (_location); }
+		const std::string &getResponse(void) { return (_response); }
 };
 
 std::ostream &			operator<<( std::ostream & o, Response const & i );

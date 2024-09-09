@@ -67,6 +67,7 @@ extern volatile bool stopRequested;
 # include "Config.hpp"
 # include "methods/Post.hpp"
 # include "methods/Get.hpp"
+# include "Client.hpp"
 
 enum extension {HTML = 1, PHP = 2, ICO = 3};
 

@@ -20,7 +20,7 @@ const char* get_status_message(const size_t status_code);
 
 class Get {
 	private:
-		Response		&_response;
+		const Request	&_request;
 		const Server	&_server;
 		size_t			&_status_code;
 		std::string		_content;
@@ -30,7 +30,7 @@ class Get {
 		void generate_listing( void );
 		void generate_redirection(std::string redirection);
 	public:
-		Get(Response &reponse, const Server &server);
+		Get(Request &request, Server &server);
 		const std::string &get_content( void ) const;
 
 		~Get();

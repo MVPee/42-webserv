@@ -25,7 +25,7 @@ class Request {
 
 		void throw_and_set_status(const size_t status_code, std::string message);
 	public:
-		Request(int &client_fd, Server &s, int &sd);
+		Request(std::string &header, Server &s);
 		~Request();
 		
 		const char			*getContent(void) const;

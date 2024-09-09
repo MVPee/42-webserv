@@ -6,13 +6,11 @@
 class Request;
 class Response;
 class Location;
+class Client;
 
 class Server {
 	private:
-		int _client_socket[MAX_CLIENT];
-		std::map<int, std::string> _responses;
-		std::map<int, std::string> _header;
-		std::map<int, std::string> _body;
+		std::map<int, Client *> _clients; 
 		std::map<int, time_t> _connection_times;
 		fd_set _readfds, _writefds;
 		int _max_sd, _sd, _new_socket;

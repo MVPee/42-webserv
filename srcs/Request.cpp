@@ -10,30 +10,13 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Request::Request(int &client_fd, Server &s, int &sd) : 
+Request::Request(std::string &header, Server &s) : 
 _extension("None"), 
 _accept(false),
 _status_code (FORBIDDEN),
-_success(true) {
+_success(true),
+_httpRequest(header) {
 	try{
-		char buffer[2];
-		int bytes_received;
-
-		while ((bytes_received = recv(sd, buffer, sizeof(buffer) - 1, 0)) > 0) {
-			buffer[bytes_received] = '\0';
-			_httpRequest += buffer;
-			if (_httpRequest.find("\r\n\r\n") != std::string::npos) break;
-		}
-
-		if (bytes_received < 0) {
-			_success = false;
-			throw_and_set_status(ERROR_INTERNAL_SERVER, "Receive failed");
-		}
-		else if (bytes_received == 0) {
-			_success = false;
-			throw_and_set_status(CLIENT_CLOSED_REQUEST, "Connexion closed");
-		}
-		// std::cout << "Message received: " << _httpRequest  << std::endl; //* DEBUG
 
 		parse_request(s);
 
