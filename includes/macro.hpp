@@ -29,10 +29,13 @@
 extern volatile bool stopRequested;
 
 # define TIME_OUT 5
-# define MAX_CLIENT 255
+# define MAX_CLIENT 100
 # define GET 0
 # define POST 1
 # define DELETE 2
+
+# define HEADER_DELIMITER "\r\n\r\n"
+# define HEADER_SIZE		4
 
 # define OFF 0
 # define ON 1
@@ -60,6 +63,13 @@ extern volatile bool stopRequested;
 # define ERROR_INTERNAL_SERVER		500
 # define NOT_IMPLEMENTED			501
 # define HTTP_VERSION_NOT_SUPPORTED	505
+
+enum ClientState {
+    ReceivingHeader,
+    HandlingBody,
+    Completed,
+    Error
+};
 
 # include "Request.hpp"
 # include "Response.hpp"

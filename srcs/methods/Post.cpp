@@ -20,7 +20,8 @@ _client_fd(client_fd),
 _request(request), 
 _server(server), 
 _body_size(0), 
-_status_code(request.get_status_code()) {
+_status_code(request.get_status_code()),
+_state(ReceivingHeader) {
 	try {
 		std::string header = request.getHttpRequest();
 		_boundary = get_data_in_header(header, "boundary=", "\r");
@@ -39,8 +40,6 @@ _status_code(request.get_status_code()) {
 		if (content_type != "multipart/form-data")
 			throw_and_set_status(NOT_IMPLEMENTED, "Form is not a multipart/form-data");
 
-		while (_remaining_content != _boundary + "--\r\n") //? check if this cause an issue
-			handle_post_request(request.getLocation());
 	}
 	catch(const std::exception& e) {
 		if (_status_code == OK) _status_code = ERROR_INTERNAL_SERVER;
@@ -73,8 +72,36 @@ std::ostream &			operator<<( std::ostream & o, Post const & i ) {
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void Post::handle_post_request(Location *location) {
-    std::string body_header (receive_content_header());
+void Post::decide_action ( std::string &new_content)
+{
+	if (_state == ReceivingHeader)
+	{
+		std::string total = _remaining_content + new_content;
+		_body_size += new_content.size();
+		std::size_t pos;
+		if ((pos = total.find(HEADER_DELIMITER)) == std::string::npos)
+			_remaining_content = total;
+		else
+		{
+			pos+= HEADER_SIZE;
+			_state = HandlingBody;
+			_header = total.substr(0, pos);
+			_remaining_content = total.substr(pos, total.size());
+			new_content.clear();
+		}
+	}
+	if (_state == HandlingBody)
+	{
+		_body_size += new_content.size();
+		handle_post_request(_request.getLocation(), new_content);
+	}
+	if (_remaining_content == _boundary + "--\r\n")
+		_state = Completed;
+
+}
+
+void Post::handle_post_request(Location *location, std::string &new_content) {
+    std::string body_header (_header);
 
 
 	std::string contentDisposition = get_data_in_header(body_header, "Content-Disposition: ", ";");
@@ -88,13 +115,14 @@ void Post::handle_post_request(Location *location) {
     std::string contentType = get_data_in_header(body_header, "Content-Type: ", "\r");
 	if (contentType.empty()) throw_and_set_status(BAD_REQUEST, "Content-Type missing");
 
-	std::ofstream output_file(std::string(filename).c_str(), std::ios::trunc | std::ios::binary);
+	std::ofstream output_file(std::string(filename).c_str(), std::ofstream::app | std::ios::binary);
 	if (!output_file.is_open() || !output_file.good()) throw_and_set_status(ERROR_INTERNAL_SERVER, "Couldn't open file");
 
 
 	std::size_t pos = _remaining_content.find(_boundary);
 	if (pos != std::string::npos)
 	{
+		std::cout << G << "woui yé suis passé issi" C << std::endl;
 		output_file.write(_remaining_content.c_str(), pos);
 		_remaining_content.erase(0, pos);
 
@@ -103,9 +131,10 @@ void Post::handle_post_request(Location *location) {
 			remove(filename.c_str());
 			throw_and_set_status(ERROR_INTERNAL_SERVER, "Error with the output file");
 		}
+		_remaining_content += new_content;
 	}
 	else
-		output_Content_Body(output_file, filename);
+		output_Content_Body(output_file, filename, new_content);
 
 	//? DEBUG PRINTS
     // std::cout << B << "Boundary: " << _boundary<< "\n";
@@ -115,70 +144,35 @@ void Post::handle_post_request(Location *location) {
 }
 
 
-void Post::output_Content_Body(std::ofstream &output_file, std::string &filename) {
-	ssize_t		 bytes_read 	= 0;
-	char		buffer[1024]	= {0};
+void Post::output_Content_Body(std::ofstream &output_file, std::string &filename, std::string &new_content) {
 	std::string	old_buffer = _remaining_content;
 
 
-	while(_body_size <= _server.getBody() && (bytes_read = recv(_client_fd, buffer, sizeof(buffer) - 1, 0)) > 0) { //? What if no delimiter ?
-
-		std::string full = old_buffer + std::string(buffer, bytes_read);
-		std::size_t end = full.find(_boundary);
-		if (end != std::string::npos)
-		{
-			output_file.write(full.c_str(), end);
-			_remaining_content = full.substr(end, full.size() - end);
-			break;
-		}
-		else output_file << old_buffer;
-
-		_body_size += bytes_read;
-		old_buffer.assign(buffer, bytes_read);
+	std::string full = old_buffer + new_content;
+	std::size_t end = full.find(_boundary);
+	if (end != std::string::npos)
+	{
+		output_file.write(full.c_str(), end);
+		_remaining_content = full.substr(end, full.size() - end);
 	}
+	else
+	{
+		output_file << _remaining_content;
+		_remaining_content = new_content;
+	}
+
 
 	output_file.close();
 
-	if (!output_file.good() || bytes_read == (ssize_t) -1 || bytes_read == 0 | _body_size > _server.getBody())
+	if (!output_file.good() || _body_size > _server.getBody())
 		remove(filename.c_str());
 
-	if (bytes_read == (ssize_t) -1) throw_and_set_status(ERROR_INTERNAL_SERVER, "Recv failed");
-	else if (bytes_read == 0) throw_and_set_status(CLIENT_CLOSED_REQUEST, "Connexion closed");
-	else if (_body_size > _server.getBody()) throw_and_set_status(PAYLOAD_TOO_LARGE, "Body size exceeded");
+
+	if (_body_size > _server.getBody()) throw_and_set_status(PAYLOAD_TOO_LARGE, "Body size exceeded");
 	else if (!output_file.good()) throw_and_set_status(ERROR_INTERNAL_SERVER, "Error with the output file");
 
 }
 
-
-std::string Post::receive_content_header(void) {
-	ssize_t				bytes_read = 0;
-    char				buffer = 0;
-    std::ostringstream	content_stream;
-
-	if(!_remaining_content.empty()) {
-		std::size_t pos = _remaining_content.find("\r\n\r\n");
-		if (pos != std::string::npos) {
-			content_stream << _remaining_content.substr(0, pos + 4);
-			_remaining_content.erase(0, pos + 4);
-			return (content_stream.str());
-		}
-
-		content_stream << _remaining_content;
-		_remaining_content.clear();
-	}
-
-	while (_body_size <= _server.getBody() && content_stream.str().find("\r\n\r\n") == std::string::npos \
-	&& (bytes_read = recv(_client_fd, &buffer, 1, 0) > 0)) { //? What if no delimiter ?
-		_body_size += bytes_read;
-		content_stream << buffer;
-	}
-
-	if (bytes_read == (ssize_t) -1) throw_and_set_status(ERROR_INTERNAL_SERVER, "Recv failed");
-	else if (bytes_read == 0) throw_and_set_status(CLIENT_CLOSED_REQUEST, "Connexion closed");
-	else if (_body_size > _server.getBody()) throw_and_set_status(PAYLOAD_TOO_LARGE, "Body size exceeded");
-
-	return (content_stream.str());
-}
 
 void Post::throw_and_set_status(const size_t status_code, std::string message)
 {

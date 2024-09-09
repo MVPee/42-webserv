@@ -11,7 +11,9 @@
 Client::Client(Server &s, int fd) :
 _server(s),
 _client_fd(fd),
-_state(ReceivingHeader) {
+_state(ReceivingHeader),
+_request(0),
+_post(0) {
 
 }
 
@@ -20,7 +22,7 @@ _state(ReceivingHeader) {
 */
 
 Client::~Client() {
-	delete _request;
+	clear();
 }
 
 
@@ -34,13 +36,15 @@ Client::~Client() {
 
 void Client::handle_client( void )
 {
-	if (!_request)
+	if (_state == HandlingBody)
 	{
-		_request = new Request(_header, _server);
-	}
-	if (_request->getMethod() == GET || _request->getMethod() == DELETE)
-	{
-		Response(_client_fd, *_request, _server, _client_fd);
+		if (_request->getMethod() != POST || _post->get_state() == Completed)
+		{
+			std::string response_data = Response(_client_fd, *_request, _server, _client_fd).getResponse();
+			//! send ici
+			ssize_t bytes_sent = send(_client_fd, response_data.c_str(), response_data.size(), 0); //TODO protéger le send
+			_state = Completed;
+		}
 	}
 }
 
@@ -50,28 +54,53 @@ void Client::receive_content( void )
 	char buffer[BUFFER_SIZE];
 	ssize_t bytes_received;
 
-	bytes_received = recv(_client_fd, &buffer, sizeof(buffer) - 1, 0);
-	if (bytes_received == 0) _state = Completed;
-	else if (bytes_received > 0)
+	bytes_received = recv(_client_fd, &buffer, sizeof(buffer) - 1, 0); //TODO Check for -1
+	if (bytes_received == (ssize_t) 0) _state = Completed; //! Connexion closed
+	else if (bytes_received > (ssize_t) 0)
 	{
-		std::string received_content(buffer, bytes_received);
-		std:size_t pos;
-		if (_state == ReceivingHeader && (pos = received_content.find(HEADER_DELIMITER)) == std::string::npos)
+		if (_state == ReceivingHeader)
 		{
-			_header += received_content;
+			std:size_t pos;
+			std::string total = _header + std::string(buffer, bytes_received);
+			if ((pos = total.find(HEADER_DELIMITER)) == std::string::npos)
+				_header += buffer;
+			else
+			{
+				pos += HEADER_SIZE;
+				_state = HandlingBody;
+				_header = total.substr(0, pos);
+				_body = total.substr(pos, total.size());
+			}
 		}
 		else
 		{
-			if (_state == ReceivingHeader)
-			{
-				_state = HandlingBody;
-				_header += received_content.substr(0, pos);
-				_body = received_content.substr(pos, received_content.size());
-			}
-			_body += received_content;
+			_body = std::string(buffer, bytes_received);
 		}
 	}
+		if (_state == HandlingBody && !_request)
+		{
+			_request = new Request(_header, _server);
+		}
+		if (_state == HandlingBody && _request->getMethod() == POST)
+		{
+			if (!_post)
+				_post = new Post(_client_fd, *_request, _server);
+			_post->decide_action(_body);
+		}
 }
+
+void Client::clear(void) {
+	close(_client_fd);
+	_client_fd = 0;
+	_header.clear();
+	_body.clear();
+	_connection_time = -1;
+	if (_request)
+		delete _request;
+	if (_post)
+		delete _post;
+}
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

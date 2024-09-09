@@ -4,14 +4,6 @@
 #include "macro.hpp"
 
 
-#define HEADER_DELIMITER "\r\n\r\n"
-
-enum ClientState {
-    ReceivingHeader,
-    HandlingBody,
-    Completed,
-    Error
-};
 
 class Post;
 
@@ -39,10 +31,13 @@ class Client
 		const time_t &getConnectionTime(void) const { return (_connection_time); }
 		void handle_client( void );
 		void receive_content( void );
+		void clear(void);
 
+		ClientState getState(void) {return(_state);}
+		void setState(ClientState new_state) {_state = new_state;}
 		void setFd(int fd) { _client_fd = fd; }
-		void setHeader(int header) { _header = header; }
-		void setBody(int body) { _body = body; }
+		void setHeader(std::string header) { _header = header; }
+		void setBody(std::string body) { _body = body; }
 		void setConnectionTime(time_t connection_time) { _connection_time = connection_time; }
 
 

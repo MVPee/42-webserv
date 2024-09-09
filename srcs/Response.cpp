@@ -26,8 +26,6 @@ _status_code(request.get_status_code()),
 _request(request) {
 	std::string response_header;
 
-    if (request.getMethod() == POST && request.isAccepted())
-		Post Form(sd, request, server);
 	if (request.getMethod() == DELETE) {
 		if (request.isAccepted()) {
 			if (access(request.getPath().c_str(), F_OK) != 0)
