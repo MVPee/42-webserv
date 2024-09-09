@@ -182,11 +182,11 @@ void Server::process(void) {
 									std::cout << _body[_sd] << std::endl;
 									std::string no_content = "HTTP/1.1 204 No Content\r\nConnection: close\r\n\r\n";
 									send(_sd, no_content.c_str(), no_content.size(), 0);
-									close(_sd);
 									_client_socket[i] = 0;
 									_header.erase(_sd);
 									_body.erase(_sd);
 									_connection_times.erase(_sd);
+									close(_sd);
 								}
 							}
 						}
@@ -196,11 +196,11 @@ void Server::process(void) {
 			else {
 				if (bytes_received == 0)
 					std::cout << "Client close connexion..." << std::endl;
-				close(_sd);
 				_client_socket[i] = 0;
 				_header.erase(_sd);
 				_body.erase(_sd);
 				_connection_times.erase(_sd);
+				close(_sd);
 			}
 		}
 		if (FD_ISSET(_sd, &_writefds)) {
@@ -210,16 +210,16 @@ void Server::process(void) {
 
 				if (bytes_sent < 0) {
 					std::cerr << "Error sending data, errno: " << strerror(errno) << std::endl;
-					close(_sd);
 					_client_socket[i] = 0;
 					_responses.erase(_sd);
 					_connection_times.erase(_sd);
+					close(_sd);
 				}
 				else if (bytes_sent == response_data.size()) {
-					close(_sd);
 					_client_socket[i] = 0;
 					_responses.erase(_sd);
 					_connection_times.erase(_sd);
+					close(_sd);
 				}
 				else
 					response_data = response_data.substr(bytes_sent);

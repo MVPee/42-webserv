@@ -29,7 +29,7 @@
 extern volatile bool stopRequested;
 
 # define TIME_OUT 5
-# define MAX_CLIENT 100
+# define MAX_CLIENT 255
 # define GET 0
 # define POST 1
 # define DELETE 2
