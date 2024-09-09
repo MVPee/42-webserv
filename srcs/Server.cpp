@@ -108,9 +108,11 @@ void Server::process(void) {
 
 	if (stopRequested) return;
 
-	if ((select(_max_sd + 1, &_readfds, &_writefds, NULL, NULL) < 0) && (errno != EINTR)) {
+	struct timeval timeout;
+	timeout.tv_sec = 2;
+	timeout.tv_usec = 0;
+	if ((select(_max_sd + 1, &_readfds, &_writefds, NULL, &timeout) < 0))
 		std::cerr << "Erreur avec select(), errno: " << strerror(errno) << std::endl;
-	}
 
 	if (stopRequested) return;
 
