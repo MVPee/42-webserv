@@ -131,19 +131,15 @@ void Server::process(void) {
 	if (stopRequested) return;
 
 	for (int i = 0; i < MAX_CLIENT; i++) {
-		// if (FD_ISSET(_sd, &_readfds) || FD_ISSET(_sd, &_writefds)) {
-		// 	time_t current_time = time(NULL);
-		// 	if (difftime(current_time, _clients[i]->getConnectionTime()) > TIME_OUT) {
-		// 		std::cout << _sd << ": time out..." << std::endl;
-		// 		std::string time_out = "HTTP/1.1 408 Request Timeout\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 21\r\n\r\n<h1>Time out 408</h1>";
-		// 		send(_sd, time_out.c_str(), time_out.size(), 0);
-		// 		_clients[i]->setFd(0);
-		// 		_clients[i]->setHeader("");
-		// 		_clients[i]->setBody("");
-		// 		_clients[i]->setConnectionTime(-1);
-		// 		close(_sd);
-		// 	}
-		// }
+		if (FD_ISSET(_clients[i]->getFd(), &_readfds) || FD_ISSET(_clients[i]->getFd(), &_writefds)) {
+			time_t current_time = time(NULL);
+			if (difftime(current_time, _clients[i]->getConnectionTime()) > TIME_OUT) {
+				std::cout << _clients[i]->getFd() << ": time out..." << std::endl;
+				std::string time_out = "HTTP/1.1 408 Request Timeout\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 21\r\n\r\n<h1>Time out 408</h1>";
+				send(_sd, time_out.c_str(), time_out.size(), 0);
+				_clients[i]->clear();
+			}
+		}
 
 		if (FD_ISSET(_clients[i]->getFd(), &_readfds)) {
 			_clients[i]->receive_content();
