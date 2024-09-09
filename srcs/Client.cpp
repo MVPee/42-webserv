@@ -94,11 +94,12 @@ void Client::clear(void) {
 	_client_fd = 0;
 	_header.clear();
 	_body.clear();
+	_state = ReceivingHeader;
 	_connection_time = -1;
-	if (_request)
-		delete _request;
-	if (_post)
-		delete _post;
+	// if (_request)
+	// 	delete _request;
+	// if (_post)
+	// 	delete _post;
 }
 
 /*

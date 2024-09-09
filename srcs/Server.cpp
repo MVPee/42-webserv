@@ -99,12 +99,11 @@ void Server::process(void) {
 	_max_sd = _fd_socket;
 
 	for (int i = 0; i < MAX_CLIENT; i++) {
-		_sd = _clients[i]->getFd();
-		if (_sd > 0) {
-			FD_SET(_sd, &_readfds);
-			FD_SET(_sd, &_writefds);
-			if (_sd > _max_sd)
-				_max_sd = _sd;
+		if (_clients[i]->getFd() > 0) {
+			FD_SET(_clients[i]->getFd(), &_readfds);
+			FD_SET(_clients[i]->getFd(), &_writefds);
+			if (_clients[i]->getFd() > _max_sd)
+				_max_sd = _clients[i]->getFd();
 		}
 	}
 
@@ -132,7 +131,6 @@ void Server::process(void) {
 	if (stopRequested) return;
 
 	for (int i = 0; i < MAX_CLIENT; i++) {
-        _sd = _clients[i]->getFd();
 		// if (FD_ISSET(_sd, &_readfds) || FD_ISSET(_sd, &_writefds)) {
 		// 	time_t current_time = time(NULL);
 		// 	if (difftime(current_time, _clients[i]->getConnectionTime()) > TIME_OUT) {
@@ -147,11 +145,11 @@ void Server::process(void) {
 		// 	}
 		// }
 
-		if (FD_ISSET(_sd, &_readfds)) {
+		if (FD_ISSET(_clients[i]->getFd(), &_readfds)) {
 			_clients[i]->receive_content();
 			std::cout << _clients[i]->getHeader() << std::endl;
 		}
-		if (FD_ISSET(_sd, &_writefds)) {
+		if (FD_ISSET(_clients[i]->getFd(), &_writefds)) {
 			_clients[i]->handle_client();
 			if (_clients[i]->getState() == Completed)
 				_clients[i]->clear();
