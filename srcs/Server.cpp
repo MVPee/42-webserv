@@ -131,9 +131,21 @@ void Server::process(void) {
 
 	for (int i = 0; i < MAX_CLIENT; i++) {
         _sd = _client_socket[i];
-		if (FD_ISSET(_sd, &_readfds)) {
+		if (FD_ISSET(_sd, &_readfds) || FD_ISSET(_sd, &_writefds)) {
+			time_t current_time = time(NULL);
 			if (_connection_times.find(_sd) == _connection_times.end())
 				_connection_times[_sd] = time(NULL);
+			else if (difftime(current_time, _connection_times[_sd]) > TIME_OUT) {
+				std::cout << _sd << ": time out..." << std::endl;
+				std::string time_out = "HTTP/1.1 408 Request Timeout\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 21\r\n\r\n<h1>Time out 408</h1>";
+				send(_sd, time_out.c_str(), time_out.size(), 0);
+				close(_sd);
+				_client_socket[i] = 0;
+				_header.erase(_sd);
+				_connection_times.erase(_sd);
+			}
+		}
+		if (FD_ISSET(_sd, &_readfds)) {
 			int bytes_received = recv(_sd, _buffer, 1, 0);
 			if (bytes_received > 0) {
 				_buffer[bytes_received] = '\0';
@@ -150,18 +162,6 @@ void Server::process(void) {
 					delete _response;
 					_header.erase(_sd);
 					_connection_times.erase(_sd);
-				}
-				else { //! TIME OUT
-					time_t current_time = time(NULL);
-					// std::cout << difftime(current_time, _connection_times[_sd]) << std::endl; //* DEBUG
-					if (difftime(current_time, _connection_times[_sd]) > TIME_OUT) {
-						std::cout << "Client " << _sd << " took too long. Closing connection." << std::endl;
-						send(_sd, "HTTP/1.1 408 Request Timeout\r\n\r\n", 36 * sizeof(char), 0);
-						close(_sd);
-						_client_socket[i] = 0;
-						_header.erase(_sd);
-						_connection_times.erase(_sd);
-					}
 				}
 			}
 			else {
@@ -183,11 +183,13 @@ void Server::process(void) {
 					close(_sd);
 					_client_socket[i] = 0;
 					_responses.erase(_sd);
+					_connection_times.erase(_sd);
 				}
 				else if (bytes_sent == response_data.size()) {
-					_responses.erase(_sd);
 					close(_sd);
 					_client_socket[i] = 0;
+					_responses.erase(_sd);
+					_connection_times.erase(_sd);
 				}
 				else
 					response_data = response_data.substr(bytes_sent);
