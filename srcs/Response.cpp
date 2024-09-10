@@ -36,7 +36,13 @@ _request(request) {
 				_status_code = NO_CONTENT;
 		}
 	}
-	else
+	else if (request.getExtension() == "cgi")
+	{
+		Cgi cgi(_request);
+		std::cout << cgi << std::endl;
+		response_header = cgi.getResponseContent();
+	}
+	else if (request.getMethod() == GET)
 		response_header = Get (request, server).get_content();
 
 	_response = generate_response(response_header);

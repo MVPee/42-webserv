@@ -105,7 +105,7 @@ void Cgi::receive_cgi(int *pipe_fd, int pid)
 	ssize_t bytes_read;
 	while ((bytes_read = read(pipe_fd[READ_PIPE], buffer, sizeof(buffer) - 1)) > 0) {
 		buffer[bytes_read] = '\0';
-		std::cout << buffer;
+		_response_content.append(buffer, bytes_read);
 	}
 	close(pipe_fd[READ_PIPE]);
 	int status;
