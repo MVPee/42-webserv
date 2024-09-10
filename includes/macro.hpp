@@ -25,7 +25,7 @@
 # include <pthread.h>
 # include <signal.h>
 # include <dirent.h>
-
+# include <sys/wait.h>
 extern volatile bool stopRequested;
 
 # define TIME_OUT 5
@@ -45,6 +45,9 @@ extern volatile bool stopRequested;
 # define LISTEN 2
 # define ACCEPT 3
 # define BUFFER_SIZE 2048
+
+#define WRITE_PIPE 1
+#define READ_PIPE 0
 
 # define HTML_VERSION "HTTP/1.1"
 
@@ -78,6 +81,7 @@ enum ClientState {
 # include "Config.hpp"
 # include "methods/Post.hpp"
 # include "methods/Get.hpp"
+# include "methods/Cgi.hpp"
 # include "Client.hpp"
 
 enum extension {HTML = 1, PHP = 2, ICO = 3};

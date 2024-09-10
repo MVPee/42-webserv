@@ -66,6 +66,16 @@ std::ostream &			operator<<( std::ostream & o, Request const & i ) {
 void Request::resolvePath(Server &s) {
 	struct stat info;
 
+	//! detect cgi
+	if (_path.find(".py") != std::string::npos)
+	{
+		size_t start = _path.find(".py");
+		if (start < _path.size() - 3)
+		{
+			std::cout << B << "CGI" << C << std::endl;
+			_extension = "cgi";
+		}
+	}
 	if (!_location->getRedirection().empty())
 		_extension = "redirection";
 	else if (stat(_path.c_str(), &info) == 0) {
@@ -116,8 +126,8 @@ void Request::parse_request(Server &s){
     while ((pos = request_path.find("../")) != std::string::npos)
         request_path.erase(pos, 3);
 
-	if ((pos = request_path.find("?")) != std::string::npos)
-		request_path.erase(pos);
+	// if ((pos = request_path.find("?")) != std::string::npos)
+	// 	request_path.erase(pos);
 
 	_location = s.getLocations().at(0);
     for (size_t i = 0; i < s.getLocations().size(); i++) {

@@ -36,7 +36,7 @@ Client::~Client() {
 
 void Client::handle_client( void )
 {
-	if (_state == HandlingBody)
+	if (_state == HandlingBody && _request->getExtension() != "cgi")
 	{
 		if (_request->getMethod() != POST || _post->get_state() == Completed)
 		{
@@ -45,6 +45,11 @@ void Client::handle_client( void )
 			ssize_t bytes_sent = send(_client_fd, response_data.c_str(), response_data.size(), 0); //TODO protéger le send
 			_state = Completed;
 		}
+	}
+	else if (_state == HandlingBody && _request->getExtension() == "cgi")
+	{
+		std::cout << Cgi(*_request) << std::endl;
+		_state = Completed;
 	}
 }
 
@@ -74,7 +79,7 @@ void Client::receive_content( void )
 	}
 	if (_state == HandlingBody && !_request)
 		_request = new Request(_header, _server);
-	if (_state == HandlingBody && _request->getMethod() == POST) {
+	if (_state == HandlingBody && _request->getMethod() == POST && _request->getExtension() != "cgi") {
 		if (!_post)
 			_post = new Post(_client_fd, *_request, _server);
 		_post->decide_action(_body);
