@@ -72,7 +72,7 @@ class Config {
 		std::string 				_serverName;
 		std::string					_address;
 		int							_port;
-		int							_body;
+		long						_body;
 		std::vector<Location *> 	_locations;
 
 		void parse(std::string token, std::string line);

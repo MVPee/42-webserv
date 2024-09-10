@@ -39,7 +39,7 @@ void Config::parse(std::string token, std::string line) {
 	}
 	else if (token == "body_size") {
 		sscanf(line.c_str(), "%*s %s", temp[0]);
-		_body = atoi(temp[0]);
+		_body = atol(temp[0]);
 	}
 	else if (token == "root") {
 		sscanf(line.c_str(), "%*s %s", temp[0]);
