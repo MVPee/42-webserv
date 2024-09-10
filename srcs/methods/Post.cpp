@@ -25,7 +25,7 @@ _state(ReceivingHeader) {
 		}
 
 		if (content_type != "multipart/form-data")
-			throw_and_set_status(NOT_IMPLEMENTED, "Form is not a multipart/form-data"); //TODO gérer l'autre type de post
+			throw_and_set_status(NOT_IMPLEMENTED, "Form is not a multipart/form-data");
 
 	}
 	catch(const std::exception& e) {
@@ -94,6 +94,7 @@ void Post::decide_action ( std::string &new_content)
 	catch(const std::exception& e) {
 		if (_status_code == OK) _status_code = ERROR_INTERNAL_SERVER;
 		clear_file_infos();
+		_state = Completed;
 		std::cerr << R << e.what() << C << '\n';
 	}
 }
@@ -152,7 +153,7 @@ void	Post::get_file_infos( void )
 	if (_file.contentType.find("text/") == 0)
 		throw_and_set_status(UNSUPPORTED_MEDIA_TYPE, "Posted content is not a file"); //? change that ?
 
-	_file.output_file.open(_file.filename.c_str(), std::ofstream::app | std::ios::binary);
+	_file.output_file.open(_file.filename.c_str(), std::ofstream::trunc | std::ios::binary);
 	if (!_file.output_file.is_open() || !_file.output_file.good()) throw_and_set_status(ERROR_INTERNAL_SERVER, "Couldn't open file");
 	
 }
@@ -163,13 +164,12 @@ void	Post::clear_file_infos ( void )
     _file.contentType.clear();
 	if (_file.output_file.is_open())
 	{
+		_file.output_file.close();
 		if (!_file.output_file.good() || (_status_code != OK && _status_code != NO_CONTENT))
 			remove(_file.filename.c_str());
-		_file.output_file.close();
 	}
 	_file.output_file.clear();
 }
-//TODO Check que c'est bien un fichier ?
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
