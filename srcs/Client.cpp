@@ -90,19 +90,21 @@ void Client::receive_content( void )
 }
 
 void Client::clear(void) {
-	close(_client_fd);
-	_client_fd = 0;
-	_header.clear();
-	_body.clear();
-	_state = ReceivingHeader;
-	_connection_time = -1;
-	if (_request) {
-		delete _request;
-		_request = 0;
-	}
-	if (_post) {
-		delete _post;
-		_post = 0;
+	if (_client_fd) {
+		close(_client_fd);
+		_client_fd = 0;
+		_header.clear();
+		_body.clear();
+		_state = ReceivingHeader;
+		_connection_time = -1;
+		if (_request) {
+			delete _request;
+			_request = 0;
+		}
+		if (_post) {
+			delete _post;
+			_post = 0;
+		}
 	}
 }
 
