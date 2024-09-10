@@ -88,11 +88,11 @@ void Cgi::execute_cgi( void )
 	int pid = fork();
 	if (pid == 0) {
 		chdir(_folder.c_str());
-		close(pipe_fd[0]);
-		dup2(pipe_fd[1], STDOUT_FILENO);
-		close(pipe_fd[1]);
+		close(pipe_fd[READ_PIPE]);
+		dup2(pipe_fd[WRITE_PIPE], STDOUT_FILENO);
+		close(pipe_fd[WRITE_PIPE]);
 		execve(exec.c_str(), args, env);
-		exit(1); 
+		exit(EXIT_FAILURE); 
 	} else { 
 		receive_cgi(pipe_fd, pid);
 	}
@@ -100,14 +100,14 @@ void Cgi::execute_cgi( void )
 
 void Cgi::receive_cgi(int *pipe_fd, int pid)
 {
-	close(pipe_fd[1]);
-	char buffer[1024];
+	close(pipe_fd[WRITE_PIPE]);
+	char buffer[BUFFER_SIZE];
 	ssize_t bytes_read;
-	while ((bytes_read = read(pipe_fd[0], buffer, sizeof(buffer) - 1)) > 0) {
+	while ((bytes_read = read(pipe_fd[READ_PIPE], buffer, sizeof(buffer) - 1)) > 0) {
 		buffer[bytes_read] = '\0';
 		std::cout << buffer;
 	}
-	close(pipe_fd[0]);
+	close(pipe_fd[READ_PIPE]);
 	int status;
 	waitpid(pid, &status, 0);
 }
