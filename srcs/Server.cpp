@@ -136,7 +136,7 @@ void Server::process(void) {
 			if (difftime(current_time, _clients[i]->getConnectionTime()) > TIME_OUT) {
 				std::cout << _clients[i]->getFd() << ": time out..." << std::endl;
 				std::string time_out = "HTTP/1.1 408 Request Timeout\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 21\r\n\r\n<h1>Time out 408</h1>";
-				send(_sd, time_out.c_str(), time_out.size(), 0);
+				send(_clients[i]->getFd(), time_out.c_str(), time_out.size(), 0);
 				_clients[i]->clear();
 			}
 		}

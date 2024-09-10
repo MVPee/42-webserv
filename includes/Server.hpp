@@ -12,7 +12,7 @@ class Server {
 	private:
 		std::map<int, Client *> _clients;
 		fd_set _readfds, _writefds;
-		int _max_sd, _sd, _new_socket;
+		int _max_sd, _new_socket;
 
 		char _buffer[2048];
 
