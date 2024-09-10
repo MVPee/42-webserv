@@ -149,6 +149,8 @@ void	Post::get_file_infos( void )
 	_file.filename = _request.getLocation()->getRoot() + _request.getLocation()->getUpload() + "/" + _file.filename;
 
     _file.contentType = get_data_in_header(_header, "Content-Type: ", "\r");
+	if (_file.contentType.find("text/") == 0)
+		throw_and_set_status(UNSUPPORTED_MEDIA_TYPE, "Posted content is not a file"); //? change that ?
 
 	_file.output_file.open(_file.filename.c_str(), std::ofstream::app | std::ios::binary);
 	if (!_file.output_file.is_open() || !_file.output_file.good()) throw_and_set_status(ERROR_INTERNAL_SERVER, "Couldn't open file");

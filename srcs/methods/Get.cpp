@@ -2,22 +2,24 @@
 
 
 const char* get_status_message(const size_t status_code) {
-    switch (status_code) {
-        case OK:                                return "OK";
-        case REDIRECTION_PERMANENTLY:           return "Moved Permanently";
-        case BAD_REQUEST:                       return "BAD REQUEST";
-        case ERROR_NOT_FOUND:                   return "NOT FOUND";
-        case ERROR_REQUEST_TIMEOUT:             return "REQUEST TIMEOUT";
-        case PAYLOAD_TOO_LARGE:                 return "PAYLOAD TOO LARGE";
-        case CLIENT_CLOSED_REQUEST:             return "CLIENT CLOSED REQUEST";
-        case ERROR_INTERNAL_SERVER:             return "INTERNAL SERVER ERROR";
-        case NOT_IMPLEMENTED:                   return "NOT IMPLEMENTED";
-        case HTTP_VERSION_NOT_SUPPORTED:        return "HTTP VERSION NOT SUPPORTED";
-        case FORBIDDEN:                         return "FORBIDDEN";
-		case NO_CONTENT:						return "NO_CONTENT";
-        default:                               	return "UNKNOWN STATUS CODE";
-    }
+	switch (status_code) {
+		case OK:                                return "OK";
+		case REDIRECTION_PERMANENTLY:           return "Moved Permanently";
+		case BAD_REQUEST:                       return "Bad Request";
+		case ERROR_NOT_FOUND:                   return "Not Found";
+		case ERROR_REQUEST_TIMEOUT:             return "Request Timeout";
+		case PAYLOAD_TOO_LARGE:                 return "Payload Too Large";
+		case CLIENT_CLOSED_REQUEST:             return "Client Closed Request";
+		case ERROR_INTERNAL_SERVER:             return "Internal Server Error";
+		case NOT_IMPLEMENTED:                   return "Not Implemented";
+		case HTTP_VERSION_NOT_SUPPORTED:        return "HTTP Version Not Supported";
+		case FORBIDDEN:                         return "Forbidden";
+		case NO_CONTENT:                        return "No Content";
+		case UNSUPPORTED_MEDIA_TYPE:            return "Unsupported Media Type";
+		default:                                return "Unknown Status Code";
+	}
 }
+
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------

@@ -58,6 +58,7 @@ extern volatile bool stopRequested;
 # define ERROR_NOT_FOUND			404
 # define ERROR_REQUEST_TIMEOUT 		408
 # define PAYLOAD_TOO_LARGE			413
+# define UNSUPPORTED_MEDIA_TYPE		415
 # define CLIENT_CLOSED_REQUEST		499
 
 # define ERROR_INTERNAL_SERVER		500
