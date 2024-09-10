@@ -84,7 +84,7 @@ class Config {
 		const std::string &getServerName() const { return (_serverName); }		
 		const std::string &getAddress() const { return (_address); }
 		const int &getPort() const { return (_port); }
-		const int &getBody() const { return (_body); }
+		const long &getBody() const { return (_body); }
 		const std::vector<Location *> &getLocations() const { return (_locations); }
 };
 

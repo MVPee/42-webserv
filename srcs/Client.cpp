@@ -56,16 +56,13 @@ void Client::receive_content( void )
 
 	bytes_received = recv(_client_fd, &buffer, sizeof(buffer) - 1, 0); //TODO Check for -1
 	if (bytes_received == (ssize_t) 0) _state = Completed; //! Connexion closed
-	else if (bytes_received > (ssize_t) 0)
-	{
-		if (_state == ReceivingHeader)
-		{
+	else if (bytes_received > (ssize_t) 0) {
+		if (_state == ReceivingHeader) {
 			std:size_t pos;
 			std::string total = _header + std::string(buffer, bytes_received);
 			if ((pos = total.find(HEADER_DELIMITER)) == std::string::npos)
 				_header += buffer;
-			else
-			{
+			else {
 				pos += HEADER_SIZE;
 				_state = HandlingBody;
 				_header = total.substr(0, pos);
@@ -73,20 +70,15 @@ void Client::receive_content( void )
 			}
 		}
 		else
-		{
 			_body = std::string(buffer, bytes_received);
-		}
 	}
-		if (_state == HandlingBody && !_request)
-		{
-			_request = new Request(_header, _server);
-		}
-		if (_state == HandlingBody && _request->getMethod() == POST)
-		{
-			if (!_post)
-				_post = new Post(_client_fd, *_request, _server);
-			_post->decide_action(_body);
-		}
+	if (_state == HandlingBody && !_request)
+		_request = new Request(_header, _server);
+	if (_state == HandlingBody && _request->getMethod() == POST) {
+		if (!_post)
+			_post = new Post(_client_fd, *_request, _server);
+		_post->decide_action(_body);
+	}
 }
 
 void Client::clear(void) {

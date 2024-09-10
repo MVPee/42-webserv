@@ -5,18 +5,15 @@
 */
 
 Server::Server(const std::string config_text) :
-	name("default_server"), 
-	port(80), 
-	body(100) {
-	std::map<std::string, std::string> map;
+	_name("default_server"), 
+	_port(80), 
+	_bodySize(100),
+	_socket(0) {
 
-	//! Temporary
 	Config config(config_text);
-
-	//! Need to use and parse nicely in Request and Response
-	name = config.getServerName();
-	port = config.getPort();
-	body = config.getBody();
+	_name = config.getServerName();
+	_port = config.getPort();
+	_bodySize = config.getBody();
 	_locations = config.getLocations();
 	//std::cout << _locations << std::endl; //* DEBUG
 }
@@ -26,16 +23,14 @@ Server::Server(const std::string config_text) :
 */
 
 Server::~Server() {
-	if (_fd_socket)
-		close(_fd_socket);
-	while(!_locations.empty() && _locations.size() > 0)
-	{
+	if (_socket)
+		close(_socket);
+	while(!_locations.empty() && _locations.size() > 0) {
 		delete _locations.back();
 		_locations.pop_back();
 	}
-	for (size_t i = 0; i < MAX_CLIENT; i++) {
+	for (size_t i = 0; i < MAX_CLIENT; i++)
 		delete _clients[i];
-	}
 }
 
 /*
@@ -57,35 +52,33 @@ std::ostream &			operator<<( std::ostream & o, Server const & i ) {
 
 void Server::mySocket(void) {
 	// memset(_client_socket, 0, MAX_CLIENT * sizeof(int));
-	for (int i = 0; i < MAX_CLIENT; i++) {
+	for (int i = 0; i < MAX_CLIENT; i++)
         _clients[i] = new Client(*this, 0);
-    }
 
-	if ((_fd_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+	if ((_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		throw std::runtime_error("Socked failed");
 
-	this->sock_address.sin_family = AF_INET;
-    this->sock_address.sin_port = htons(this->port);
-    this->sock_address.sin_addr.s_addr = INADDR_ANY;
+	_sock_address.sin_family = AF_INET;
+    _sock_address.sin_port = htons(_port);
+    _sock_address.sin_addr.s_addr = INADDR_ANY;
 }
 
 void Server::myBind(void) {
 	int opt = 1;
-	if (setsockopt(_fd_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+	if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
 		throw std::runtime_error("setsockopt failed");
-	}
-	if (bind(_fd_socket, (sockaddr *) &this->sock_address, sizeof(this->sock_address)) < 0)
+	if (bind(_socket, (sockaddr *) &_sock_address, sizeof(_sock_address)) < 0)
 		throw std::runtime_error("Bind failed");
 }
 
 void Server::myListen(void) {
-	if (listen(_fd_socket, MAX_CLIENT) < 0)
+	if (listen(_socket, MAX_CLIENT) < 0)
 		throw std::runtime_error("Listen failed");
 
 	std::ostringstream ss;
 	ss << "\n*** Listening on ADDRESS: " 
-		<< inet_ntoa(sock_address.sin_addr) 
-		<< " PORT: " << ntohs(sock_address.sin_port) 
+		<< inet_ntoa(_sock_address.sin_addr) 
+		<< " PORT: " << ntohs(_sock_address.sin_port) 
 		<< " ***\n\n";
 	std::cout << ss.str() << std::endl; //* DEBUG
 }
@@ -94,34 +87,35 @@ void Server::process(void) {
 	FD_ZERO(&_readfds);
     FD_ZERO(&_writefds);
 
-    FD_SET(_fd_socket, &_readfds);
-    FD_SET(_fd_socket, &_writefds);
-	_max_sd = _fd_socket;
+    FD_SET(_socket, &_readfds);
+    FD_SET(_socket, &_writefds);
+	int max_sd = _socket;
 
 	for (int i = 0; i < MAX_CLIENT; i++) {
 		if (_clients[i]->getFd() > 0) {
 			FD_SET(_clients[i]->getFd(), &_readfds);
 			FD_SET(_clients[i]->getFd(), &_writefds);
-			if (_clients[i]->getFd() > _max_sd)
-				_max_sd = _clients[i]->getFd();
+			if (_clients[i]->getFd() > max_sd)
+				max_sd = _clients[i]->getFd();
 		}
 	}
 
 	struct timeval timeout;
 	timeout.tv_sec = 2;
 	timeout.tv_usec = 0;
-	if (select(_max_sd + 1, &_readfds, &_writefds, NULL, &timeout) < 0)
+	if (select(max_sd + 1, &_readfds, &_writefds, NULL, &timeout) < 0)
 		std::cerr << "Erreur avec select(), errno: " << strerror(errno) << std::endl;
 
 	if (stopRequested) return;
 
-	if (FD_ISSET(_fd_socket, &_readfds)) {
-		int addrlen = sizeof(this->sock_address);
-		if ((_new_socket = accept(_fd_socket, (sockaddr *) &this->sock_address, (socklen_t *)&addrlen)) < 0)
+	if (FD_ISSET(_socket, &_readfds)) {
+		int addrlen = sizeof(_sock_address);
+		int new_socket;
+		if ((new_socket = accept(_socket, (sockaddr *) &_sock_address, (socklen_t *)&addrlen)) < 0)
 			throw std::runtime_error("Accept failed");
 		for (int i = 0; i < MAX_CLIENT; i++) {
 			if (_clients[i]->getFd() == 0) {
-				_clients[i]->setFd(_new_socket);
+				_clients[i]->setFd(new_socket);
 				_clients[i]->setConnectionTime(time(NULL));
 				break;
 			}
@@ -151,17 +145,18 @@ void Server::process(void) {
 				_clients[i]->clear();
 		}
 
-		if (stopRequested) return;
 	}
+	
+	if (stopRequested) return;
 }
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
-const std::string &Server::getName(void) const { return (this->name); }
-const unsigned int &Server::getPort(void) const { return (this->port); } 
-const unsigned int &Server::getBody(void) const { return (this->body); }
-const std::vector<Location *> &Server::getLocations(void) const { return (this->_locations); }
+const std::string &Server::getName(void) const { return (_name); }
+const unsigned int &Server::getPort(void) const { return (_port); } 
+const long &Server::getBody(void) const { return (_bodySize); }
+const std::vector<Location *> &Server::getLocations(void) const { return (_locations); }
 
 /* ************************************************************************** */
