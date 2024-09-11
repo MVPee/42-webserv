@@ -21,6 +21,8 @@ class Client
 		
 		Server			&_server;
 
+		void receive_content( void );
+
 	public:
 
 		Client(Server &s, int fd);

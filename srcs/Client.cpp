@@ -53,6 +53,22 @@ void Client::response( void )
 
 void Client::request( void )
 {
+	receive_content();
+
+	if (_state == HandlingBody && !_request)
+		_request = new Request(_header, _server);
+	if (_state == HandlingBody && _request->getMethod() == POST && _request->getExtension() != "cgi") {
+		if (!_post)
+			_post = new Post(_client_fd, *_request, _server);
+		_post->decide_action(_body);
+	}
+}
+
+
+
+void Client::receive_content( void )
+{
+
 	char buffer[BUFFER_SIZE];
 	ssize_t bytes_received;
 
@@ -78,13 +94,8 @@ void Client::request( void )
 		else
 			_body = std::string(buffer, bytes_received);
 	}
-	if (_state == HandlingBody && !_request)
-		_request = new Request(_header, _server);
-	if (_state == HandlingBody && _request->getMethod() == POST && _request->getExtension() != "cgi") {
-		if (!_post)
-			_post = new Post(_client_fd, *_request, _server);
-		_post->decide_action(_body);
-	}
+	//TODO handle failed receive
+
 }
 
 void Client::clear(void) {
