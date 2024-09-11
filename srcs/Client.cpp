@@ -40,11 +40,12 @@ void Client::handle_client( void )
 	{
 		if (_request->getMethod() != POST || _post->get_state() == Completed)
 		{
-			std::string response_data = Response(_client_fd, *_request, _server, _client_fd).getResponse();
-			//! send ici
-			std::cout << strerror(errno) << std::endl;
-			ssize_t bytes_sent = send(_client_fd, response_data.c_str(), response_data.size(), 0); //TODO protéger le send
-			_state = Completed;
+			if (_response.empty())
+				_response = Response(_client_fd, *_request, _server, _client_fd).getResponse();
+			ssize_t bytes_sent = send(_client_fd, _response.c_str(), _response.size(), 0);
+			if (bytes_sent < 0 || bytes_sent == _response.size()) clear();
+			else if (bytes_sent < _response.size())
+				_response = _response.substr(bytes_sent);
 		}
 	}
 }
@@ -56,7 +57,11 @@ void Client::receive_content( void )
 	ssize_t bytes_received;
 
 	bytes_received = recv(_client_fd, &buffer, sizeof(buffer) - 1, 0); //TODO Check for -1
-	if (bytes_received == (ssize_t) 0) _state = Completed; //! Connexion closed
+	if (bytes_received <= (ssize_t) 0) {
+		if (bytes_received <= (ssize_t) 0)
+			std::cout << _client_fd << " close connection." << std::endl;
+		clear();
+	}
 	else if (bytes_received > (ssize_t) 0) {
 		if (_state == ReceivingHeader) {
 			std:size_t pos;
@@ -88,6 +93,7 @@ void Client::clear(void) {
 		_client_fd = 0;
 		_header.clear();
 		_body.clear();
+		_response.clear();
 		_state = ReceivingHeader;
 		_connection_time = -1;
 		if (_request) {

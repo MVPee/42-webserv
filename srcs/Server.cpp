@@ -137,12 +137,10 @@ void Server::process(void) {
 
 		if (FD_ISSET(_clients[i]->getFd(), &_readfds)) {
 			_clients[i]->receive_content();
-			std::cout << _clients[i]->getHeader() << std::endl;
+			// std::cout << _clients[i]->getHeader() << std::endl; //? DEBEUG
 		}
 		if (FD_ISSET(_clients[i]->getFd(), &_writefds)) {
 			_clients[i]->handle_client();
-			if (_clients[i]->getState() == Completed)
-				_clients[i]->clear();
 		}
 
 	}

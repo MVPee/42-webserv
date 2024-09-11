@@ -13,6 +13,7 @@ class Client
 		int				_client_fd;
 		std::string 	_header;
 		std::string 	_body;
+		std::string 	_response;
 		time_t			_connection_time;
 		ClientState		_state;
 		Request			*_request;

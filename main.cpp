@@ -73,7 +73,7 @@ int main(int ac, char **av) {
     sa.sa_flags = 0;
     sigaction(SIGINT, &sa, NULL);
     sigaction(SIGQUIT, &sa, NULL);
-    signal(SIGPIPE, SIG_IGN);
+    signal(SIGPIPE, SIG_IGN); // A retirer (verif si SIGPIPE with siege on linux at 19)
 
     for (size_t i = 0; i < server_threads.size(); i++) {
         pthread_join(server_threads[i], NULL);
