@@ -10,6 +10,7 @@ class Location {
 		std::string _errorPage[305];
 		std::string _upload;
 		std::string	_redirection;
+		std::string _cgi[2];
 		bool		_methods[3];
 		bool		_listing;
 	public:
@@ -17,6 +18,8 @@ class Location {
 			_methods[GET] = false;
 			_methods[POST] = false;
 			_methods[DELETE] = false;
+			_cgi[GET].clear();
+			_cgi[POST].clear();
 		}
 		~Location() {
 
@@ -26,6 +29,7 @@ class Location {
 		void setIndex(std::string index) { _index = index; }
 		void setErrorPage(std::string errorPage, int code) { if (code - 200 <= 305) _errorPage[code - 200] = errorPage; }
 		void setUpload(std::string upload) { _upload = upload; }
+		void setCGI(std::string cgi, short index) { if (index == GET || index == POST )_cgi[index] = cgi; }
 		void setRedirection(std::string redirection) { _redirection = redirection; }
 		void acceptMethods(short index) { _methods[index] = true; }
 		void acceptListing(bool value) { _listing = value;}
@@ -34,6 +38,7 @@ class Location {
 		const std::string &getRoot() const { return (_root); }
 		const std::string &getIndex() const { return (_index); }
 		const std::string &getErrorPage(int code) const { return (_errorPage[code - 200]); }
+		const std::string &getCGI(int code) const { return (_cgi[code]); }
 		const std::string &getUpload() const { return (_upload); }
 		const std::string &getRedirection() const { return (_redirection); }
 		const bool &getMethods(short index) const { return (_methods[index]); }
@@ -67,7 +72,7 @@ class Config {
 		std::string 				_serverName;
 		std::string					_address;
 		int							_port;
-		int							_body;
+		long						_body;
 		std::vector<Location *> 	_locations;
 
 		void parse(std::string token, std::string line);
@@ -79,7 +84,7 @@ class Config {
 		const std::string &getServerName() const { return (_serverName); }		
 		const std::string &getAddress() const { return (_address); }
 		const int &getPort() const { return (_port); }
-		const int &getBody() const { return (_body); }
+		const long &getBody() const { return (_body); }
 		const std::vector<Location *> &getLocations() const { return (_locations); }
 };
 

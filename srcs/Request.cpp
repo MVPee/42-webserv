@@ -10,30 +10,13 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Request::Request(int &client_fd, Server &s, int &sd) : 
+Request::Request(std::string &header, Server &s) : 
 _extension("None"), 
 _accept(false),
 _status_code (FORBIDDEN),
-_success(true) {
+_success(true),
+_httpRequest(header) {
 	try{
-		char buffer[2];
-		int bytes_received;
-
-		while ((bytes_received = recv(sd, buffer, sizeof(buffer) - 1, 0)) > 0) {
-			buffer[bytes_received] = '\0';
-			_httpRequest += buffer;
-			if (_httpRequest.find("\r\n\r\n") != std::string::npos) break;
-		}
-
-		if (bytes_received < 0) {
-			_success = false;
-			throw_and_set_status(ERROR_INTERNAL_SERVER, "Receive failed");
-		}
-		else if (bytes_received == 0) {
-			_success = false;
-			throw_and_set_status(CLIENT_CLOSED_REQUEST, "Connexion closed");
-		}
-		// std::cout << "Message received: " << _httpRequest  << std::endl; //* DEBUG
 
 		parse_request(s);
 
@@ -83,6 +66,16 @@ std::ostream &			operator<<( std::ostream & o, Request const & i ) {
 void Request::resolvePath(Server &s) {
 	struct stat info;
 
+	//! detect cgi
+	if (_path.find(".py") != std::string::npos)
+	{
+		size_t start = _path.find(".py");
+		if (start < _path.size() - 3)
+		{
+			std::cout << B << "CGI" << C << std::endl;
+			_extension = "cgi";
+		}
+	}
 	if (!_location->getRedirection().empty())
 		_extension = "redirection";
 	else if (stat(_path.c_str(), &info) == 0) {
@@ -133,8 +126,8 @@ void Request::parse_request(Server &s){
     while ((pos = request_path.find("../")) != std::string::npos)
         request_path.erase(pos, 3);
 
-	if ((pos = request_path.find("?")) != std::string::npos)
-		request_path.erase(pos);
+	// if ((pos = request_path.find("?")) != std::string::npos)
+	// 	request_path.erase(pos);
 
 	_location = s.getLocations().at(0);
     for (size_t i = 0; i < s.getLocations().size(); i++) {

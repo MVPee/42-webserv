@@ -6,33 +6,27 @@
 class Request;
 class Response;
 class Location;
+class Client;
 
 class Server {
 	private:
-		int _client_socket[MAX_CLIENT];
-		std::map<int, std::string> _responses;
-		std::map<int, std::string> _requests;
-		//time_t _connection_times[MAX_CLIENT];
+		std::map<int, Client *> _clients;
 		fd_set _readfds, _writefds;
-		int _max_sd, _sd, _new_socket;
 
-		std::string name;
-		unsigned int port;
-		unsigned int body;
+		std::string 				_name;
+		unsigned int 				_port;
+		long		 				_bodySize;
 		std::vector<Location *> 	_locations;
 
-		sockaddr_in sock_address;
-		int _fd_socket;
-
-		Request		*_request;
-		Response	*_response;
+		sockaddr_in 				_sock_address;
+		int							_socket;
 	public:
 		Server(const std::string config_text);
 		~Server();
 
-		const std::string &getName(void) const;
-		const unsigned int &getPort(void) const;
-		const unsigned int &getBody(void) const;
+		const std::string	&getName(void) const;
+		const unsigned int	&getPort(void) const;
+		const long			&getBody(void) const;
 		const std::vector<Location *> &getLocations(void) const;
 
 		void mySocket(void);

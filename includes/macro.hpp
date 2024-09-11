@@ -25,7 +25,7 @@
 # include <pthread.h>
 # include <signal.h>
 # include <dirent.h>
-
+# include <sys/wait.h>
 extern volatile bool stopRequested;
 
 # define TIME_OUT 5
@@ -34,6 +34,9 @@ extern volatile bool stopRequested;
 # define POST 1
 # define DELETE 2
 
+# define HEADER_DELIMITER "\r\n\r\n"
+# define HEADER_SIZE		4
+
 # define OFF 0
 # define ON 1
 
@@ -41,7 +44,10 @@ extern volatile bool stopRequested;
 # define BIND 1
 # define LISTEN 2
 # define ACCEPT 3
-# define BUFFER_SIZE 256
+# define BUFFER_SIZE 2048
+
+#define WRITE_PIPE 1
+#define READ_PIPE 0
 
 # define HTML_VERSION "HTTP/1.1"
 
@@ -55,11 +61,19 @@ extern volatile bool stopRequested;
 # define ERROR_NOT_FOUND			404
 # define ERROR_REQUEST_TIMEOUT 		408
 # define PAYLOAD_TOO_LARGE			413
+# define UNSUPPORTED_MEDIA_TYPE		415
 # define CLIENT_CLOSED_REQUEST		499
 
 # define ERROR_INTERNAL_SERVER		500
 # define NOT_IMPLEMENTED			501
 # define HTTP_VERSION_NOT_SUPPORTED	505
+
+enum ClientState {
+    ReceivingHeader,
+    HandlingBody,
+    Completed,
+    Error
+};
 
 # include "Request.hpp"
 # include "Response.hpp"
@@ -67,6 +81,8 @@ extern volatile bool stopRequested;
 # include "Config.hpp"
 # include "methods/Post.hpp"
 # include "methods/Get.hpp"
+# include "methods/Cgi.hpp"
+# include "Client.hpp"
 
 enum extension {HTML = 1, PHP = 2, ICO = 3};
 

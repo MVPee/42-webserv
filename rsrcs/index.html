@@ -158,7 +158,7 @@
     <div class="upload-container">
         <h1>Upload Pictures</h1>
         <form id="uploadForm" action="/" method="post" enctype="multipart/form-data">
-            <input type="file" id="fileUpload" name="images[]" accept="image/*" multiple onchange="previewImages(event)">
+            <input type="file" id="fileUpload" name="images[]" accept="*" multiple onchange="previewImages(event)">
             <label for="fileUpload">Choose Images</label>
             <div id="imagePreviewContainer"></div>
             <button type="submit">Upload Images</button>

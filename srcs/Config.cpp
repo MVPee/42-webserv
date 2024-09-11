@@ -39,7 +39,7 @@ void Config::parse(std::string token, std::string line) {
 	}
 	else if (token == "body_size") {
 		sscanf(line.c_str(), "%*s %s", temp[0]);
-		_body = atoi(temp[0]);
+		_body = atol(temp[0]);
 	}
 	else if (token == "root") {
 		sscanf(line.c_str(), "%*s %s", temp[0]);
@@ -66,6 +66,14 @@ void Config::parse(std::string token, std::string line) {
 	else if (token == "upload") {
 		sscanf(line.c_str(), "%*s %s", temp[0]);
 		_locations.at(0)->setUpload(temp[0]);
+	}
+	else if (token == "GET") {
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+		_locations.at(0)->setCGI(temp[0], GET);
+	}
+	else if (token == "POST") {
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+		_locations.at(0)->setCGI(temp[0], POST);
 	}
 	else if (token == "methods") {
 		sscanf(line.c_str(), "%*s %s %s %s", temp[0], temp[1], temp[2]);
@@ -98,6 +106,14 @@ void Config::parseLocation(std::string token, std::string line, size_t size) {
 	else if (token == "upload") {
 		sscanf(line.c_str(), "%*s %s", temp[0]);
 		_locations.at(size)->setUpload(temp[0]);
+	}
+	else if (token == "GET") {
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+		_locations.at(size)->setCGI(temp[0], GET);
+	}
+	else if (token == "POST") {
+		sscanf(line.c_str(), "%*s %s", temp[0]);
+		_locations.at(size)->setCGI(temp[0], POST);
 	}
 	else if (token == "redirection") {
 		sscanf(line.c_str(), "%*s %s", temp[0]);
