@@ -45,7 +45,7 @@ _cookie(0) {
 	}
 	else if (request.getMethod() == GET) {
 		response_header = Get (request, server).get_content();
-		_cookie = new Cookie(_request.getHttpRequest(), server);
+		_cookie = new Cookie(_request.getHttpRequest());
 		std::cout << response_header << std::endl;
 	}
 

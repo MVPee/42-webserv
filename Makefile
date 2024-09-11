@@ -7,6 +7,7 @@ SRCS = 	main.cpp \
 		srcs/Response.cpp \
 		srcs/Config.cpp \
 		srcs/Client.cpp \
+		srcs/Cookie.cpp \
 		srcs/methods/Post.cpp \
 		srcs/methods/Get.cpp \
 		srcs/methods/Cgi.cpp \

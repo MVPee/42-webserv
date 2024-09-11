@@ -22,7 +22,7 @@ static std::string find_value_by_id(const std::string &id, const std::string &re
     return ("");
 }
 
-Cookie::Cookie(const std::string &request, Server &s) :
+Cookie::Cookie(const std::string &request) :
 _id(0) {
 	// std::cout << request << std::endl;
 	std::string temp;
@@ -32,8 +32,6 @@ _id(0) {
 	}
 	else {
 		std::cout << "New connection" << std::endl;
-		_id = s.getCount();
-		s.getCount()++;
 	}
 	std::cout << _id << std::endl;
 }

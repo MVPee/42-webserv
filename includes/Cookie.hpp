@@ -9,7 +9,7 @@ class Cookie {
 	private:
 		int _id;
 	public:
-		Cookie(const std::string &request, Server &s);
+		Cookie(const std::string &request);
 		~Cookie();
 
 		const int &getId() const {return (_id); }

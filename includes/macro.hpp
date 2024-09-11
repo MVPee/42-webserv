@@ -83,6 +83,7 @@ enum ClientState {
 # include "methods/Get.hpp"
 # include "methods/Cgi.hpp"
 # include "Client.hpp"
+# include "Cookie.hpp"
 
 enum extension {HTML = 1, PHP = 2, ICO = 3};
 
