@@ -56,7 +56,7 @@ void Client::request( void )
 	char buffer[BUFFER_SIZE];
 	ssize_t bytes_received;
 
-	bytes_received = recv(_client_fd, &buffer, sizeof(buffer) - 1, 0); //TODO Check for -1
+	bytes_received = recv(_client_fd, &buffer, sizeof(buffer) - 1, 0);
 	if (bytes_received <= (ssize_t) 0) {
 		if (bytes_received <= (ssize_t) 0)
 			std::cout << _client_fd << " close connection." << std::endl;
