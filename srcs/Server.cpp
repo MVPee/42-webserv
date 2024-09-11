@@ -136,11 +136,11 @@ void Server::process(void) {
 		}
 
 		if (FD_ISSET(_clients[i]->getFd(), &_readfds)) {
-			_clients[i]->receive_content();
+			_clients[i]->request();
 			// std::cout << _clients[i]->getHeader() << std::endl; //? DEBEUG
 		}
 		if (FD_ISSET(_clients[i]->getFd(), &_writefds)) {
-			_clients[i]->handle_client();
+			_clients[i]->response();
 		}
 
 	}

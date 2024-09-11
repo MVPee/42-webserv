@@ -30,8 +30,8 @@ class Client
 		const std::string &getHeader(void) const { return (_header); }
 		const std::string &getBody(void) const { return (_body); }
 		const time_t &getConnectionTime(void) const { return (_connection_time); }
-		void handle_client( void );
-		void receive_content( void );
+		void request( void );
+		void response( void );
 		void clear(void);
 
 		ClientState getState(void) {return(_state);}

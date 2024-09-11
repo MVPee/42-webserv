@@ -34,7 +34,7 @@ Client::~Client() {
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void Client::handle_client( void )
+void Client::response( void )
 {
 	if (_state == HandlingBody)
 	{
@@ -51,7 +51,7 @@ void Client::handle_client( void )
 }
 
 
-void Client::receive_content( void )
+void Client::request( void )
 {
 	char buffer[BUFFER_SIZE];
 	ssize_t bytes_received;
