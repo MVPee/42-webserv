@@ -42,6 +42,7 @@ void Client::handle_client( void )
 		{
 			std::string response_data = Response(_client_fd, *_request, _server, _client_fd).getResponse();
 			//! send ici
+			std::cout << strerror(errno) << std::endl;
 			ssize_t bytes_sent = send(_client_fd, response_data.c_str(), response_data.size(), 0); //TODO protéger le send
 			_state = Completed;
 		}
