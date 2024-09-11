@@ -23,7 +23,8 @@ static std::string get_content_type(std::string extension) {
 
 Response::Response(int &client_fd, Request &request, Server &server, int &sd):
 _status_code(request.get_status_code()),
-_request(request) {
+_request(request),
+_cookie(0) {
 	std::string response_header;
 
 	if (request.getMethod() == DELETE) {
@@ -42,8 +43,11 @@ _request(request) {
 		std::cout << cgi << std::endl;
 		response_header = cgi.getResponseContent();
 	}
-	else if (request.getMethod() == GET)
+	else if (request.getMethod() == GET) {
 		response_header = Get (request, server).get_content();
+		_cookie = new Cookie(_request.getHttpRequest(), server);
+		std::cout << response_header << std::endl;
+	}
 
 	_response = generate_response(response_header);
 }
@@ -56,6 +60,7 @@ const std::string Response::generate_response(const std::string &page_content) c
 	std::string response = ft_to_string(HTML_VERSION) + " " + ft_to_string(_status_code) + " " + status_message + "\r\n" \
 								+ "Content-Type: " + content_type + "\r\n" \
 								+ "Content-Length: " + ft_to_string(page_content.size()) + "\r\n"\
+								+ "Set-Cookie: id=" + ft_to_string(_cookie->getId()) + "\r\n" \
 								+ "Connection: close" \
 								+ ((_request.getExtension() == "redirection") ? ("\r\nLocation: " + _request.getLocation()->getRedirection() + "\r\n") : ("")) \
 								+ "\r\n\r\n" + page_content + '\0';
@@ -67,6 +72,8 @@ const std::string Response::generate_response(const std::string &page_content) c
 */
 
 Response::~Response() {
+	if (_cookie)
+		delete _cookie;
 }
 
 /*
