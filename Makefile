@@ -43,6 +43,6 @@ fclean: clean
 re: fclean all
 
 run: all
-	./$(NAME)
+	./$(NAME) server.conf
 
 .PHONY: all clean fclean re run
