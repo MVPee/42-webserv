@@ -1,42 +1,53 @@
-NAME = webserv
-
-OBJS_DIR = .objs
-SRCS = 	main.cpp \
-		srcs/Server.cpp \
-		srcs/Request.cpp \
-		srcs/Response.cpp \
-		srcs/Config.cpp \
-		srcs/Client.cpp \
-		srcs/Cookie.cpp \
-		srcs/methods/Post.cpp \
-		srcs/methods/Get.cpp \
-		srcs/methods/Cgi.cpp \
-
-OBJS = $(addprefix $(OBJS_DIR)/, $(SRCS:%.cpp=%.o))
-
-FLAGS = -std=c++98 -g -fsanitize=address #-Wall -Werror -Wextra
+NAME := webserv
 
 RED=\033[0;31m
 GREEN=\033[0;32m
 NC=\033[0m
 
+OBJS_DIR := .objs
+SOURCES = main.cpp \
+			srcs/Server.cpp \
+			srcs/Request.cpp \
+			srcs/Response.cpp \
+			srcs/Config.cpp \
+			srcs/Client.cpp \
+			srcs/Cookie.cpp \
+			srcs/methods/Post.cpp \
+			srcs/methods/Get.cpp \
+			srcs/methods/Cgi.cpp
+
+OBJECTS := $(patsubst %.cpp,$(OBJS_DIR)/%.o,$(SOURCES))
+DEPENDS := $(patsubst %.cpp,$(OBJS_DIR)/%.d,$(SOURCES))
+
+CXX := g++
+CXXFLAGS := -std=c++98 -g -fsanitize=address #-Wall -Werror -Wextra
+
+# Default rule
 all: $(NAME)
 
-$(NAME): $(OBJS)
-	@c++ $(FLAGS) $(OBJS) -o $(NAME)
+# Link the executable
+$(NAME): $(OBJECTS)
+	@$(CXX) $(CXXFLAGS) $^ -o $@
 	@echo "\n${RED}./$(NAME)\n${NC}"
 
-$(OBJS_DIR)/%.o: %.cpp
-	@mkdir -p $(dir $@)
-	@c++ $(FLAGS) -c $< -o $@
+# Include dependency files
+-include $(DEPENDS)
 
+# Rule to compile .cpp files into .o files
+$(OBJS_DIR)/%.o: %.cpp Makefile
+	@mkdir -p $(@D)  # Create directory if it doesn't exist
+	@$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+
+# Clean rules
 clean:
-	@rm -rf $(OBJS_DIR)
+	@$(RM) -rf $(OBJS_DIR)
 
 fclean: clean
-	@rm -f $(NAME)
+	@$(RM) $(NAME)
 
 re: fclean all
 
 run: all
-	./$(NAME) server.conf
+	./$(NAME)
+
+.PHONY: all clean fclean re run
