@@ -22,23 +22,18 @@ DEPENDS := $(patsubst %.cpp,$(OBJS_DIR)/%.d,$(SOURCES))
 CXX := g++
 CXXFLAGS := -std=c++98 -g -fsanitize=address #-Wall -Werror -Wextra
 
-# Default rule
 all: $(NAME)
 
-# Link the executable
 $(NAME): $(OBJECTS)
 	@$(CXX) $(CXXFLAGS) $^ -o $@
 	@echo "\n${RED}./$(NAME)\n${NC}"
 
-# Include dependency files
 -include $(DEPENDS)
 
-# Rule to compile .cpp files into .o files
 $(OBJS_DIR)/%.o: %.cpp Makefile
 	@mkdir -p $(@D)  # Create directory if it doesn't exist
 	@$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
-# Clean rules
 clean:
 	@$(RM) -rf $(OBJS_DIR)
 
