@@ -16,6 +16,7 @@ class Response {
 
 
 		const std::string		generate_response(const std::string &page_content) const;
+		std::string 			setCookie(const std::string &request) const;
 	public:
 		Response(int &client_fd, Request &request, Server &server, int &sd);
 		~Response();
