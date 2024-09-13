@@ -4,11 +4,11 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Cookie::Cookie(const std::string &request, std::string &response_header) : _id(-1) {
+Cookie::Cookie(const std::string &request, std::string &response_header) : _id(0) {
     std::string temp = find_value_by_id("id", request);
 
     if (!temp.empty())
-        _id = atoi(temp.c_str());
+        _id = atoi(temp.c_str()) - 1;
 
     if (request.find(" /cookie ") != std::string::npos ||
         request.find(" /cookie/ ") != std::string::npos ||
