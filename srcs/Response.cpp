@@ -49,7 +49,6 @@ _cookie(0) {
 	}
 
 	_response = generate_response(response_header);
-	std::cout << _request.getHttpRequest() << std::endl;
 }
 
 std::string Response::setCookie(const std::string &request) const {
