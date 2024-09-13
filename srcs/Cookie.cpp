@@ -4,7 +4,7 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Cookie::Cookie(const std::string &request, std::string &response_header) : _id(0) {
+Cookie::Cookie(const std::string &request, std::string &response_header) : _id(-1) {
     std::string temp = find_value_by_id("id", request);
 
     if (!temp.empty())
@@ -16,9 +16,17 @@ Cookie::Cookie(const std::string &request, std::string &response_header) : _id(0
         request.find(" /cookie/cookie.html ") != std::string::npos) {
         _id++;
 
-        response_header += "<script>"
-                           "document.querySelector('.number').textContent = '" + ft_to_string(_id) + "';"
-                           "</script>";
+        response_header += "<script>\n"
+                            "const cookie = document.getElementById('cookie');\n"
+                            "const number = document.getElementById('number');\n"
+                            "let count = " + ft_to_string(_id) + ";\n"
+                            "cookie.addEventListener('click', () => {\n"
+                            "\tcount++;\n"
+                            "\tdocument.cookie = 'id=' + count + '; Path=/;';\n"
+                            "\tnumber.textContent = count;\n"
+                            "});\n"
+                            "document.querySelector('.number').textContent = '" + ft_to_string(_id) + "';\n"
+                            "</script>";
     }
 }
 
