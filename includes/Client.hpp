@@ -34,12 +34,15 @@ class Client
 		void response( void );
 		void clear(void);
 
-		ClientState getState(void) {return(_state);}
-		void setState(ClientState new_state) {_state = new_state;}
-		void setFd(int fd) { _client_fd = fd; }
-		void setHeader(std::string header) { _header = header; }
-		void setBody(std::string body) { _body = body; }
-		void setConnectionTime(time_t connection_time) { _connection_time = connection_time; }
+		ClientState		getState(void) {return(_state);}
+		Request		&getRequest( void ) {return(*_request);}
+		Server 		&getServer( void ) {return(_server);}
+
+		void 		setState(ClientState new_state) {_state = new_state;}
+		void 		setFd(int fd) { _client_fd = fd; }
+		void 		setHeader(std::string header) { _header = header; }
+		void 		setBody(std::string body) { _body = body; }
+		void 		setConnectionTime(time_t connection_time) { _connection_time = connection_time; }
 
 
 };

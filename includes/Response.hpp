@@ -6,11 +6,14 @@
 class Request;
 class Server;
 class Cookie;
+class Client;
 
 class Response {
 	private:
 		size_t			&_status_code;
 		Request			&_request;
+		Server			&_server;
+		Client 			&_client;
 		Cookie			*_cookie;
 		std::string		_response;
 
@@ -18,7 +21,7 @@ class Response {
 		const std::string		generate_response(const std::string &page_content) const;
 		std::string 			setCookie(const std::string &request) const;
 	public:
-		Response(int &client_fd, Request &request, Server &server, int &sd);
+		Response(Client &client);
 		~Response();
 		const std::string &getResponse(void) { return (_response); }
 };

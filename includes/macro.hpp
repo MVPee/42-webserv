@@ -94,6 +94,4 @@ enum extension {HTML = 1, PHP = 2, ICO = 3};
 # define M "\x1b[1;35m"
 # define C "\x1b[0m"
 
-std::string get_data_in_header(std::string &header, std::string first_delimiter, std::string end_delimiter);
-
 #endif

@@ -21,30 +21,33 @@ static std::string get_content_type(std::string extension) {
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Response::Response(int &client_fd, Request &request, Server &server, int &sd):
-_status_code(request.get_status_code()),
-_request(request),
+Response::Response(Client &client):
+_request(client.getRequest()),
+_server(client.getServer()),
+_status_code(client.getRequest().get_status_code()),
+_client(client),
 _cookie(0) {
 	std::string response_header;
 
-	if (request.getMethod() == DELETE) {
-		if (request.isAccepted()) {
-			if (access(request.getPath().c_str(), F_OK) != 0)
+	if (_request.getMethod() == DELETE) {
+		if (_request.isAccepted()) {
+			if (access(_request.getPath().c_str(), F_OK) != 0)
 				_status_code = ERROR_NOT_FOUND;
-			else if (remove(request.getPath().c_str()))
+			else if (remove(_request.getPath().c_str()))
 				_status_code = ERROR_INTERNAL_SERVER;
 			else 
 				_status_code = NO_CONTENT;
 		}
 	}
-	else if (request.getExtension() == "cgi")
+	else if (_request.getExtension() == "cgi")
 	{
-		Cgi cgi(_request);
+		Cgi cgi(_client);
 		std::cout << cgi << std::endl;
 		response_header = cgi.getResponseContent();
+		std::cout << R << response_header << C << std::endl;
 	}
-	else if (request.getMethod() == GET) {
-		response_header = Get (request, server).get_content();
+	else if (_request.getMethod() == GET) {
+		response_header = Get (_request, _server).get_content();
 		_cookie = new Cookie(_request.getHttpRequest(), response_header);
 	}
 
