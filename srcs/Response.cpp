@@ -56,18 +56,17 @@ _cookie(0) {
 
 std::string Response::setCookie(const std::string &request) const {
     std::string result("");
-    if (request.find(" /cookie ") != std::string::npos ||
-        request.find(" /cookie/ ") != std::string::npos ||
-        request.find(" /cookie/cookie ") != std::string::npos ||
-        request.find(" /cookie/cookie.html ") != std::string::npos) {
-        result = "Set-Cookie: id=" + ft_to_string(_cookie->getId()) + "; Path=/cookie;\r\n";
-    }
+    if (request.find(" /cookie/ ") != std::string::npos)
+        result = "Set-Cookie: id=" + ft_to_string(_cookie->getId()) + "; Path=/cookie/;\r\n";
     return (result);
 }
 
 const std::string Response::generate_response(const std::string &page_content) const {
     std::string content_type = _status_code < 400 ? get_content_type(_request.getExtension()) : "text/html";
-    const std::string status_message = get_status_message(_status_code);
+    
+	if (_request.getHttpRequest().find(" /cookie/ ") != std::string::npos)
+		_status_code = 204;
+	const std::string status_message = get_status_message(_status_code);
 
     std::string response = ft_to_string(HTML_VERSION) + " " + ft_to_string(_status_code) + " " + status_message + "\r\n" \
                             + "Content-Type: " + content_type + "\r\n" \
