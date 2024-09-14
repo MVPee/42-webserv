@@ -8,9 +8,10 @@ class Client;
 class Cgi
 {
 	private:
-		size_t					&_status_code;
-		Request 				&_request;
-		const std::string		&_body;
+		size_t						&_status_code;
+		Request 					&_request;
+		const std::string			&_body;
+		std::vector<const char*>	_env;
 
 		std::string		_executable;
 		std::string		_path_query;
@@ -21,6 +22,8 @@ class Cgi
 		void get_cgi_infos( void );
 		void execute_cgi( void );
 		void receive_cgi(int *pipe_fd, int *pipe_fd2, int pid);
+		void generate_env ( void );
+		void add_env_variable (const std::string &name, const std::string &value);
 
 	public:
 

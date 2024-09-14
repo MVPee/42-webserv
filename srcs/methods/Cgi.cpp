@@ -12,6 +12,7 @@ _body(client.getBody())
 	try
 	{
 		get_cgi_infos();
+		generate_env();
 		execute_cgi();
 	}
 	catch(const std::exception& e)
@@ -30,6 +31,11 @@ _body(client.getBody())
 
 Cgi::~Cgi()
 {
+	while (!_env.empty())
+	{
+		free((void *)(_env.back()));
+		_env.pop_back();
+	}
 }
 
 
@@ -62,7 +68,6 @@ void Cgi::get_cgi_infos( void )
 	if (py_pos == std::string::npos) py_pos = path.size();
 	if (query_pos == std::string::npos) query_pos = path.size();
 
-	// Extract path components
 	std::string path_to_cgi = path.substr(0, py_pos + 3);
 	_path_query = (query_pos < path.size()) ? path.substr(query_pos) : "";
 	_folder = path_to_cgi.substr(0, path_to_cgi.find_last_of('/'));
@@ -75,12 +80,8 @@ void Cgi::execute_cgi( void )
 {
 	//TODO Handle timeouts
 	const std::string exec = "/usr/bin/python3";
-	const std::string env_path_info = "PATH_INFO=" + _path_info;
-	const std::string env_path_query = "PATH_QUERY=" + _path_query; //! or setenv ?
-	const std::string env_content_length = "CONTENT_LENGTH=" + ft_to_string(_body.size());
 
 	char *const args[3] = {const_cast<char*>(exec.c_str()), const_cast<char*>(_executable.c_str()), NULL};
-	char *const env[4] = {const_cast<char*>(env_path_info.c_str()), const_cast<char*>(env_path_query.c_str()), const_cast<char*>(env_content_length.c_str()), NULL};
 
 	int std_out = dup(STDOUT_FILENO);
 	int std_in = dup(STDIN_FILENO);
@@ -100,7 +101,7 @@ void Cgi::execute_cgi( void )
 		close(pipe_fd2[READ_PIPE]);
 		close(pipe_fd2[WRITE_PIPE]);
 		close(pipe_fd[READ_PIPE]);
-		execve(exec.c_str(), args, env);
+		execve(exec.c_str(), args,const_cast<char* const*>(_env.data()));
 		exit(EXIT_FAILURE); 
 	} else { 
 		receive_cgi(pipe_fd, pipe_fd2, pid);
@@ -128,6 +129,20 @@ void Cgi::receive_cgi(int *pipe_fd, int *pipe_fd2, int pid)
 	close(pipe_fd[READ_PIPE]);
 	int status;
 	waitpid(pid, &status, 0);
+}
+
+void Cgi::generate_env ( void )
+{
+
+	add_env_variable("PATH_INFO", _path_info);
+	add_env_variable("PATH_QUERY", _path_query);
+	add_env_variable("CONTENT_LENGTH", ft_to_string(_body.size()));
+	_env.push_back(NULL);
+}
+
+void Cgi::add_env_variable (const std::string &name, const std::string &value)
+{
+	_env.push_back(strdup((name + "=" + value).c_str()));
 }
 
 
