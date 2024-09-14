@@ -2,6 +2,8 @@
 # define CGI_HPP
 
 # include "../macro.hpp"
+//? temporary
+size_t find_cgi_extension (const std::string &path);
 
 class Client;
 
@@ -17,6 +19,7 @@ class Cgi
 		std::string		_path_query;
 		std::string		_path_info;
 		std::string		_folder;
+		std::string		_cgi_extension;
 		std::string		_response_content;
 
 		void get_cgi_infos( void );
@@ -34,6 +37,7 @@ class Cgi
 		const std::string & getPath_query( void ) const {return(_path_query);}
 		const std::string & getPath_info( void ) const {return(_path_info);}
 		const std::string & getFolder( void ) const {return(_folder);}
+		const std::string & getCgiExtension( void ) const {return(_cgi_extension);}
 		const std::string & getResponseContent( void ) const {return(_response_content);}
 
 

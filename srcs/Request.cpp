@@ -4,7 +4,14 @@
 ** ------------------------------- STATIC -------------------------------------
 */
 
+//? temporary
 
+size_t find_cgi_extension (const std::string &path)
+{
+	if (path.find(".py") != std::string::npos) return (path.find(".py"));
+	else if (path.find(".php") != std::string::npos) return (path.find(".php"));
+	return std::string::npos;
+}
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -67,14 +74,9 @@ void Request::resolvePath(Server &s) {
 	struct stat info;
 
 	//! detect cgi
-	if (_path.find(".py") != std::string::npos)
+	if (find_cgi_extension(_path) != std::string::npos)
 	{
-		size_t start = _path.find(".py");
-		if (start < _path.size() - 3)
-		{
-			std::cout << B << "CGI" << C << std::endl;
-			_extension = "cgi";
-		}
+		_extension = "cgi";
 	}
 	if (!_location->getRedirection().empty())
 		_extension = "redirection";

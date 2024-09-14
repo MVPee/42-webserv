@@ -29,6 +29,7 @@
 extern volatile bool stopRequested;
 
 # define TIME_OUT 5
+# define TIME_OUT_CGI 3.0
 # define MAX_CLIENT 100
 # define GET 0
 # define POST 1

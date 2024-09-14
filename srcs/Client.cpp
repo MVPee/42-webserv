@@ -64,10 +64,13 @@ void Client::response( void )
 		if (!_response.empty())
 		{
 			ssize_t bytes_sent = send(_client_fd, _response.c_str(), _response.size(), 0);
-			if (bytes_sent < 0 || bytes_sent == _response.size()) clear();
+			if (bytes_sent < 0 || bytes_sent == _response.size())
+			{
+				_state = Completed;
+				clear();
+			}
 			else if (bytes_sent < _response.size())
 				_response = _response.substr(bytes_sent);
-			_state = Completed;
 		}
 	}
 }

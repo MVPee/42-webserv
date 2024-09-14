@@ -42,9 +42,8 @@ _cookie(0) {
 	else if (_request.getExtension() == "cgi")
 	{
 		Cgi cgi(_client);
-		std::cout << cgi << std::endl;
 		response_header = cgi.getResponseContent();
-		std::cout << R << response_header << C << std::endl;
+		// std::cout << R << response_header << C << std::endl; //*DEBUG
 	}
 	else if (_request.getMethod() == GET) {
 		response_header = Get (_request, _server).get_content();
