@@ -13,6 +13,34 @@ size_t find_cgi_extension (const std::string &path)
 	return std::string::npos;
 }
 
+void decode_path(std::string &path)
+{
+	std::string new_path;
+	std::stringstream ss;
+	size_t i = 0;
+	while (i < path.size())
+	{
+		if (path[i] == '%' && i + 2 < path.size())
+		{
+			if (std::isxdigit(path[i + 1]) && std::isxdigit(path[i + 2]))
+			{
+				int letter_int;
+				ss.clear();
+				ss << path.substr(i + 1, 2);
+				ss >> std::hex >> letter_int;
+				new_path += static_cast<char>(letter_int);
+				i += 3;
+			}
+		}
+		else 
+		{
+			new_path += path[i];
+			i++;
+		}
+	}
+	path = new_path;
+}
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -120,6 +148,8 @@ void Request::parse_request(Server &s) {
 	if (std::string(http_version) != "HTTP/1.1")
 		throw_and_set_status(HTTP_VERSION_NOT_SUPPORTED, "Not supported http version");
 
+	decode_path(request_path);
+	std::cout << request_path << std::endl;
     std::size_t pos;
     while ((pos = request_path.find("../")) != std::string::npos)
         request_path.erase(pos, 3);
