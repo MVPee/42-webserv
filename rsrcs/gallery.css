@@ -101,3 +101,22 @@ body {
 .delete-button:hover {
     background-color: #c9302c; /* Darker red */
 }
+
+.home-button {
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	background-color: #ff6347;
+	color: white;
+	border: none;
+	border-radius: 8px;
+	padding: 10px 15px;
+	text-decoration: none;
+	font-weight: bold;
+	box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+	transition: background-color 0.3s ease;
+}
+
+.home-button:hover {
+	background-color: #ff4500;
+}

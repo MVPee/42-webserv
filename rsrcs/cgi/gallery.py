@@ -67,6 +67,7 @@ print("""<!DOCTYPE html>
 	</script>
 </head>
 <body>
+    <a class="home-button" href="/">Home</a>
     <div class="file-container">
 """)
 
