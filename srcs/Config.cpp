@@ -84,119 +84,154 @@ std::ostream &			operator<<( std::ostream & o, Config const & i ) {
 ** --------------------------------- METHODS ----------------------------------
 */
 
+static bool isValidIPAddress(const std::string& ip) {
+    std::istringstream iss(ip);
+    std::string segment;
+    int num;
+    int count = 0;
+
+    while (std::getline(iss, segment, '.')) {
+        try {
+            num = std::stoi(segment);
+        } catch (std::invalid_argument&) {
+            return false;
+        }
+        if (num < 0 || num > 255) return false;
+        count++;
+    }
+    return count == 4;
+}
+
 void Config::parse(std::string token, std::string line) {
-	// std::cout << R << token << ":\t" << B << line << C << std::endl;
-	char temp[3][500];
+    std::istringstream iss(line);
+    std::string value;
 
-	if (token == "name") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
-		_serverName = temp[0];
-	}
-	else if (token == "listen") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
+    iss >> value;
 
-		std::string address_port(temp[0]);
-		std::string::size_type pos = address_port.find(":");
-		if (pos != std::string::npos) {
-			_address = address_port.substr(0, pos);
-			_port = atoi(address_port.substr(pos + 1).c_str());
-		}
-		std::cout << _address << std::endl;
-		std::cout << _port << std::endl;
-	}
-	else if (token == "body_size") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
-		_body = atol(temp[0]);
-	}
-	else if (token == "root") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
-		_locations.at(0)->setRoot(temp[0]);
-	}
-	else if (token == "index") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
-		_locations.at(0)->setIndex(temp[0]);
-	}
-	else if (token == "error") {
-		int code;
-		sscanf(line.c_str(), "%*s %i %s", &code, temp[0]);
-		_locations.at(0)->setErrorPage(temp[0], code);
-	}
-	else if (token == "redirection") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
-		_locations.at(0)->setRedirection(temp[0]);
-	}
-	else if (token == "listing") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
-		if (std::string(temp[0]) == "ON")
-			_locations.at(0)->acceptListing(true);
-	}
-	else if (token == "upload") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
-		_locations.at(0)->setUpload(temp[0]);
-	}
-	else if (token == "GET") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
-		_locations.at(0)->setCGI(temp[0], GET);
-	}
-	else if (token == "POST") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
-		_locations.at(0)->setCGI(temp[0], POST);
-	}
-	else if (token == "methods") {
-		sscanf(line.c_str(), "%*s %s %s %s", temp[0], temp[1], temp[2]);
-		if (std::string(temp[0]) == "GET" || std::string(temp[1]) == "GET" || std::string(temp[2]) == "GET") _locations.at(0)->acceptMethods(GET);
-		if (std::string(temp[0]) == "POST" || std::string(temp[1]) == "POST" || std::string(temp[2]) == "POST") _locations.at(0)->acceptMethods(POST);
-		if (std::string(temp[0]) == "DELETE" || std::string(temp[1]) == "DELETE" || std::string(temp[2]) == "DELETE") _locations.at(0)->acceptMethods(DELETE);
-	}
+    if (token == "name")
+        iss >> _serverName;
+    else if (token == "listen") {
+        iss >> value;
+        std::string::size_type pos = value.find(":");
+        if (pos != std::string::npos) {
+            _address = value.substr(0, pos);
+			if (!isValidIPAddress(_address)) {
+				std::cerr << Y << "Address is invalid (set to 0.0.0.0)" << C << std::endl;
+				_address = "0.0.0.0";
+			}
+            _port = atoi(value.substr(pos + 1).c_str());
+			if (_port > 65535 || value.substr(pos + 1).length() > 5) {
+				std::cerr << Y << "Port is too hight or invalid (set to 8080)" << C << std::endl;
+				_port = 8080;
+			}
+        }
+    }
+    else if (token == "body_size") {
+        iss >> value;
+        _body = atol(value.c_str());
+    }
+    else if (token == "root") {
+        iss >> value;
+        _locations.at(0)->setRoot(value);
+    }
+    else if (token == "index") {
+        iss >> value;
+        _locations.at(0)->setIndex(value);
+    }
+    else if (token == "error") {
+        int code;
+        iss >> code >> value;
+        _locations.at(0)->setErrorPage(value, code);
+    }
+    else if (token == "redirection") {
+        iss >> value;
+        _locations.at(0)->setRedirection(value);
+    }
+    else if (token == "listing") {
+        iss >> value;
+        if (value == "ON")
+            _locations.at(0)->acceptListing(true);
+    }
+    else if (token == "upload") {
+        iss >> value;
+        _locations.at(0)->setUpload(value);
+    }
+    else if (token == "GET") {
+        iss >> value;
+        _locations.at(0)->setCGI(value, GET);
+    }
+    else if (token == "POST") {
+        iss >> value;
+        _locations.at(0)->setCGI(value, POST);
+    }
+    else if (token == "methods") {
+        std::string method1, method2, method3;
+        iss >> method1 >> method2 >> method3;
+
+        if (method1 == "GET" || method2 == "GET" || method3 == "GET") 
+            _locations.at(0)->acceptMethods(GET);
+        if (method1 == "POST" || method2 == "POST" || method3 == "POST") 
+            _locations.at(0)->acceptMethods(POST);
+        if (method1 == "DELETE" || method2 == "DELETE" || method3 == "DELETE") 
+            _locations.at(0)->acceptMethods(DELETE);
+    }
 }
 
 void Config::parseLocation(std::string token, std::string line, size_t size) {
-	char temp[3][500];
+    std::istringstream iss(line);
+    std::string value;
 
-	if (token == "location") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
-		_locations.at(size)->setLocation(temp[0]);
-	}
-	else if (token == "root") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
-		_locations.at(size)->setRoot(temp[0]);
-	}
-	else if (token == "index") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
-		_locations.at(size)->setIndex(temp[0]);
-	}
-	else if (token == "error") {
-		int code;
-		sscanf(line.c_str(), "%*s %i %s", &code, temp[0]);
-		_locations.at(size)->setErrorPage(temp[0], code);
-	}
-	else if (token == "upload") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
-		_locations.at(size)->setUpload(temp[0]);
-	}
-	else if (token == "GET") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
-		_locations.at(size)->setCGI(temp[0], GET);
-	}
-	else if (token == "POST") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
-		_locations.at(size)->setCGI(temp[0], POST);
-	}
-	else if (token == "redirection") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
-		_locations.at(size)->setRedirection(temp[0]);
-	}
-	else if (token == "methods") {
-		sscanf(line.c_str(), "%*s %s %s %s", temp[0], temp[1], temp[2]);
-		if (std::string(temp[0]) == "GET" || std::string(temp[1]) == "GET" || std::string(temp[2]) == "GET") _locations.at(size)->acceptMethods(GET);
-		if (std::string(temp[0]) == "POST" || std::string(temp[1]) == "POST" || std::string(temp[2]) == "POST") _locations.at(size)->acceptMethods(POST);
-		if (std::string(temp[0]) == "DELETE" || std::string(temp[1]) == "DELETE" || std::string(temp[2]) == "DELETE") _locations.at(size)->acceptMethods(DELETE);
-	}
-	else if (token == "listing") {
-		sscanf(line.c_str(), "%*s %s", temp[0]);
-		if (std::string(temp[0]) == "ON")
-			_locations.at(size)->acceptListing(true);
-	}
+    iss >> value;
+
+    if (token == "location") {
+        iss >> value;
+        _locations.at(size)->setLocation(value);
+    }
+    else if (token == "root") {
+        iss >> value;
+        _locations.at(size)->setRoot(value);
+    }
+    else if (token == "index") {
+        iss >> value;
+        _locations.at(size)->setIndex(value);
+    }
+    else if (token == "error") {
+        int code;
+        iss >> code >> value;
+        _locations.at(size)->setErrorPage(value, code);
+    }
+    else if (token == "upload") {
+        iss >> value;
+        _locations.at(size)->setUpload(value);
+    }
+    else if (token == "GET") {
+        iss >> value;
+        _locations.at(size)->setCGI(value, GET);
+    }
+    else if (token == "POST") {
+        iss >> value;
+        _locations.at(size)->setCGI(value, POST);
+    }
+    else if (token == "redirection") {
+        iss >> value;
+        _locations.at(size)->setRedirection(value);
+    }
+    else if (token == "methods") {
+        std::string method1, method2, method3;
+        iss >> method1 >> method2 >> method3;
+
+        if (method1 == "GET" || method2 == "GET" || method3 == "GET")
+            _locations.at(size)->acceptMethods(GET);
+        if (method1 == "POST" || method2 == "POST" || method3 == "POST")
+            _locations.at(size)->acceptMethods(POST);
+        if (method1 == "DELETE" || method2 == "DELETE" || method3 == "DELETE")
+            _locations.at(size)->acceptMethods(DELETE);
+    }
+    else if (token == "listing") {
+        iss >> value;
+        if (value == "ON")
+            _locations.at(size)->acceptListing(true);
+    }
 }
 
 /*

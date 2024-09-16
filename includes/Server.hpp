@@ -14,6 +14,7 @@ class Server {
 		fd_set _readfds, _writefds;
 
 		std::string 				_name;
+		std::string					_address;
 		unsigned int 				_port;
 		long		 				_bodySize;
 		std::vector<Location *> 	_locations;

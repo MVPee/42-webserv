@@ -5,7 +5,7 @@
 */
 
 Server::Server(const std::string config_text) :
-	_name("default_server"), 
+	_name("default"), 
 	_port(80), 
 	_bodySize(100),
 	_socket(0) {
@@ -15,6 +15,7 @@ Server::Server(const std::string config_text) :
 	_port = config.getPort();
 	_bodySize = config.getBody();
 	_locations = config.getLocations();
+	_address = config.getAddress();
 	//std::cout << _locations << std::endl; //* DEBUG
 }
 
@@ -64,11 +65,11 @@ void Server::myBind(void) {
 
 	_sock_address.sin_family = AF_INET;
     _sock_address.sin_port = htons(_port);
-    _sock_address.sin_addr.s_addr = INADDR_ANY;
+    _sock_address.sin_addr.s_addr = inet_addr(_address.c_str());
 	if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
 		throw std::runtime_error("setsockopt failed");
 	if (bind(_socket, (sockaddr *) &_sock_address, sizeof(_sock_address)) < 0)
-		throw std::runtime_error("Bind failed");
+		throw std::runtime_error("[ " + _name + " ] Address or port is probably invalid");
 }
 
 void Server::myListen(void) {
@@ -76,10 +77,10 @@ void Server::myListen(void) {
 		throw std::runtime_error("Listen failed");
 
 	std::ostringstream ss;
-	ss << "\n*** Listening on ADDRESS: " 
+	ss << "*** Listening on ADDRESS: " 
 		<< inet_ntoa(_sock_address.sin_addr) 
 		<< " PORT: " << ntohs(_sock_address.sin_port) 
-		<< " ***\n\n";
+		<< " ***";
 	std::cout << ss.str() << std::endl; //* DEBUG
 }
 
