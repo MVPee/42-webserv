@@ -3,17 +3,19 @@
 /*
 ** ------------------------------- STATIC -------------------------------------
 */
-//? Temporary
+
 static std::string get_data_in_header(const std::string &header, const std::string &first_delimiter, const std::string &end_delimiter) {
 	std::size_t start = header.find(first_delimiter);
-	if (start != std::string::npos) {
+	if (start != std::string::npos)
+	{
 		std::string ret = header.substr(start + first_delimiter.size());
 		std::size_t end = ret.find(end_delimiter);
 		if (end != std::string::npos)
 			return ret.substr(0, end);
 	}
-	return "";
+	return ("");
 }
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -57,26 +59,24 @@ void Client::response(void) {
 	if (checkTimeOut())
 		return;
 
-	if (_state == HandlingBody) {
-		if (_request->getExtension() == "cgi") {
-			//? temporary
-			size_t len = std::strtoul(get_data_in_header(_header, "Content-Length: ", "\r").c_str(), 0, 10);
-			if ((_request->getMethod() == POST && len >= _body.size()) || (_request->getMethod() == GET))
-				_response = Response(*this).getResponse();
-		}
-		else if (_request->getMethod() != POST || _post->get_state() == Completed) {
-			if (_response.empty())
-				_response = Response(*this).getResponse();
-		}
-		if (!_response.empty()) {
-			ssize_t bytes_sent = send(_client_fd, _response.c_str(), _response.size(), 0);
-			if (bytes_sent < 0 || bytes_sent == _response.size()) {
-				_state = Completed;
-				clear();
+	if (_state == HandlingBody && _response.empty()) {
+			if (_request->getExtension() == "cgi") {
+				size_t len = std::strtoul(get_data_in_header(_header, "Content-Length: ", "\r").c_str(), 0, 10);
+				if (_request->getMethod() == GET || (_request->getMethod() == POST && len >= _body.size()))
+					_response = Response(*this).getResponse();
+				//* Post request with cgi must wait for the whole body to arrive
 			}
-			else if (bytes_sent < _response.size())
-				_response = _response.substr(bytes_sent);
+			else if (!_post || _post->get_state() == Completed || _post->get_state() == Error)
+					_response = Response(*this).getResponse();
+	}
+
+	if (!_response.empty()) {
+		ssize_t bytes_sent = send(_client_fd, _response.c_str(), _response.size(), 0);
+		if (bytes_sent < 0 || bytes_sent == _response.size()) {
+			clear();
 		}
+		else if (bytes_sent < _response.size())
+			_response = _response.substr(bytes_sent);
 	}
 }
 
@@ -117,11 +117,11 @@ void Client::receive_request_content( void ) {
 					pos += HEADER_SIZE;
 					_state = HandlingBody;
 					_header = total.substr(0, pos);
-					_body += total.substr(pos, total.size());
+					_body = total.substr(pos, total.size());
 				}
 			}
 			else
-				_body = std::string(buffer, bytes_received);
+				_body += std::string(buffer, bytes_received);
 		}
 		
 	}

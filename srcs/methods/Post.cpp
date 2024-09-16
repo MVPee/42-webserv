@@ -30,6 +30,7 @@ _state(ReceivingHeader) {
 	}
 	catch(const std::exception& e) {
 		if (_status_code == OK) _status_code = ERROR_INTERNAL_SERVER;
+		_state = Error;
 		std::cerr << R << e.what() << C << '\n';
 	}
 	
@@ -94,7 +95,7 @@ void Post::decide_action ( std::string &new_content)
 	catch(const std::exception& e) {
 		if (_status_code == OK) _status_code = ERROR_INTERNAL_SERVER;
 		clear_file_infos();
-		_state = Completed;
+		_state = Error;
 		std::cerr << R << e.what() << C << '\n';
 	}
 }
