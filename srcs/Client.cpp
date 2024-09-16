@@ -82,33 +82,8 @@ void Client::response(void) {
 
 
 void Client::request(void) {
-	char buffer[BUFFER_SIZE];
-	ssize_t bytes_received;
+	receive_request_content();
 
-	if (checkTimeOut())
-		return;
-	bytes_received = recv(_client_fd, &buffer, sizeof(buffer) - 1, 0);
-	if (bytes_received <= (ssize_t) 0) {
-		if (bytes_received == (ssize_t) 0)
-			std::cout << _client_fd << " close connection." << std::endl;
-		clear();
-	}
-	else if (bytes_received > (ssize_t) 0) {
-		if (_state == ReceivingHeader) {
-			std:size_t pos;
-			std::string total = _header + std::string(buffer, bytes_received);
-			if ((pos = total.find(HEADER_DELIMITER)) == std::string::npos)
-				_header += buffer;
-			else {
-				pos += HEADER_SIZE;
-				_state = HandlingBody;
-				_header = total.substr(0, pos);
-				_body += total.substr(pos, total.size());
-			}
-		}
-		else
-			_body = std::string(buffer, bytes_received);
-	}
 	if (_state == HandlingBody && !_request)
 		_request = new Request(_header, _server);
 	if (_state == HandlingBody && _request->getMethod() == POST && _request->getExtension() != "cgi") {
@@ -117,6 +92,45 @@ void Client::request(void) {
 		_post->decide_action(_body);
 		_body.clear();
 	}
+}
+
+void Client::receive_request_content( void ) {
+	try {
+		char buffer[BUFFER_SIZE];
+		ssize_t bytes_received;
+
+		if (checkTimeOut())
+			return;
+		bytes_received = recv(_client_fd, &buffer, sizeof(buffer) - 1, 0);
+		if (bytes_received <= (ssize_t) 0) {
+			if (bytes_received == (ssize_t) 0)
+				std::cout << _client_fd << " close connection." << std::endl;
+			clear();
+		}
+		else if (bytes_received > (ssize_t) 0) {
+			if (_state == ReceivingHeader) {
+				std:size_t pos;
+				std::string total = _header + std::string(buffer, bytes_received);
+				if ((pos = total.find(HEADER_DELIMITER)) == std::string::npos)
+					_header += buffer;
+				else {
+					pos += HEADER_SIZE;
+					_state = HandlingBody;
+					_header = total.substr(0, pos);
+					_body += total.substr(pos, total.size());
+				}
+			}
+			else
+				_body = std::string(buffer, bytes_received);
+		}
+		
+	}
+	catch(const std::exception& e) {
+		std::cerr << R << e.what() << C << '\n';
+		clear();
+		//* No response to send
+	}
+	
 }
 
 void Client::clear(void) {

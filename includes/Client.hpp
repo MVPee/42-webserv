@@ -20,7 +20,8 @@ class Client
 		Post			*_post;
 		
 		Server			&_server;
-
+		
+		void receive_request_content ( void );
 	public:
 
 		Client(Server &s, int fd);
