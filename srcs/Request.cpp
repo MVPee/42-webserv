@@ -16,22 +16,17 @@ size_t find_cgi_extension (const std::string &path)
 void decode_path(std::string &path)
 {
 	std::string new_path;
-	std::stringstream ss;
 	size_t i = 0;
 	while (i < path.size())
 	{
-		if (path[i] == '%' && i + 2 < path.size())
-		{
-			if (std::isxdigit(path[i + 1]) && std::isxdigit(path[i + 2]))
+		if (path[i] == '%' && i + 2 < path.size() &&
+		std::isxdigit(path[i + 1]) && std::isxdigit(path[i + 2]))
 			{
 				int letter_int;
-				ss.clear();
-				ss << path.substr(i + 1, 2);
-				ss >> std::hex >> letter_int;
+				letter_int = strtol(path.substr(i + 1, 2).c_str(), 0, 16);
 				new_path += static_cast<char>(letter_int);
 				i += 3;
 			}
-		}
 		else 
 		{
 			new_path += path[i];

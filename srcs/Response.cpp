@@ -7,7 +7,9 @@
 static std::string get_content_type(std::string extension) {
     std::map<std::string, std::string> extensions;
     extensions["html"] = "text/html";
+    extensions["css"] = "text/css";
     extensions["php"] = "text/php";
+	extensions["pdf"] = "application/pdf";
     extensions["ico"] = "image/x-icon";
     extensions["png"] = "image/png";
     extensions["jpg"] = "image/jpg";

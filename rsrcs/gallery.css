@@ -1,0 +1,103 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body Styling */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+}
+
+/* File Container */
+.file-container {
+    width: 100%;
+    max-width: 900px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* File Item Styling */
+.file-item {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 15px 0;
+    width: 100%;
+}
+
+.file-item:last-child {
+    border-bottom: none;
+}
+
+/* Image and Icon Sizes */
+.file-preview, .file-icon {
+    width: 60px;  /* Set both to the same size */
+    height: 60px;
+    border-radius: 8px;
+    margin-right: 15px;
+}
+
+/* Ensure images fit the container */
+.file-preview {
+    object-fit: cover; /* Ensures the image covers the box without distortion */
+}
+
+/* Icons Styling */
+.file-icon {
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    color: #555;
+}
+
+.pdf-icon::before {
+    content: "📄"; /* PDF Icon */
+}
+
+.image-icon::before {
+    content: "🖼️"; /* Placeholder for image icon */
+}
+
+.file-details {
+    flex: 1;
+}
+
+.file-name {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.file-size {
+    font-size: 14px;
+    color: #888;
+}
+
+.delete-button {
+    background-color: #d9534f; /* Bootstrap red */
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.delete-button:hover {
+    background-color: #c9302c; /* Darker red */
+}
