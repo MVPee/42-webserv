@@ -92,7 +92,7 @@ static bool isValidIPAddress(const std::string& ip) {
 
     while (std::getline(iss, segment, '.')) {
         try {
-            num = std::stoi(segment);
+            num = std::atoi(segment.c_str());
         } catch (std::invalid_argument&) {
             return false;
         }
