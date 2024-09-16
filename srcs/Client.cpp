@@ -41,7 +41,22 @@ Client::~Client() {
 ** --------------------------------- METHODS ----------------------------------
 */
 
+bool Client::checkTimeOut(void) {
+	time_t current_time = time(NULL);
+	if (difftime(current_time, getConnectionTime()) > TIME_OUT) {
+		std::cout << getFd() << ": time out..." << std::endl;
+		std::string time_out = "HTTP/1.1 408 Request Timeout\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 21\r\n\r\n<h1>Time out 408</h1>";
+		send(getFd(), time_out.c_str(), time_out.size(), 0);
+		clear();
+		return true;
+	}
+	return false;
+}
+
 void Client::response(void) {
+	if (checkTimeOut())
+		return;
+
 	if (_state == HandlingBody) {
 		if (_request->getExtension() == "cgi") {
 			//? temporary
@@ -55,8 +70,7 @@ void Client::response(void) {
 		}
 		if (!_response.empty()) {
 			ssize_t bytes_sent = send(_client_fd, _response.c_str(), _response.size(), 0);
-			if (bytes_sent < 0 || bytes_sent == _response.size())
-			{
+			if (bytes_sent < 0 || bytes_sent == _response.size()) {
 				_state = Completed;
 				clear();
 			}
@@ -71,9 +85,11 @@ void Client::request(void) {
 	char buffer[BUFFER_SIZE];
 	ssize_t bytes_received;
 
+	if (checkTimeOut())
+		return;
 	bytes_received = recv(_client_fd, &buffer, sizeof(buffer) - 1, 0);
 	if (bytes_received <= (ssize_t) 0) {
-		if (bytes_received <= (ssize_t) 0)
+		if (bytes_received == (ssize_t) 0)
 			std::cout << _client_fd << " close connection." << std::endl;
 		clear();
 	}
