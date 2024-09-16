@@ -22,7 +22,8 @@ _extension("None"),
 _accept(false),
 _status_code (FORBIDDEN),
 _success(true),
-_httpRequest(header) {
+_httpRequest(header),
+_location(NULL) {
 	try {
 
 		parse_request(s);
@@ -153,8 +154,9 @@ void Request::parse_request(Server &s) {
 }
 
 
-void Request::throw_and_set_status(const size_t status_code, std::string message) {
-	_status_code = status_code;
+void Request::throw_and_set_status(const size_t set_status_code, const std::string message) {
+	_status_code = set_status_code;
+	std::cout << G << _status_code << C << std::endl;
 	throw std::runtime_error(message);
 }
 

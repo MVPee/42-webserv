@@ -29,7 +29,7 @@ Get::Get(Request &request, Server &server) :
 _request(request), 
 _server(server),
 _status_code(request.get_status_code()) {
-    if (!request.isAccepted() || request.getExtension() == "directory")
+    if ((!request.isAccepted() && _status_code != BAD_REQUEST) || request.getExtension() == "directory")
         _status_code = FORBIDDEN;
     else if (request.getExtension() == "redirection")
         generate_redirection(request.getLocation()->getRedirection());
@@ -103,7 +103,7 @@ void Get::get_file() {
 			_content = ft_to_string(file.rdbuf());
 	}
 
-	if (_status_code >= 400) {
+	if (_status_code >= 400 && _request.getLocation()) {
 		file.open(ft_to_string(_request.getLocation()->getRoot() + '/' + _request.getLocation()->getErrorPage(_status_code)).c_str());
 		_content = ft_to_string(file.rdbuf());
 	}
