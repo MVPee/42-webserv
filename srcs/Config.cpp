@@ -91,11 +91,7 @@ static bool isValidIPAddress(const std::string& ip) {
     int count = 0;
 
     while (std::getline(iss, segment, '.')) {
-        try {
-            num = std::stoi(segment);
-        } catch (std::invalid_argument&) {
-            return false;
-        }
+		num = atoi(segment.c_str());
         if (num < 0 || num > 255) return false;
         count++;
     }
