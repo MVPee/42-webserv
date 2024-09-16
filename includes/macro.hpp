@@ -26,6 +26,7 @@
 # include <signal.h>
 # include <dirent.h>
 # include <sys/wait.h>
+
 extern volatile bool stopRequested;
 
 # define TIME_OUT 5

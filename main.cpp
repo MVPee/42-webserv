@@ -7,9 +7,7 @@ void handleSignal(int signal) {
         std::cout << R << "\nShutdown the server(s)..." << C << std::endl;
         stopRequested = true;
     }
-    else if (signal == SIGQUIT) {
-        exit(1);
-    }
+    else if (signal == SIGQUIT) exit(1);
 }
 
 static void* serverThread(void* arg) {
@@ -18,9 +16,8 @@ static void* serverThread(void* arg) {
         server->mySocket();
         server->myBind();
         server->myListen();
-        while (!stopRequested) {
+        while (!stopRequested)
             server->process();
-        }
     }
     catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
@@ -33,14 +30,13 @@ int main(int ac, char **av) {
     std::string text;
 
     if (ac != 2)
-        return (1);
+        return 1;
 
     std::ifstream file(av[1]);
     if (!file.is_open() && !file.good())
         std::cerr << "couldn't open config file..." << std::endl;
-    while (std::getline(file, line)) {
+    while (std::getline(file, line))
         text.append(line + "\n");
-    }
     if (file.is_open())
         file.close();
 
@@ -73,15 +69,11 @@ int main(int ac, char **av) {
     sa.sa_flags = 0;
     sigaction(SIGINT, &sa, NULL);
     sigaction(SIGQUIT, &sa, NULL);
-    //signal(SIGPIPE, SIG_IGN); // A retirer (verif si SIGPIPE with siege on linux at 19)
+    signal(SIGPIPE, SIG_IGN); // A retirer (verif si SIGPIPE with siege on linux at 19)
 
-    for (size_t i = 0; i < server_threads.size(); i++) {
+    for (size_t i = 0; i < server_threads.size(); i++)
         pthread_join(server_threads[i], NULL);
-    }
 
-    for (size_t i = 0; i < servers.size(); i++) {
+    for (size_t i = 0; i < servers.size(); i++)
         delete servers.at(i);
-    }
-
-    return (0);
 }

@@ -34,15 +34,15 @@ class Location {
 		void acceptMethods(short index) { _methods[index] = true; }
 		void acceptListing(bool value) { _listing = value;}
 
-		const std::string &getLocation() const { return (_location); }
-		const std::string &getRoot() const { return (_root); }
-		const std::string &getIndex() const { return (_index); }
-		const std::string &getErrorPage(int code) const { return (_errorPage[code - 200]); }
-		const std::string &getCGI(int code) const { return (_cgi[code]); }
-		const std::string &getUpload() const { return (_upload); }
-		const std::string &getRedirection() const { return (_redirection); }
-		const bool &getMethods(short index) const { return (_methods[index]); }
-		const bool &getListing() const { return (_listing); }
+		const std::string &getLocation() const { return _location; }
+		const std::string &getRoot() const { return _root; }
+		const std::string &getIndex() const { return _index; }
+		const std::string &getErrorPage(int code) const { return _errorPage[code - 200]; }
+		const std::string &getCGI(int code) const { return _cgi[code]; }
+		const std::string &getUpload() const { return _upload; }
+		const std::string &getRedirection() const { return _redirection; }
+		const bool &getMethods(short index) const { return _methods[index]; }
+		const bool &getListing() const { return _listing; }
 };
 
 inline std::ostream &	operator<<( std::ostream & o, std::vector<Location *> &_locations) {
@@ -55,7 +55,7 @@ inline std::ostream &	operator<<( std::ostream & o, std::vector<Location *> &_lo
         o << "GET: " << _locations.at(count)->getMethods(1) << "\n";
         o << "DELETE: " << _locations.at(count)->getMethods(2) << "\n\n";
     }
-	return (o);
+	return o;
 };
 
 #endif
@@ -81,11 +81,11 @@ class Config {
 		Config(std::string config);
 		~Config();
 
-		const std::string &getServerName() const { return (_serverName); }		
-		const std::string &getAddress() const { return (_address); }
-		const int &getPort() const { return (_port); }
-		const long &getBody() const { return (_body); }
-		const std::vector<Location *> &getLocations() const { return (_locations); }
+		const std::string &getServerName() const { return _serverName; }		
+		const std::string &getAddress() const { return _address; }
+		const int &getPort() const { return _port; }
+		const long &getBody() const { return _body; }
+		const std::vector<Location *> &getLocations() const { return _locations; }
 };
 
 std::ostream &			operator<<( std::ostream & o, Config const & i );

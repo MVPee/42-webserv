@@ -9,7 +9,7 @@ std::string ft_to_string(T value)
 {
 	std::ostringstream transformer;
 	transformer << value;
-	return (transformer.str());
+	return transformer.str();
 }
 /**
  * @param status_code the error code (for example: 404)

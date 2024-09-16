@@ -8,13 +8,80 @@ static bool countAscii(std::string string) {
 	for (int i = 65; i < 123; i++) {
 		if (i == 91) i = 97;
 		if (string.find(i) != std::string::npos)
-			return (1);
+			return 1;
 	}
-	return (0);
+	return 0;
 }
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
+*/
+
+Config::Config(std::string config) : 
+	_address("0.0.0.0"),
+	_port(8080),
+	_body(100) {
+	
+	_locations.push_back(new Location);
+
+	std::string location;
+	std::string temp;
+
+	{
+		std::stringstream file(config);
+		while (std::getline(file, temp)) {
+			if(temp[0] == ' ' && !temp.empty() && countAscii(temp)) {
+				std::string line = temp.erase(0, 4);
+				if (line.find("location") != std::string::npos || line.find("    ", 0) != std::string::npos) {
+					location += line + '\n';
+				}
+				else {
+					char token[500];
+					sscanf(line.c_str(), "%s", token);
+					if (line[0] != '#')
+						parse(std::string(token), line);
+				}
+			}
+		}
+	}
+
+	std::stringstream file(location);
+	while(std::getline(file, temp)) {
+		if (temp.find("location") != std::string::npos)
+			_locations.push_back(new Location);
+		// std::string line = temp.erase(0, 4);
+		char token[500];
+		sscanf(temp.c_str(), "%s", token);
+		if (temp[0] != '#')
+			parseLocation(std::string(token), temp, _locations.size() - 1);
+
+	}
+
+	// std::cout << G << *this << C << std::endl; //* DEBUG
+	// std::cout << B << _locations << C << std::endl; //* DEBUG
+}
+
+/*
+** -------------------------------- DESTRUCTOR --------------------------------
+*/
+
+Config::~Config() {
+}
+
+/*
+** --------------------------------- OVERLOAD ---------------------------------
+*/
+
+std::ostream &			operator<<( std::ostream & o, Config const & i ) {
+	o << "Name: " << i.getServerName() << '\n';
+	o << "Address: " << i.getAddress() << '\n';
+	o << "Port: " << i.getPort() << '\n';
+	o << "Body: " << i.getBody() << '\n';
+	return o;
+}
+
+/*
+** --------------------------------- METHODS ----------------------------------
 */
 
 void Config::parse(std::string token, std::string line) {
@@ -131,73 +198,6 @@ void Config::parseLocation(std::string token, std::string line, size_t size) {
 			_locations.at(size)->acceptListing(true);
 	}
 }
-
-Config::Config(std::string config) : 
-	_address("0.0.0.0"),
-	_port(8080),
-	_body(100) {
-	
-	_locations.push_back(new Location);
-
-	std::string location;
-	std::string temp;
-
-	{
-		std::stringstream file(config);
-		while (std::getline(file, temp)) {
-			if(temp[0] == ' ' && !temp.empty() && countAscii(temp)) {
-				std::string line = temp.erase(0, 4);
-				if (line.find("location") != std::string::npos || line.find("    ", 0) != std::string::npos) {
-					location += line + '\n';
-				}
-				else {
-					char token[500];
-					sscanf(line.c_str(), "%s", token);
-					if (line[0] != '#')
-						parse(std::string(token), line);
-				}
-			}
-		}
-	}
-
-	std::stringstream file(location);
-	while(std::getline(file, temp)) {
-		if (temp.find("location") != std::string::npos)
-			_locations.push_back(new Location);
-		// std::string line = temp.erase(0, 4);
-		char token[500];
-		sscanf(temp.c_str(), "%s", token);
-		if (temp[0] != '#')
-			parseLocation(std::string(token), temp, _locations.size() - 1);
-
-	}
-
-	// std::cout << G << *this << C << std::endl; //* DEBUG
-	// std::cout << B << _locations << C << std::endl; //* DEBUG
-}
-
-/*
-** -------------------------------- DESTRUCTOR --------------------------------
-*/
-
-Config::~Config() {
-}
-
-/*
-** --------------------------------- OVERLOAD ---------------------------------
-*/
-
-std::ostream &			operator<<( std::ostream & o, Config const & i ) {
-	o << "Name: " << i.getServerName() << '\n';
-	o << "Address: " << i.getAddress() << '\n';
-	o << "Port: " << i.getPort() << '\n';
-	o << "Body: " << i.getBody() << '\n';
-	return o;
-}
-
-/*
-** --------------------------------- METHODS ----------------------------------
-*/
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

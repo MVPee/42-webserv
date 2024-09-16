@@ -127,10 +127,10 @@ std::string Post::get_data_in_header(const std::string &header, const std::strin
 		std::string ret = header.substr(start + first_delimiter.size());
 		std::size_t end = ret.find(end_delimiter);
 		if (end != std::string::npos)
-			return (ret.substr(0, end));
+			return ret.substr(0, end);
 	}
 	throw_and_set_status(BAD_REQUEST, "'" + first_delimiter + "' missing");
-	return ("");
+	return "";
 }
 
 

@@ -57,14 +57,14 @@ void Server::mySocket(void) {
 
 	if ((_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		throw std::runtime_error("Socked failed");
-
-	_sock_address.sin_family = AF_INET;
-    _sock_address.sin_port = htons(_port);
-    _sock_address.sin_addr.s_addr = INADDR_ANY;
 }
 
 void Server::myBind(void) {
 	int opt = 1;
+
+	_sock_address.sin_family = AF_INET;
+    _sock_address.sin_port = htons(_port);
+    _sock_address.sin_addr.s_addr = INADDR_ANY;
 	if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
 		throw std::runtime_error("setsockopt failed");
 	if (bind(_socket, (sockaddr *) &_sock_address, sizeof(_sock_address)) < 0)
@@ -134,15 +134,10 @@ void Server::process(void) {
 				_clients[i]->clear();
 			}
 		}
-
-		if (FD_ISSET(_clients[i]->getFd(), &_readfds)) {
+		if (FD_ISSET(_clients[i]->getFd(), &_readfds))
 			_clients[i]->request();
-			// std::cout << _clients[i]->getHeader() << std::endl; //? DEBEUG
-		}
-		if (FD_ISSET(_clients[i]->getFd(), &_writefds)) {
+		if (FD_ISSET(_clients[i]->getFd(), &_writefds))
 			_clients[i]->response();
-		}
-
 	}
 	
 	if (stopRequested) return;
@@ -152,9 +147,9 @@ void Server::process(void) {
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
-const std::string &Server::getName(void) const { return (_name); }
-const unsigned int &Server::getPort(void) const { return (_port); } 
-const long &Server::getBody(void) const { return (_bodySize); }
-const std::vector<Location *> &Server::getLocations(void) const { return (_locations); }
+const std::string &Server::getName(void) const { return _name; }
+const unsigned int &Server::getPort(void) const { return _port; } 
+const long &Server::getBody(void) const { return _bodySize; }
+const std::vector<Location *> &Server::getLocations(void) const { return _locations; }
 
 /* ************************************************************************** */

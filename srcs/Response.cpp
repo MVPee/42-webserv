@@ -13,7 +13,7 @@ static std::string get_content_type(std::string extension) {
     extensions["jpg"] = "image/jpg";
     extensions["None"] = "text/html";
 
-	if (extensions.count(extension)) return (extensions[extension]);
+	if (extensions.count(extension)) return extensions[extension];
 	else return "text/html";
 }
 
@@ -39,8 +39,7 @@ _cookie(0) {
 				_status_code = NO_CONTENT;
 		}
 	}
-	else if (_request.getExtension() == "cgi")
-	{
+	else if (_request.getExtension() == "cgi") {
 		Cgi cgi(_client);
 		response_header = cgi.getResponseContent();
 		// std::cout << R << response_header << C << std::endl; //*DEBUG
@@ -57,7 +56,7 @@ std::string Response::setCookie(const std::string &request) const {
     std::string result("");
     if (request.find(" /cookie/ ") != std::string::npos)
         result = "Set-Cookie: id=" + ft_to_string(_cookie->getId()) + "; Path=/cookie/;\r\n";
-    return (result);
+    return result;
 }
 
 const std::string Response::generate_response(const std::string &page_content) const {
@@ -89,12 +88,6 @@ Response::~Response() {
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
-
-std::ostream &			operator<<( std::ostream & o, Response const & i ) {
-	(void)i;
-	//o << "Value = " << i.getValue();
-	return o;
-}
 
 /*
 ** --------------------------------- METHODS ----------------------------------

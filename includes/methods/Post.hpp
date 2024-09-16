@@ -36,7 +36,7 @@ class Post {
 
 	public:
 
-		ClientState	get_state( void ) {return (_state);};
+		ClientState	get_state( void ) {return _state;};
 		void		decide_action ( std::string &new_content);
 		Post(const int client_fd, Request &request, Server &server);
 		~Post();

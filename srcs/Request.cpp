@@ -8,8 +8,8 @@
 
 size_t find_cgi_extension (const std::string &path)
 {
-	if (path.find(".py") != std::string::npos) return (path.find(".py"));
-	else if (path.find(".php") != std::string::npos) return (path.find(".php"));
+	if (path.find(".py") != std::string::npos) return path.find(".py");
+	else if (path.find(".php") != std::string::npos) return path.find(".php");
 	return std::string::npos;
 }
 
@@ -23,7 +23,7 @@ _accept(false),
 _status_code (FORBIDDEN),
 _success(true),
 _httpRequest(header) {
-	try{
+	try {
 
 		parse_request(s);
 
@@ -33,8 +33,7 @@ _httpRequest(header) {
 			if (_extension == "redirection") _status_code = REDIRECTION_PERMANENTLY;
 		}
 	}
-	catch(const std::exception& e)
-	{
+	catch(const std::exception& e) {
 		if (_status_code == OK) _status_code = ERROR_INTERNAL_SERVER;
 		std::cerr << R << e.what() << C << '\n';
 	}
@@ -74,12 +73,8 @@ void Request::resolvePath(Server &s) {
 	struct stat info;
 
 	//! detect cgi
-	if (find_cgi_extension(_path) != std::string::npos)
-	{
-		_extension = "cgi";
-	}
-	if (!_location->getRedirection().empty())
-		_extension = "redirection";
+	if (find_cgi_extension(_path) != std::string::npos) _extension = "cgi";
+	if (!_location->getRedirection().empty()) _extension = "redirection";
 	else if (stat(_path.c_str(), &info) == 0) {
 		if (info.st_mode & S_IFDIR) {
 			_extension = "directory";
@@ -88,7 +83,7 @@ void Request::resolvePath(Server &s) {
 		}
 	}
 	if (_path == (_location->getRoot() + "/") || _extension == "directory") {
-		if (_path == (_location->getRoot() + "/") && _location->getIndex() != ""){
+		if (_path == (_location->getRoot() + "/") && _location->getIndex() != "") {
 			_path += _location->getIndex();
 			_extension = ".html";
 		}
@@ -110,7 +105,7 @@ void Request::parse_extension( void ) {
 	}
 }
 
-void Request::parse_request(Server &s){
+void Request::parse_request(Server &s) {
 	char path_buffer[BUFFER_SIZE];
 	char type_buffer[BUFFER_SIZE];
 	char http_version[BUFFER_SIZE];
@@ -158,8 +153,7 @@ void Request::parse_request(Server &s){
 }
 
 
-void Request::throw_and_set_status(const size_t status_code, std::string message)
-{
+void Request::throw_and_set_status(const size_t status_code, std::string message) {
 	_status_code = status_code;
 	throw std::runtime_error(message);
 }
@@ -168,14 +162,14 @@ void Request::throw_and_set_status(const size_t status_code, std::string message
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
-const char			*Request::getContent(void) const {return (_content);}
-const std::string	&Request::getHttpRequest(void) const {return (_httpRequest);}
-const short			&Request::getMethod(void) const {return (_method);}
-const std::string	&Request::getExtension(void) const {return (_extension);}
-const std::string 	&Request::getPath(void) const {return(_path);}
-const bool			&Request::isAccepted(void) const {return(_accept);}
-Location			*Request::getLocation(void) const { return (_location);}
-size_t 				&Request::get_status_code( void ) {return(_status_code);}
-const bool			&Request::getSuccess(void) const {return (_success); }
+const char			*Request::getContent(void) const { return _content; }
+const std::string	&Request::getHttpRequest(void) const { return _httpRequest; }
+const short			&Request::getMethod(void) const { return _method; }
+const std::string	&Request::getExtension(void) const { return _extension; }
+const std::string 	&Request::getPath(void) const { return _path; }
+const bool			&Request::isAccepted(void) const { return _accept; }
+Location			*Request::getLocation(void) const { return _location; }
+size_t 				&Request::get_status_code( void ) { return _status_code; }
+const bool			&Request::getSuccess(void) const { return _success; }
 
 /* ************************************************************************** */

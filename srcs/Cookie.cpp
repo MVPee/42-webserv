@@ -30,24 +30,11 @@ Cookie::Cookie(const std::string &request, std::string &response_header) : _id(0
     }
 }
 
-
-
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
 
-Cookie::~Cookie() {
-}
-
-/*
-** --------------------------------- OVERLOAD ---------------------------------
-*/
-
-std::ostream &			operator<<( std::ostream & o, Cookie const & i ) {
-	(void)i;
-	return o;
-}
-
+Cookie::~Cookie() {}
 
 /*
 ** --------------------------------- METHODS ----------------------------------
@@ -64,10 +51,10 @@ std::string Cookie::find_value_by_id(const std::string &id, const std::string &r
             if (end == std::string::npos)
                 end = line.size();
             std::string value = line.substr(start + id.size() + 1, end - (start + id.size() + 1));
-            return (value);
+            return value;
         }
     }
-    return ("");
+    return "";
 }
 
 /*
