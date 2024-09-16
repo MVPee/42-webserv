@@ -185,6 +185,8 @@ void Config::parseLocation(std::string token, std::string line, size_t size) {
 
     if (token == "location") {
         iss >> value;
+		if (value[0] != '/')
+			value = '/' + value;
         _locations.at(size)->setLocation(value);
     }
     else if (token == "root") {
@@ -199,6 +201,7 @@ void Config::parseLocation(std::string token, std::string line, size_t size) {
         int code;
         iss >> code >> value;
         _locations.at(size)->setErrorPage(value, code);
+			
     }
     else if (token == "upload") {
         iss >> value;
