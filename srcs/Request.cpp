@@ -144,7 +144,7 @@ void Request::parse_request(Server &s) {
 		throw_and_set_status(HTTP_VERSION_NOT_SUPPORTED, "Not supported http version");
 
 	decode_path(request_path);
-	std::cout << request_path << std::endl;
+
     std::size_t pos;
     while ((pos = request_path.find("../")) != std::string::npos)
         request_path.erase(pos, 3);

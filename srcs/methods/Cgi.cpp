@@ -74,9 +74,9 @@ _save_std_out(-1)
 	{
 		std::cerr << R << e.what() << C << '\n';
 		if (_status_code < 400) _status_code = ERROR_INTERNAL_SERVER;
+		if (_response_content.empty())
+			_response_content = "<h1>default: " + ft_to_string(_status_code) + " " + get_status_message(_status_code) + "</h1>";
 	}
-	
-
 }
 
 
@@ -144,6 +144,12 @@ void Cgi::execute_cgi( void )
 	const std::string exec = get_exec_command(_cgi_extension);
 
 	char *const args[3] = {const_cast<char*>(exec.c_str()), const_cast<char*>(_executable.c_str()), NULL};
+	// std::cout << R << (_folder + "/" + _executable ) << C << std::endl; //* DEBUG
+	if (access((_folder + "/" + _executable).c_str(), F_OK) != 0)
+	{
+		_status_code = ERROR_NOT_FOUND;
+		throw std::runtime_error("File does not exist");
+	}
 
 	int pid = fork();
 	if (pid == -1)
