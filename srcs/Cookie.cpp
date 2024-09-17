@@ -16,6 +16,7 @@ Cookie::Cookie(const std::string &request, std::string &response_header) : _id(0
         request.find(" /cookie/cookie.html ") != std::string::npos) {
         _id++;
 
+    std::cout << _id << std::endl;
         response_header += "<script>\n"
                             "const cookie = document.getElementById('cookie');\n"
                             "const number = document.getElementById('number');\n"
@@ -51,7 +52,7 @@ Cookie::Cookie(const std::string &request, std::string &response_header) : _id(0
                             "        isClicked = true;\n"
                             "        setTimeout(() => {\n"
                             "            isClicked = false;\n"
-                            "        }, 600);\n"
+                            "        }, 100);\n"
                             "    }\n"
                             "});\n"
                             "\n"
