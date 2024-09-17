@@ -22,11 +22,17 @@ class Cgi
 		std::string		_cgi_extension;
 		std::string		_response_content;
 
+		int				_save_std_out;
+		int				_save_std_in;
+		int				_pipe_fd[2];
+		int				_pipe_fd2[2];
+
 		void get_cgi_infos( void );
 		void execute_cgi( void );
 		void receive_cgi(int *pipe_fd, int *pipe_fd2, int pid);
 		void generate_env ( void );
 		void add_env_variable (const std::string &name, const std::string &value);
+		void clean ( void );
 
 	public:
 
