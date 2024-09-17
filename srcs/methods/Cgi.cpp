@@ -41,8 +41,6 @@ _save_std_out(-1)
 {
 	try
 	{
-		//TODO: try to access the cgi first to see if it exist to send 404 error
-		//TODO: protect more receive
 		_pipe_fd[0] = -1;
 		_pipe_fd[1] = -1;
 		_pipe_fd2[0] = -1;
@@ -150,6 +148,9 @@ void Cgi::execute_cgi( void )
 		_status_code = ERROR_NOT_FOUND;
 		throw std::runtime_error("File does not exist");
 	}
+	//? temporary
+	if (_request.getMethod() == POST && _status_code == NO_CONTENT)
+		_status_code = OK;
 
 	int pid = fork();
 	if (pid == -1)
