@@ -1,5 +1,6 @@
 import os
 import cgi
+import sys
 
 image_folder = "./../upload"
 
@@ -79,7 +80,7 @@ for image in os.listdir(image_folder):
 		file_extension = os.path.splitext(image)[1].lower()
 		
 		is_image = file_extension in ['.jpg', '.jpeg', '.png', '.gif']
-		preview_html = f"<a href={image_path}>"
+		preview_html = f'<a href="{image_path}">'
 		if is_image:
 			preview_html += f'<img src="{image_path}" alt="{encoded_image}" class="file-preview">'
 		else:
@@ -104,3 +105,4 @@ print("""
 </body>
 </html>
 """)
+sys.exit(0)

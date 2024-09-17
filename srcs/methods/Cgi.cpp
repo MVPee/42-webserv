@@ -212,12 +212,9 @@ void Cgi::receive_cgi(int *pipe_fd, int *pipe_fd2, int pid)
 	}
 	close_and_change_value(pipe_fd[READ_PIPE]);
 	int status;
-	waitpid(pid, &status, WNOHANG);
-	if (WIFEXITED(status))
-	{
-		if (WEXITSTATUS(status) != 0)
+	waitpid(pid, &status, 0);
+	if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
 			_status_code = ERROR_INTERNAL_SERVER;
-	}
 }
 
 void Cgi::generate_env ( void )
