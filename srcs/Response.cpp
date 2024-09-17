@@ -9,6 +9,7 @@ static std::string get_content_type(std::string extension) {
     extensions["html"] = "text/html";
     extensions["css"] = "text/css";
     extensions["php"] = "text/php";
+	extensions["gif"] = "image/gif";
 	extensions["pdf"] = "application/pdf";
     extensions["ico"] = "image/x-icon";
     extensions["png"] = "image/png";

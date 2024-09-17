@@ -13,29 +13,68 @@
             margin: 0;
             background-color: black;
             flex-direction: column;
-            position: relative; /* Pour le positionnement du bouton */
+            position: relative;
+            overflow: hidden; /* Prevent cookies from scrolling off the screen */
         }
 
         .cookie {
-            width: 500px;
-            height: 500px;
-            background-image: url('https://www.nme.com/wp-content/uploads/2021/09/Cookie_Clicker_Click-1392x825.jpg');
+            width: 350px;
+            height: 350px;
+            background-image: url('./Cookie.png');
             background-size: cover;
             background-position: center;
             border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .cookie.grow {
+            transform: scale(1.1);
+        }
+
+        .cookie.shrink {
+            transform: scale(0.9);
+        }
+
+        .falling-cookie {
+            position: absolute;
+            top: 0;
+            width: 100px;
+            height: 100px;
+            background-image: url('./Cookie.png');
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%;
+            opacity: 1;
+            animation: fall 3s ease-in, fadeout 3s ease-in forwards;
+        }
+
+        @keyframes fall {
+            0% {
+                top: -150px;
+            }
+            100% {
+                top: 100vh;
+            }
+        }
+
+        @keyframes fadeout {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
         }
 
         .number {
             margin-top: 20px;
             font-size: 48px;
-            color: #ff6347; /* Couleur tomate */
+            color: #ff6347;
             font-weight: bold;
             text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.4), 0 0 25px #ff6347, 0 0 5px #ff6347;
             background: linear-gradient(45deg, #ff6347, #ffeb3b);
-            -webkit-background-clip: text; /* Pour Safari et Chrome */
-            -moz-background-clip: text; /* Pour Firefox, non encore supporté */
-            background-clip: text; /* Standard */
-            -webkit-text-fill-color: transparent; /* Pour Safari et Chrome */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             border: 3px solid #ff6347;
             border-radius: 12px;
             padding: 10px 20px;
@@ -74,7 +113,7 @@
 </head>
 <body>
     <a class="home-button" href="/">Home</a>
-    <a href="/cookie/"><div class="cookie" id="cookie"></div></a>
+    <div class="cookie" id="cookie"></div>
     <div class="number" id="number">0</div>
 </body>
 </html>
