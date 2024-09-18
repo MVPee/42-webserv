@@ -30,6 +30,21 @@ header h1 {
 	text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+a {
+    color: #ff5722;
+    text-decoration: none;
+    transition: color 1s ease;
+	padding: 5px 10px;
+	font-size: 1.2em;
+}
+
+a:hover {
+	font-size: 1.25em;
+    color: #e23333;
+    text-decoration: underline;
+	text-decoration: none;
+}
+
 .image-container {
 	margin-bottom: 20px;
 	text-align: center;
