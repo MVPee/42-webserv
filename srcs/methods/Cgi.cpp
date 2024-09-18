@@ -4,16 +4,20 @@
 ** ------------------------------- STATIC --------------------------------
 */
 
-static size_t find_cgi_extension (const std::string &path) {
-	if (path.find(".py") != std::string::npos) return path.find(".py");
-	else if (path.find(".php") != std::string::npos) return path.find(".php");
+size_t find_cgi_extension(const std::string &path) {
+	std::string extensions[] = {".py", ".php", ".pl"};
+	for (size_t i = 0; i < sizeof(extensions) / sizeof(std::string); i++) {
+		size_t pos = path.find(extensions[i]);
+		if (pos != std::string::npos) return pos;
+	}
 	return std::string::npos;
 }
 
 static const char* get_exec_command(const std::string &extension) {
 	if (extension == ".py") return "/usr/bin/python3";
-	else if (extension == ".php") return "php";
-	else return "";
+	else if (extension == ".php") return "/usr/bin/php";
+	else if (extension == ".pl") return "/usr/bin/perl";
+	else return "./";
 }
 
 static int close_and_change_value(int &fd) {
@@ -134,7 +138,7 @@ void Cgi::execute_cgi(void) {
 	const std::string exec = get_exec_command(_cgi_extension);
 
 	char *const args[3] = {const_cast<char*>(exec.c_str()), const_cast<char*>(_executable.c_str()), NULL};
-	// std::cout << R << (_folder + "/" + _executable ) << C << std::endl; //* DEBUG
+	std::cout << R << (exec + " " + _folder + "/" + _executable ) << C << std::endl; //* DEBUG
 	if (access((_folder + "/" + _executable).c_str(), F_OK) != 0) {
 		_status_code = ERROR_NOT_FOUND;
 		throw std::runtime_error("File does not exist");
@@ -194,6 +198,7 @@ void Cgi::receive_cgi(int *pipe_fd, int *pipe_fd2, int pid) {
 	if (difftime(time(NULL), start) >= TIME_OUT_CGI) {
 		kill(pid, SIGINT);
 		_status_code = ERROR_REQUEST_TIMEOUT;
+		_response_content = "<h1>default: " + ft_to_string(_status_code) + " " + get_status_message(_status_code) + "</h1>";
 	}
 	close_and_change_value(pipe_fd[READ_PIPE]);
 	int status;

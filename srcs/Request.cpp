@@ -4,14 +4,6 @@
 ** ------------------------------- STATIC -------------------------------------
 */
 
-//? temporary
-
-static size_t find_cgi_extension (const std::string &path) {
-	if (path.find(".py") != std::string::npos) return path.find(".py");
-	else if (path.find(".php") != std::string::npos) return path.find(".php");
-	return std::string::npos;
-}
-
 static void decode_path(std::string &path) {
 	std::string new_path;
 	size_t i = 0;

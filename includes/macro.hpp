@@ -77,6 +77,9 @@ enum ClientState {
     Error
 };
 
+
+size_t find_cgi_extension(const std::string &path);
+
 # include "Request.hpp"
 # include "Response.hpp"
 # include "Server.hpp"
