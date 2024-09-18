@@ -6,32 +6,24 @@
 
 //? temporary
 
-size_t find_cgi_extension (const std::string &path)
-{
+static size_t find_cgi_extension (const std::string &path) {
 	if (path.find(".py") != std::string::npos) return path.find(".py");
 	else if (path.find(".php") != std::string::npos) return path.find(".php");
 	return std::string::npos;
 }
 
-void decode_path(std::string &path)
-{
+static void decode_path(std::string &path) {
 	std::string new_path;
 	size_t i = 0;
-	while (i < path.size())
-	{
+	while (i < path.size()) {
 		if (path[i] == '%' && i + 2 < path.size() &&
-		std::isxdigit(path[i + 1]) && std::isxdigit(path[i + 2]))
-			{
-				int letter_int;
-				letter_int = strtol(path.substr(i + 1, 2).c_str(), 0, 16);
-				new_path += static_cast<char>(letter_int);
-				i += 3;
-			}
-		else 
-		{
-			new_path += path[i];
-			i++;
+			std::isxdigit(path[i + 1]) && std::isxdigit(path[i + 2])) {
+			int letter_int;
+			letter_int = strtol(path.substr(i + 1, 2).c_str(), 0, 16);
+			new_path += static_cast<char>(letter_int);
+			i += 3;
 		}
+		else new_path += path[i++];
 	}
 	path = new_path;
 }
@@ -120,7 +112,7 @@ void Request::resolvePath(Server &s) {
 	}
 }
 
-void Request::parse_extension( void ) {
+void Request::parse_extension(void) {
 	// std::cout << R << _path << C << std::endl; //* DEBUG
 	size_t start = _path.find('.', 1);
 	if (start != std::string::npos && (start + 1) < _path.size() - 1) {
@@ -196,7 +188,7 @@ const std::string	&Request::getExtension(void) const { return _extension; }
 const std::string 	&Request::getPath(void) const { return _path; }
 const bool			&Request::isAccepted(void) const { return _accept; }
 Location			*Request::getLocation(void) const { return _location; }
-size_t 				&Request::get_status_code( void ) { return _status_code; }
+size_t 				&Request::get_status_code(void) { return _status_code; }
 const bool			&Request::getSuccess(void) const { return _success; }
 
 /* ************************************************************************** */

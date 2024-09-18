@@ -5,8 +5,7 @@
 
 
 template <typename T>
-std::string ft_to_string(T value)
-{
+std::string ft_to_string(T value) {
 	std::ostringstream transformer;
 	transformer << value;
 	return transformer.str();
@@ -25,13 +24,13 @@ class Get {
 		size_t			&_status_code;
 		std::string		_content;
 
-		void getContent( void );
-		void get_file( void );
-		void generate_listing( void );
+		void getContent(void);
+		void get_file(void);
+		void generate_listing(void);
 		void generate_redirection(std::string redirection);
 	public:
 		Get(Request &request, Server &server);
-		const std::string &get_content( void ) const;
+		const std::string &get_content(void) const;
 
 		~Get();
 };

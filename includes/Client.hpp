@@ -21,20 +21,20 @@ class Client
 		
 		Server			&_server;
 		
-		void receive_request_content ( void );
+		void receive_request_content (void);
 	public:
 
 		Client(Server &s, int fd);
 		~Client();
 
-		void request( void );
-		void response( void );
+		void request(void);
+		void response(void);
 		bool checkTimeOut(void);
 		void clear(void);
 
-		ClientState		getState(void) {return(_state);}
-		Request		&getRequest( void ) {return(*_request);}
-		Server 		&getServer( void ) {return(_server);}
+		ClientState		getState(void) { return(_state); }
+		Request		&getRequest(void) { return(*_request); }
+		Server 		&getServer(void) { return(_server); }
 
 		const int &getFd(void) const { return _client_fd; }
 		const std::string &getHeader(void) const { return _header; }

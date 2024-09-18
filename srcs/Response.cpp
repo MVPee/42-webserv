@@ -47,7 +47,7 @@ _cookie(0) {
 		response_header = cgi.getResponseContent();
 		// std::cout << R << response_header << C << std::endl; //*DEBUG
 	}
-	else if (_request.getMethod() == GET || _status_code > 300 ){
+	else if (_request.getMethod() == GET || _status_code > 300 ) {
 		response_header = Get (_request, _server).get_content();
 		_cookie = new Cookie(_request.getHttpRequest(), response_header);
 	}

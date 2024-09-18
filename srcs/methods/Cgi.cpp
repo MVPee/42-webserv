@@ -4,6 +4,11 @@
 ** ------------------------------- STATIC --------------------------------
 */
 
+static size_t find_cgi_extension (const std::string &path) {
+	if (path.find(".py") != std::string::npos) return path.find(".py");
+	else if (path.find(".php") != std::string::npos) return path.find(".php");
+	return std::string::npos;
+}
 
 static const char* get_exec_command(const std::string &extension) {
 	if (extension == ".py") return "/usr/bin/python3";
@@ -11,19 +16,16 @@ static const char* get_exec_command(const std::string &extension) {
 	else return "";
 }
 
-static int close_and_change_value(int &fd)
-{
+static int close_and_change_value(int &fd) {
 	int ret = 0;
-	if (fd >= 0)
-	{
+	if (fd >= 0) {
 		ret = close(fd);
 		fd = -1;
 	}
-	return (ret);
+	return ret;
 }
 
-static void exit_error_and_print(std::string Error)
-{
+static void exit_error_and_print(std::string Error) {
 	perror(Error.c_str());
 	exit(EXIT_FAILURE);
 }
@@ -37,15 +39,12 @@ _request(client.getRequest()),
 _status_code(client.getRequest().get_status_code()),
 _body(client.getBody()),
 _save_std_in(-1),
-_save_std_out(-1)
-{
-	try
-	{
+_save_std_out(-1) {
+	try {
 		_pipe_fd[0] = -1;
 		_pipe_fd[1] = -1;
 		_pipe_fd2[0] = -1;
 		_pipe_fd2[1] = -1;
-
 
 		get_cgi_infos();
 		generate_env();
@@ -59,17 +58,15 @@ _save_std_out(-1)
 			throw std::runtime_error("Pipe failed");
 	
 		int flags = fcntl(_pipe_fd[READ_PIPE], F_GETFL, 0);
-		if (flags == -1) {
+		if (flags == -1)
 			throw std::runtime_error("Fcntl failed");
-		}
 
 		if (fcntl(_pipe_fd[READ_PIPE], F_SETFL, flags | O_NONBLOCK) == -1) 
 			throw std::runtime_error("Fcntl failed");
 
 		execute_cgi();
 	}
-	catch(const std::exception& e)
-	{
+	catch(const std::exception& e) {
 		std::cerr << R << e.what() << C << '\n';
 		if (_status_code < 400) _status_code = ERROR_INTERNAL_SERVER;
 		if (_response_content.empty())
@@ -83,10 +80,8 @@ _save_std_out(-1)
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
 
-Cgi::~Cgi()
-{
-	while (!_env.empty())
-	{
+Cgi::~Cgi() {
+	while (!_env.empty()) {
 		free((void *)(_env.back()));
 		_env.pop_back();
 	}
@@ -98,8 +93,7 @@ Cgi::~Cgi()
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-std::ostream &			operator<<( std::ostream & o, Cgi const & i )
-{
+std::ostream &operator<<( std::ostream & o, Cgi const & i ) {
 	o << G << "----CGI-----\n";
 	o << "Executable: " << i.getExecutable() << "\n";
 	o << "CgiExtension: " << i.getCgiExtension() << "\n";
@@ -114,8 +108,7 @@ std::ostream &			operator<<( std::ostream & o, Cgi const & i )
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
-void Cgi::get_cgi_infos( void )
-{
+void Cgi::get_cgi_infos(void) {
 	std::string path = _request.getPath();
 
 	std::size_t query_pos = path.find('?');
@@ -137,14 +130,12 @@ void Cgi::get_cgi_infos( void )
 
 }
 
-void Cgi::execute_cgi( void )
-{
+void Cgi::execute_cgi(void) {
 	const std::string exec = get_exec_command(_cgi_extension);
 
 	char *const args[3] = {const_cast<char*>(exec.c_str()), const_cast<char*>(_executable.c_str()), NULL};
 	// std::cout << R << (_folder + "/" + _executable ) << C << std::endl; //* DEBUG
-	if (access((_folder + "/" + _executable).c_str(), F_OK) != 0)
-	{
+	if (access((_folder + "/" + _executable).c_str(), F_OK) != 0) {
 		_status_code = ERROR_NOT_FOUND;
 		throw std::runtime_error("File does not exist");
 	}
@@ -163,10 +154,8 @@ void Cgi::execute_cgi( void )
 		if (close_and_change_value(_pipe_fd[WRITE_PIPE]) != 0)
 			exit_error_and_print("Close failed");
 		if (_request.getMethod() == POST)
-		{
 			if (dup2(_pipe_fd2[READ_PIPE], STDIN_FILENO))
 				exit_error_and_print("Dup2 failed");
-		}
 		if (close_and_change_value(_pipe_fd2[READ_PIPE]) != 0)
 			exit_error_and_print("Close failed");
 		if (close_and_change_value(_pipe_fd2[WRITE_PIPE]) != 0)
@@ -175,13 +164,11 @@ void Cgi::execute_cgi( void )
 			exit_error_and_print("Close failed");
 		execve(exec.c_str(), args,const_cast<char* const*>(_env.data()));
 		exit_error_and_print("Execve failed");
-	} else { 
-		receive_cgi(_pipe_fd, _pipe_fd2, pid);
 	}
+	else receive_cgi(_pipe_fd, _pipe_fd2, pid);
 }
 
-void Cgi::receive_cgi(int *pipe_fd, int *pipe_fd2, int pid)
-{
+void Cgi::receive_cgi(int *pipe_fd, int *pipe_fd2, int pid) {
 	close_and_change_value(pipe_fd2[READ_PIPE]);
 	if (_request.getMethod() == POST)
 		write(pipe_fd2[WRITE_PIPE], _body.c_str(), _body.size());
@@ -193,21 +180,18 @@ void Cgi::receive_cgi(int *pipe_fd, int *pipe_fd2, int pid)
 	while (difftime(time(NULL), start) < TIME_OUT_CGI) {
 		bytes_read = read(pipe_fd[READ_PIPE], buffer, sizeof(buffer) - 1);
 
-		if (bytes_read > 0)
-		{
+		if (bytes_read > 0) {
 			//std::cerr << bytes_read << std::endl; //*DEBUG
 			_response_content.append(buffer, bytes_read);
 			if (bytes_read < (sizeof(buffer) - 1))
 				break;
 		}
-		else if (bytes_read == 0)
-		{
+		else if (bytes_read == 0) {
 			std::cerr << "Child process closed connection " << std::endl; //*DEBUG
 			break;
 		}
 	}
-	if (difftime(time(NULL), start) >= TIME_OUT_CGI)
-	{
+	if (difftime(time(NULL), start) >= TIME_OUT_CGI) {
 		kill(pid, SIGINT);
 		_status_code = ERROR_REQUEST_TIMEOUT;
 	}
@@ -218,8 +202,7 @@ void Cgi::receive_cgi(int *pipe_fd, int *pipe_fd2, int pid)
 			_status_code = ERROR_INTERNAL_SERVER;
 }
 
-void Cgi::generate_env ( void )
-{
+void Cgi::generate_env (void) {
 
 	add_env_variable("PATH_INFO", _path_info);
 	add_env_variable("PATH_QUERY", _path_query);
@@ -229,21 +212,16 @@ void Cgi::generate_env ( void )
 	_env.push_back(NULL);
 }
 
-void Cgi::add_env_variable (const std::string &name, const std::string &value)
-{
+void Cgi::add_env_variable (const std::string &name, const std::string &value) {
 	_env.push_back(strdup((name + "=" + value).c_str()));
 }
 
-
-void Cgi::clean ( void )
-{
-	if (_save_std_out >= 0)
-	{
+void Cgi::clean (void) {
+	if (_save_std_out >= 0) {
  		dup2(_save_std_out, STDOUT_FILENO);
 		close_and_change_value(_save_std_out);
 	}
-	if (_save_std_in >= 0)
-	{
+	if (_save_std_in >= 0) {
  		dup2(_save_std_in, STDIN_FILENO);
 		close_and_change_value(_save_std_in);
 	}
@@ -252,7 +230,6 @@ void Cgi::clean ( void )
 	close_and_change_value(_pipe_fd2[READ_PIPE]);
 	close_and_change_value(_pipe_fd2[WRITE_PIPE]);
 }
-
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

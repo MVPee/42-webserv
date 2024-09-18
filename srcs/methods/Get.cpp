@@ -62,7 +62,7 @@ void Get::generate_redirection(std::string redirection) {
     _content = ft_to_string(get_status_message(_status_code)) + ". Redirecting to " + redirection;
 }
 
-void Get::generate_listing( void ) {
+void Get::generate_listing(void) {
     struct dirent* entry;
     std::string listing_content;
     std::string dirname;
@@ -117,6 +117,6 @@ void Get::get_file() {
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
-const std::string &Get::get_content( void ) const {return(_content);};
+const std::string &Get::get_content(void) const { return(_content);};
 
 /* ************************************************************************** */

@@ -14,7 +14,7 @@ class Cookie {
 		Cookie(const std::string &request, std::string &response_header);
 		~Cookie();
 
-		const int &getId() const {return _id; }
+		const int &getId() const { return _id; }
 };
 
 #endif /* ********************************************************** COOKIE_H */

@@ -60,14 +60,12 @@ std::ostream &			operator<<( std::ostream & o, Post const & i ) {
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void Post::decide_action ( std::string &new_content)
-{
+void Post::decide_action ( std::string &new_content) {
 	try {
 		_body_size += new_content.size();
 		if (_body_size > _server.getBody()) throw_and_set_status(PAYLOAD_TOO_LARGE, "Body size exceeded");
 
-		if (_state == ReceivingHeader)
-		{
+		if (_state == ReceivingHeader) {
 			std::string total = _remaining_content + new_content;
 			std::size_t pos;
 			if ((pos = total.find(HEADER_DELIMITER)) == std::string::npos)
@@ -83,11 +81,8 @@ void Post::decide_action ( std::string &new_content)
 			}
 		}
 		if (_state == HandlingBody)
-		{
 			output_Content_Body(new_content);
-		}
-		if (_remaining_content == _boundary + "--\r\n")
-		{
+		if (_remaining_content == _boundary + "--\r\n") {
 			_state = Completed;
 			clear_file_infos();
 		}
@@ -106,14 +101,12 @@ void Post::output_Content_Body(std::string &new_content) {
 
 	std::string full = old_buffer + new_content;
 	std::size_t end = full.find(_boundary);
-	if (end != std::string::npos)
-	{
+	if (end != std::string::npos) {
 		_file.output_file.write(full.c_str(), end);
 		_remaining_content = full.substr(end, full.size() - end);
 		_state = ReceivingHeader;
 	}
-	else
-	{
+	else {
 		_file.output_file << _remaining_content;
 		_remaining_content = new_content;
 	}
@@ -123,8 +116,7 @@ void Post::output_Content_Body(std::string &new_content) {
 
 std::string Post::get_data_in_header(const std::string &header, const std::string &first_delimiter, const std::string &end_delimiter) {
 	std::size_t start = header.find(first_delimiter);
-	if (start != std::string::npos)
-	{
+	if (start != std::string::npos) {
 		std::string ret = header.substr(start + first_delimiter.size());
 		std::size_t end = ret.find(end_delimiter);
 		if (end != std::string::npos)
@@ -135,15 +127,13 @@ std::string Post::get_data_in_header(const std::string &header, const std::strin
 }
 
 
-void Post::throw_and_set_status(const size_t status_code, std::string message)
-{
+void Post::throw_and_set_status(const size_t status_code, std::string message) {
 	_status_code = status_code;
 	throw std::runtime_error(message);
 }
 
 
-void	Post::get_file_infos( void )
-{
+void	Post::get_file_infos(void) {
 	clear_file_infos();
 	_file.contentDisposition = get_data_in_header(_header, "Content-Disposition: ", ";");
 
@@ -158,13 +148,11 @@ void	Post::get_file_infos( void )
 	if (!_file.output_file.is_open() || !_file.output_file.good()) throw_and_set_status(ERROR_INTERNAL_SERVER, "Couldn't open file");
 	
 }
-void	Post::clear_file_infos ( void )
-{
+void	Post::clear_file_infos (void) {
 	_file.contentDisposition.clear();
 	_file.filename.clear();
     _file.contentType.clear();
-	if (_file.output_file.is_open())
-	{
+	if (_file.output_file.is_open()) {
 		_file.output_file.close();
 		if (!_file.output_file.good() || (_status_code != OK && _status_code != NO_CONTENT))
 			remove(_file.filename.c_str());

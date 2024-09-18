@@ -31,12 +31,12 @@ class Post {
 
 
 		//file data handling
-		void	get_file_infos( void );
-		void	clear_file_infos ( void );
+		void	get_file_infos(void);
+		void	clear_file_infos (void);
 
 	public:
 
-		ClientState	get_state( void ) {return _state;};
+		ClientState	get_state(void) { return _state;};
 		void		decide_action ( std::string &new_content);
 		Post(const int client_fd, Request &request, Server &server);
 		~Post();

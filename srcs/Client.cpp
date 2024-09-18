@@ -6,14 +6,13 @@
 
 static std::string get_data_in_header(const std::string &header, const std::string &first_delimiter, const std::string &end_delimiter) {
 	std::size_t start = header.find(first_delimiter);
-	if (start != std::string::npos)
-	{
+	if (start != std::string::npos) {
 		std::string ret = header.substr(start + first_delimiter.size());
 		std::size_t end = ret.find(end_delimiter);
 		if (end != std::string::npos)
 			return ret.substr(0, end);
 	}
-	return ("");
+	return "";
 }
 
 /*
@@ -94,7 +93,7 @@ void Client::request(void) {
 	}
 }
 
-void Client::receive_request_content( void ) {
+void Client::receive_request_content(void) {
 	try {
 		char buffer[BUFFER_SIZE];
 		ssize_t bytes_received;
