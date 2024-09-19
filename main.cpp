@@ -40,7 +40,6 @@ int main(int ac, char **av) {
 
     std::vector<Server *> servers;
     size_t start = 0;
-    int i = 0;
     while ((start = text.find('{', start)) != std::string::npos) {
         size_t end = text.find('}', start);
         if (end == std::string::npos) {
@@ -51,7 +50,6 @@ int main(int ac, char **av) {
         Server *newServer = new Server(config);
         servers.push_back(newServer);
         start = end + 1;
-        i++;
     }
 
     std::vector<pthread_t> server_threads;

@@ -137,7 +137,7 @@ void Server::process(void) {
 	}
 
 	if (stopRequested) {
-		message("Stopping", R);
+		message("Stopped", R);
 		return ;
 	}
 
