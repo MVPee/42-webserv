@@ -124,8 +124,8 @@ void Request::parse_request(Server &s) {
 	std::string request_path(path_buffer);
 	std::string request_method (type_buffer);
 
-	if (std::string(http_version) != "HTTP/1.1")
-		throw_and_set_status(HTTP_VERSION_NOT_SUPPORTED, "Not supported http version");
+	// if (std::string(http_version) != "HTTP/1.1")
+	// 	throw_and_set_status(HTTP_VERSION_NOT_SUPPORTED, "Not supported http version");
 
 	decode_path(request_path);
 
@@ -165,7 +165,7 @@ void Request::parse_request(Server &s) {
 
 void Request::throw_and_set_status(const size_t set_status_code, const std::string message) {
 	_status_code = set_status_code;
-	std::cout << G << _status_code << C << std::endl;
+	// std::cout << G << _status_code << C << std::endl; //* Debug
 	throw std::runtime_error(message);
 }
 

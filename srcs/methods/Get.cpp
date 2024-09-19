@@ -88,7 +88,7 @@ void Get::generate_listing(void) {
             listing_content += "<a href=\"" + absolutePath + dirname + "\">" + dirname + "</a><br>" + '\n';
     }
     _content = listing_content;
-    std::cout << B << _content << C << std::endl; //? DEBUG
+    // std::cout << B << _content << C << std::endl; //? DEBUG
     closedir(dir);
 }
 

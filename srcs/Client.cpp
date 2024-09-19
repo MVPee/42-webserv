@@ -45,7 +45,6 @@ Client::~Client() {
 bool Client::checkTimeOut(void) {
 	time_t current_time = time(NULL);
 	if (difftime(current_time, getConnectionTime()) > TIME_OUT) {
-		std::cout << getFd() << ": time out..." << std::endl;
 		std::string time_out = "HTTP/1.1 408 Request Timeout\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 21\r\n\r\n<h1>Time out 408</h1>";
 		send(getFd(), time_out.c_str(), time_out.size(), 0);
 		clear();
@@ -103,7 +102,7 @@ void Client::receive_request_content(void) {
 		bytes_received = recv(_client_fd, &buffer, sizeof(buffer) - 1, 0);
 		if (bytes_received <= (ssize_t) 0) {
 			if (bytes_received == (ssize_t) 0)
-				std::cout << _client_fd << " close connection." << std::endl;
+				;// std::cout << _client_fd << " close connection." << std::endl;
 			clear();
 		}
 		else if (bytes_received > (ssize_t) 0) {

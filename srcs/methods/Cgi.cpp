@@ -138,7 +138,7 @@ void Cgi::execute_cgi(void) {
 	const std::string exec = get_exec_command(_cgi_extension);
 
 	char *const args[3] = {const_cast<char*>(exec.c_str()), const_cast<char*>(_executable.c_str()), NULL};
-	std::cout << R << (exec + " " + _folder + "/" + _executable ) << C << std::endl; //* DEBUG
+	// std::cout << R << (exec + " " + _folder + "/" + _executable ) << C << std::endl; //* DEBUG
 	if (access((_folder + "/" + _executable).c_str(), F_OK) != 0) {
 		_status_code = ERROR_NOT_FOUND;
 		throw std::runtime_error("File does not exist");
