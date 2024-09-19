@@ -19,7 +19,7 @@ static void* serverThread(void* arg) {
             server->process();
     }
     catch (std::exception &e) {
-        std::cerr << e.what() << std::endl;
+        server->message(e.what(), R);
     }
     return NULL;
 }

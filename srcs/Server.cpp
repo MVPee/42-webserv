@@ -13,6 +13,15 @@ std::string getCurrentTime() {
     return std::string(buffer);
 }
 
+void Server::message(const std::string &message, const char *color) const {
+	std::ostringstream ss;
+	ss 	<< M << "[" << getCurrentTime() << "] " << C 
+		<< "[" << BOLD << _name << C << "] "
+		<< "[" << ITALIC << ntohs(_sock_address.sin_port) << C << "]"
+		<< "\t\t" << color << message << C;
+	std::cout << ss.str() << std::endl; //* LOG
+}
+
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -80,21 +89,15 @@ void Server::myBind(void) {
     _sock_address.sin_port = htons(_port);
     _sock_address.sin_addr.s_addr = inet_addr(_address.c_str());
 	if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
-		throw std::runtime_error("setsockopt failed");
+		throw std::runtime_error("Setsockopt failed");
 	if (bind(_socket, (sockaddr *) &_sock_address, sizeof(_sock_address)) < 0)
-		throw std::runtime_error("[ " + _name + " ] Address or port is probably invalid");
+		throw std::runtime_error("Bind failed, address or port is probably invalid");
 }
 
 void Server::myListen(void) {
 	if (listen(_socket, MAX_CLIENT) < 0)
 		throw std::runtime_error("Listen failed");
-
-	std::ostringstream ss;
-	ss 	<< M << "[" << getCurrentTime() << "] " << C 
-		<< "[" << BOLD << _name << C << "] "
-		<< "[" << ITALIC << ntohs(_sock_address.sin_port) << C << "]"
-		<< G << "\t\tRunning" << C;
-	std::cout << ss.str() << std::endl; //* LOG
+	message("Running", G);
 }
 
 void Server::process(void) {
@@ -118,7 +121,7 @@ void Server::process(void) {
 	timeout.tv_sec = 2;
 	timeout.tv_usec = 0;
 	if (select(max_sd + 1, &_readfds, &_writefds, NULL, &timeout) < 0)
-		std::cerr << "Erro with select(), errno: " << strerror(errno) << std::endl;
+		throw std::runtime_error("Select failed");
 
 	if (FD_ISSET(_socket, &_readfds)) {
 		int addrlen = sizeof(_sock_address);
@@ -135,12 +138,7 @@ void Server::process(void) {
 	}
 
 	if (stopRequested) {
-		std::ostringstream ss;
-		ss 	<< M << "[" << getCurrentTime() << "] " << C 
-			<< "[" << BOLD << _name << C << "] "
-			<< "[" << ITALIC << ntohs(_sock_address.sin_port) << C << "]"
-			<< R << "\t\tStoping" << C;
-		std::cout << ss.str() << std::endl; //* LOG
+		message("Stopping", R);
 		return ;
 	}
 

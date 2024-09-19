@@ -34,6 +34,7 @@ class Server {
 		void myBind(void);
 		void myListen(void);
 		void process(void);
+		void message(const std::string &message, const char *color) const;
 };
 
 std::ostream &operator<<( std::ostream & o, Server const & i );
