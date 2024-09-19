@@ -3,10 +3,9 @@
 volatile bool stopRequested = false;
 
 void handleSignal(int signal) {
-    if (signal == SIGINT) {
-        std::cout << R << "\nShutdown the server(s)..." << C << std::endl;
+    std::cout << "\n";
+    if (signal == SIGINT)
         stopRequested = true;
-    }
     else if (signal == SIGQUIT) exit(1);
 }
 
@@ -68,7 +67,6 @@ int main(int ac, char **av) {
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
     sigaction(SIGINT, &sa, NULL);
-    sigaction(SIGQUIT, &sa, NULL);
     signal(SIGPIPE, SIG_IGN); // A retirer (verif si SIGPIPE with siege on linux at 19)
 
     for (size_t i = 0; i < server_threads.size(); i++)

@@ -77,7 +77,6 @@ enum ClientState {
     Error
 };
 
-
 size_t find_cgi_extension(const std::string &path);
 
 # include "Request.hpp"
@@ -98,5 +97,10 @@ enum extension {HTML = 1, PHP = 2, ICO = 3};
 # define Y "\x1b[1;33m"
 # define M "\x1b[1;35m"
 # define C "\x1b[0m"
+
+# define U "\x1b[4m"
+# define BOLD "\x1b[1m"
+# define ITALIC "\x1b[3m"
+# define BLINK "\x1b[5m"
 
 #endif

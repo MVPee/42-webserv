@@ -1,6 +1,19 @@
 #include "../includes/Server.hpp"
 
 /*
+** ------------------------------- STATIC ------------------------------------
+*/
+
+std::string getCurrentTime() {
+    std::time_t now = std::time(0);
+    std::tm* time_info = std::localtime(&now);
+    
+    char buffer[80];
+    std::strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", time_info);
+    return std::string(buffer);
+}
+
+/*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
@@ -77,11 +90,11 @@ void Server::myListen(void) {
 		throw std::runtime_error("Listen failed");
 
 	std::ostringstream ss;
-	ss << "*** Listening on ADDRESS: " 
-		<< inet_ntoa(_sock_address.sin_addr) 
-		<< " PORT: " << ntohs(_sock_address.sin_port) 
-		<< " ***";
-	std::cout << ss.str() << std::endl; //* DEBUG
+	ss 	<< M << "[" << getCurrentTime() << "] " << C 
+		<< "[" << BOLD << _name << C << "] "
+		<< "[" << ITALIC << ntohs(_sock_address.sin_port) << C << "]"
+		<< G << "\t\tRunning" << C;
+	std::cout << ss.str() << std::endl; //* LOG
 }
 
 void Server::process(void) {
@@ -105,9 +118,7 @@ void Server::process(void) {
 	timeout.tv_sec = 2;
 	timeout.tv_usec = 0;
 	if (select(max_sd + 1, &_readfds, &_writefds, NULL, &timeout) < 0)
-		std::cerr << "Erreur avec select(), errno: " << strerror(errno) << std::endl;
-
-	if (stopRequested) return;
+		std::cerr << "Erro with select(), errno: " << strerror(errno) << std::endl;
 
 	if (FD_ISSET(_socket, &_readfds)) {
 		int addrlen = sizeof(_sock_address);
@@ -123,7 +134,15 @@ void Server::process(void) {
 		}
 	}
 
-	if (stopRequested) return;
+	if (stopRequested) {
+		std::ostringstream ss;
+		ss 	<< M << "[" << getCurrentTime() << "] " << C 
+			<< "[" << BOLD << _name << C << "] "
+			<< "[" << ITALIC << ntohs(_sock_address.sin_port) << C << "]"
+			<< R << "\t\tStoping" << C;
+		std::cout << ss.str() << std::endl; //* LOG
+		return ;
+	}
 
 	for (int i = 0; i < MAX_CLIENT; i++) {
 		if (FD_ISSET(_clients[i]->getFd(), &_readfds))
@@ -131,8 +150,6 @@ void Server::process(void) {
 		if (FD_ISSET(_clients[i]->getFd(), &_writefds))
 			_clients[i]->response();
 	}
-	
-	if (stopRequested) return;
 }
 
 /*
