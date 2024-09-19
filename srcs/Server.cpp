@@ -74,7 +74,6 @@ std::ostream &			operator<<( std::ostream & o, Server const & i ) {
 */
 
 void Server::mySocket(void) {
-	// memset(_client_socket, 0, MAX_CLIENT * sizeof(int));
 	for (int i = 0; i < MAX_CLIENT; i++)
         _clients[i] = new Client(*this, 0);
 
