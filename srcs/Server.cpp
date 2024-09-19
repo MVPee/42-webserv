@@ -17,7 +17,7 @@ void Server::message(const std::string &message, const char *color) const {
 	std::ostringstream ss;
 	ss 	<< M << "[" << getCurrentTime() << "] " << C 
 		<< "[" << BOLD << _name << C << "] "
-		<< "[" << ITALIC << ntohs(_sock_address.sin_port) << C << "]"
+		<< "[" << ITALIC << _port << C << "]"
 		<< "\t\t" << color << message << C;
 	std::cout << ss.str() << std::endl; //* LOG
 }
