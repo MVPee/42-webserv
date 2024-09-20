@@ -64,7 +64,7 @@ int main(int ac, char **av) {
         size_t end = text.find('}', start);
         if (end == std::string::npos) {
             std::cerr << "Not a valid conf file.." << std::endl;
-            return(1);
+            return 1;
         }
         std::string config = text.substr(start + 1, end - start - 1);
         Server *newServer = new Server(config);
