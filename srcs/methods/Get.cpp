@@ -117,6 +117,6 @@ void Get::get_file() {
 ** --------------------------------- ACCESSOR ---------------------------------
 */
 
-const std::string &Get::get_content(void) const { return(_content);};
+const std::string &Get::get_content(void) const { return _content;};
 
 /* ************************************************************************** */

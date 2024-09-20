@@ -32,9 +32,9 @@ class Client
 		bool checkTimeOut(void);
 		void clear(void);
 
-		ClientState		getState(void) { return(_state); }
-		Request		&getRequest(void) { return(*_request); }
-		Server 		&getServer(void) { return(_server); }
+		ClientState		getState(void) { return _state; }
+		Request		&getRequest(void) { return *_request; }
+		Server 		&getServer(void) { return _server; }
 
 		const int &getFd(void) const { return _client_fd; }
 		const std::string &getHeader(void) const { return _header; }

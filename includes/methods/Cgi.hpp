@@ -37,12 +37,12 @@ class Cgi
 		Cgi(Client &client);
 		~Cgi();
 
-		const std::string & getExecutable(void) const { return(_executable); }
-		const std::string & getPath_query(void) const { return(_path_query); }
-		const std::string & getPath_info(void) const { return(_path_info); }
-		const std::string & getFolder(void) const { return(_folder); }
-		const std::string & getCgiExtension(void) const { return(_cgi_extension); }
-		const std::string & getResponseContent(void) const { return(_response_content); }
+		const std::string & getExecutable(void) const { return _executable; }
+		const std::string & getPath_query(void) const { return _path_query; }
+		const std::string & getPath_info(void) const { return _path_info; }
+		const std::string & getFolder(void) const { return _folder; }
+		const std::string & getCgiExtension(void) const { return _cgi_extension; }
+		const std::string & getResponseContent(void) const { return _response_content; }
 
 
 };
