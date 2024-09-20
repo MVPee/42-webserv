@@ -24,14 +24,25 @@ static void handleSignal(int signal) {
         stopRequested = true;
 }
 
+static void signal() {
+    struct sigaction sa;
+    sa.sa_handler = handleSignal;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGQUIT, &sa, NULL);
+    signal(SIGPIPE, SIG_IGN); // A retirer (verif si SIGPIPE with siege on linux at 19)
+}
+
 static void* serverThread(void* arg) {
     Server* server = static_cast<Server*>(arg);
     try {
         server->mySocket();
         server->myBind();
         server->myListen();
-        while (!stopRequested)
+        do
             server->process();
+        while (!stopRequested);
     }
     catch (std::exception &e) {
         server->message(e.what(), R);
@@ -42,6 +53,8 @@ static void* serverThread(void* arg) {
 int main(int ac, char **av) {
     std::string line;
     std::string text;
+
+    signal();
 
     if (ac != 2)
         return 1;
@@ -79,14 +92,6 @@ int main(int ac, char **av) {
         pthread_create(&thread, NULL, serverThread, static_cast<void*>(servers[i]));
         server_threads.push_back(thread);
     }
-    
-    struct sigaction sa;
-    sa.sa_handler = handleSignal;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-    sigaction(SIGINT, &sa, NULL);
-    sigaction(SIGQUIT, &sa, NULL);
-    signal(SIGPIPE, SIG_IGN); // A retirer (verif si SIGPIPE with siege on linux at 19)
 
     for (size_t i = 0; i < server_threads.size(); i++)
         pthread_join(server_threads[i], NULL);
