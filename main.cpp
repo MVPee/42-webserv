@@ -2,7 +2,27 @@
 
 volatile bool stopRequested = false;
 
-void handleSignal(int signal) {
+static void check_port(Server *newServer, std::vector<Server *> &servers) {
+    int newPort = newServer->getPort();
+    
+    if (servers.size() == 0) {
+        servers.push_back(newServer);
+        return ;
+    }
+    for (size_t i = 0; i < servers.size(); i++) {
+        if (newPort == servers.at(i)->getPort()) {
+            std::cerr   << R << "Servers cannot have the same port (\"" 
+                        << servers.at(i)->getName() << "\":\"" << newServer->getName() << "\" " << newPort 
+                        << ")" << C 
+                        << std::endl;
+            delete newServer;
+            return ;
+        }
+    }
+    servers.push_back(newServer);
+}
+
+static void handleSignal(int signal) {
     std::cout << "\n";
     if (signal == SIGINT || signal == SIGQUIT)
         stopRequested = true;
@@ -48,13 +68,18 @@ int main(int ac, char **av) {
         }
         std::string config = text.substr(start + 1, end - start - 1);
         Server *newServer = new Server(config);
-        servers.push_back(newServer);
+        check_port(newServer, servers);
         start = end + 1;
+        if (servers.size() >= MAX_SERVER) {
+            std::cerr << Y << "MAX_SERVER IS LIMITED TO " << MAX_SERVER << C << std::endl;
+            break;
+        }
     }
 
     std::vector<pthread_t> server_threads;
     for (size_t i = 0; i < servers.size(); i++) {
         pthread_t thread;
+        sleep(i%2);
         pthread_create(&thread, NULL, serverThread, static_cast<void*>(servers[i]));
         server_threads.push_back(thread);
     }

@@ -26,12 +26,14 @@
 # include <signal.h>
 # include <dirent.h>
 # include <sys/wait.h>
+# include <ctime>
 
 extern volatile bool stopRequested;
 
 # define TIME_OUT 5
 # define TIME_OUT_CGI 3.0
 # define MAX_CLIENT 100
+# define MAX_SERVER 5
 # define GET 0
 # define POST 1
 # define DELETE 2
