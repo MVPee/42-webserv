@@ -20,11 +20,11 @@ static std::string get_data_in_header(const std::string &header, const std::stri
 */
 
 Client::Client(Server &s, int fd) :
-_server(s),
 _client_fd(fd),
 _state(ReceivingHeader),
 _request(0),
-_post(0) {}
+_post(0),
+_server(s) {}
 
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
@@ -70,10 +70,10 @@ void Client::response(void) {
 
 	if (!_response.empty()) {
 		ssize_t bytes_sent = send(_client_fd, _response.c_str(), _response.size(), 0);
-		if (bytes_sent < 0 || bytes_sent == _response.size()) {
+		if (bytes_sent < 0 || bytes_sent == (ssize_t)_response.size()) {
 			clear();
 		}
-		else if (bytes_sent < _response.size())
+		else if (bytes_sent < (ssize_t)_response.size())
 			_response = _response.substr(bytes_sent);
 	}
 }
@@ -101,13 +101,14 @@ void Client::receive_request_content(void) {
 			return;
 		bytes_received = recv(_client_fd, &buffer, sizeof(buffer) - 1, 0);
 		if (bytes_received <= (ssize_t) 0) {
-			if (bytes_received == (ssize_t) 0)
+			if (bytes_received == (ssize_t) 0) {
 				;// std::cout << _client_fd << " close connection." << std::endl;
+			}
 			clear();
 		}
 		else if (bytes_received > (ssize_t) 0) {
 			if (_state == ReceivingHeader) {
-				std:size_t pos;
+				std::size_t pos;
 				std::string total = _header + std::string(buffer, bytes_received);
 				if ((pos = total.find(HEADER_DELIMITER)) == std::string::npos)
 					_header += buffer;

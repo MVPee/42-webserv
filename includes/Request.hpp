@@ -20,7 +20,7 @@ class Request {
 
 		void parse_request(Server &s);
 		void parse_extension(void);
-		void resolvePath(Server &s);
+		void resolvePath();
 		void throw_and_set_status(const size_t set_status_code, const std::string message);
 	public:
 		Request(std::string &header, Server &s);

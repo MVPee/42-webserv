@@ -25,9 +25,9 @@ static std::string get_content_type(std::string extension) {
 */
 
 Response::Response(Client &client):
+_status_code(client.getRequest().get_status_code()),
 _request(client.getRequest()),
 _server(client.getServer()),
-_status_code(client.getRequest().get_status_code()),
 _client(client),
 _cookie(0) {
 	std::string response_header;

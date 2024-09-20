@@ -18,7 +18,7 @@ _state(ReceivingHeader) {
 		std::string	content_type = get_data_in_header(header, "Content-Type: ", ";");
 
 
-		if (std::strtoul(content_length.c_str(), 0, 10) > server.getBody()) {
+		if (std::strtoul(content_length.c_str(), 0, 10) > (unsigned long)server.getBody()) {
 			// fcntl(client_fd, F_SETFL, O_NONBLOCK);
 			// while (recv(client_fd, 0, 255, 0) > 0); //* still a problem when uploading big files and exceeding body size limit (bad response)
 			throw_and_set_status(PAYLOAD_TOO_LARGE, "Body-size too long");

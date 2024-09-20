@@ -39,8 +39,8 @@ static void exit_error_and_print(std::string Error) {
 */
 
 Cgi::Cgi(Client &client) : 
-_request(client.getRequest()),
 _status_code(client.getRequest().get_status_code()),
+_request(client.getRequest()),
 _body(client.getBody()),
 _save_std_in(-1),
 _save_std_out(-1) {
@@ -187,7 +187,7 @@ void Cgi::receive_cgi(int *pipe_fd, int *pipe_fd2, int pid) {
 		if (bytes_read > 0) {
 			//std::cerr << bytes_read << std::endl; //*DEBUG
 			_response_content.append(buffer, bytes_read);
-			if (bytes_read < (sizeof(buffer) - 1))
+			if (bytes_read < (ssize_t)(sizeof(buffer) - 1))
 				break;
 		}
 		else if (bytes_read == 0) {

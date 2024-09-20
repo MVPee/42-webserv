@@ -14,7 +14,7 @@ class Location {
 		bool		_methods[3];
 		bool		_listing;
 	public:
-		Location() : _location("/"), _index(""), _root("NONE"), _upload(""), _listing(false) {
+		Location() : _location("/"), _root("NONE"), _index(""), _upload(""), _listing(false) {
 			_methods[GET] = false;
 			_methods[POST] = false;
 			_methods[DELETE] = false;
@@ -46,7 +46,7 @@ class Location {
 };
 
 inline std::ostream &	operator<<( std::ostream & o, std::vector<Location *> &_locations) {
-    int count = -1;
+    size_t count = -1;
     while (_locations.size() > ++count) {
         o << "Location: " << _locations.at(count)->getLocation() << "\n";
         o << "Root: " << _locations.at(count)->getRoot() << "\n";

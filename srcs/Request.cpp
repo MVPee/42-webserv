@@ -25,11 +25,11 @@ static void decode_path(std::string &path) {
 */
 
 Request::Request(std::string &header, Server &s) : 
-_extension("None"), 
 _accept(false),
+_httpRequest(header),
+_extension("None"), 
 _status_code (FORBIDDEN),
 _success(true),
-_httpRequest(header),
 _location(NULL) {
 	try {
 
@@ -77,7 +77,7 @@ std::ostream &			operator<<( std::ostream & o, Request const & i ) {
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void Request::resolvePath(Server &s) {
+void Request::resolvePath() {
 	struct stat info;
 
 	//! detect cgi
@@ -129,9 +129,11 @@ void Request::parse_request(Server &s) {
 
 	decode_path(request_path);
 
-    std::size_t pos;
-    while ((pos = request_path.find("../")) != std::string::npos)
+    std::size_t pos = request_path.find("../");
+    while (pos != std::string::npos) {
+		pos = request_path.find("../");
         request_path.erase(pos, 3);
+	}
 
 	// if ((pos = request_path.find("?")) != std::string::npos)
 	// 	request_path.erase(pos);
@@ -159,7 +161,7 @@ void Request::parse_request(Server &s) {
 	else if (request_method == "POST") this->_method = POST;
 	else this->_method = DELETE;
 	parse_extension();
-	resolvePath(s);
+	resolvePath();
 }
 
 

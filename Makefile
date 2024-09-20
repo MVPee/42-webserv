@@ -20,7 +20,7 @@ OBJECTS := $(patsubst %.cpp,$(OBJS_DIR)/%.o,$(SOURCES))
 DEPENDS := $(patsubst %.cpp,$(OBJS_DIR)/%.d,$(SOURCES))
 
 CXX := c++
-CXXFLAGS := -std=c++98 -g -fsanitize=address #-Wall -Werror -Wextra
+CXXFLAGS := -std=c++98 -g -fsanitize=address -Wall -Werror -Wextra
 
 all: $(NAME)
 

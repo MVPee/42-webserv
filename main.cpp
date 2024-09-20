@@ -3,7 +3,7 @@
 volatile bool stopRequested = false;
 
 static void checkPort(Server *newServer, std::vector<Server *> &servers) {
-    int newPort = newServer->getPort();
+    unsigned int newPort = newServer->getPort();
     
     for (size_t i = 0; i < servers.size() && servers.size() != 0; i++) {
         if (newPort == servers.at(i)->getPort()) {

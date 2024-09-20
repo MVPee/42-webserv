@@ -20,8 +20,8 @@ class Cgi
 		std::string		_cgi_extension;
 		std::string		_response_content;
 
-		int				_save_std_out;
 		int				_save_std_in;
+		int				_save_std_out;
 		int				_pipe_fd[2];
 		int				_pipe_fd2[2];
 
