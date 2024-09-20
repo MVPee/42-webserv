@@ -5,11 +5,7 @@ volatile bool stopRequested = false;
 static void checkPort(Server *newServer, std::vector<Server *> &servers) {
     int newPort = newServer->getPort();
     
-    if (servers.size() == 0) {
-        servers.push_back(newServer);
-        return ;
-    }
-    for (size_t i = 0; i < servers.size(); i++) {
+    for (size_t i = 0; i < servers.size() && servers.size() != 0; i++) {
         if (newPort == servers.at(i)->getPort()) {
             std::cerr   << R << "Servers cannot have the same port (\"" 
                         << servers.at(i)->getName() << "\":\"" << newServer->getName() << "\" " << newPort 
