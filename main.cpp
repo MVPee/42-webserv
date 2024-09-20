@@ -2,7 +2,7 @@
 
 volatile bool stopRequested = false;
 
-static void check_port(Server *newServer, std::vector<Server *> &servers) {
+static void checkPort(Server *newServer, std::vector<Server *> &servers) {
     int newPort = newServer->getPort();
     
     if (servers.size() == 0) {
@@ -68,7 +68,7 @@ int main(int ac, char **av) {
         }
         std::string config = text.substr(start + 1, end - start - 1);
         Server *newServer = new Server(config);
-        check_port(newServer, servers);
+        checkPort(newServer, servers);
         start = end + 1;
         if (servers.size() >= MAX_SERVER) {
             std::cerr << Y << "MAX_SERVER IS LIMITED TO " << MAX_SERVER << C << std::endl;
