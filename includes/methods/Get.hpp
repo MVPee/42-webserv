@@ -3,7 +3,6 @@
 
 # include "../macro.hpp"
 
-
 template <typename T>
 std::string ft_to_string(T value) {
 	std::ostringstream transformer;
@@ -30,11 +29,9 @@ class Get {
 		void generate_redirection(std::string redirection);
 	public:
 		Get(Request &request, Server &server);
-		const std::string &get_content(void) const;
-
 		~Get();
-};
 
-std::ostream &			operator<<( std::ostream & o, Get const & i );
+		const std::string &get_content(void) const;
+};
 
 #endif /* ************************************************************* GET_H */

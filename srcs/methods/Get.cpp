@@ -1,7 +1,6 @@
 #include "../../includes/methods/Get.hpp"
 
-
-const char* get_status_message(const size_t status_code) {
+const char *get_status_message(const size_t status_code) {
 	switch (status_code) {
 		case OK:                                return "OK";
 		case REDIRECTION_PERMANENTLY:           return "Moved Permanently";
@@ -19,7 +18,6 @@ const char* get_status_message(const size_t status_code) {
 		default:                                return "Unknown Status Code";
 	}
 }
-
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -48,11 +46,6 @@ Get::~Get() {}
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
-
-std::ostream &			operator<<( std::ostream & o, Get const & i ) {
-	(void)i;
-	return o;
-}
 
 /*
 ** --------------------------------- METHODS ----------------------------------

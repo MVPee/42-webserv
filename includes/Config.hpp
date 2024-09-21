@@ -4,7 +4,7 @@
 
 class Location {
 	private:
-		std::string _location;
+		std::string	_location;
 		std::string	_root;
 		std::string	_index;
 		std::string _errorPage[305];
@@ -21,9 +21,7 @@ class Location {
 			_cgi[GET].clear();
 			_cgi[POST].clear();
 		}
-		~Location() {
-
-		}
+		~Location() {}
 		void setLocation(std::string location) { _location = location; }
 		void setRoot(std::string root) { _root = root; }
 		void setIndex(std::string index) { _index = index; }
@@ -34,18 +32,18 @@ class Location {
 		void acceptMethods(short index) { _methods[index] = true; }
 		void acceptListing(bool value) { _listing = value;}
 
-		const std::string &getLocation() const { return _location; }
-		const std::string &getRoot() const { return _root; }
-		const std::string &getIndex() const { return _index; }
+		const std::string &getLocation(void) const { return _location; }
+		const std::string &getRoot(void) const { return _root; }
+		const std::string &getIndex(void) const { return _index; }
 		const std::string &getErrorPage(int code) const { return _errorPage[code - 200]; }
 		const std::string &getCGI(int code) const { return _cgi[code]; }
-		const std::string &getUpload() const { return _upload; }
-		const std::string &getRedirection() const { return _redirection; }
+		const std::string &getUpload(void) const { return _upload; }
+		const std::string &getRedirection(void) const { return _redirection; }
 		const bool &getMethods(short index) const { return _methods[index]; }
-		const bool &getListing() const { return _listing; }
+		const bool &getListing(void) const { return _listing; }
 };
 
-inline std::ostream &	operator<<( std::ostream & o, std::vector<Location *> &_locations) {
+inline std::ostream &operator<<( std::ostream & o, std::vector<Location *> &_locations) {
     size_t count = -1;
     while (_locations.size() > ++count) {
         o << "Location: " << _locations.at(count)->getLocation() << "\n";
@@ -81,14 +79,14 @@ class Config {
 		Config(std::string config);
 		~Config();
 
-		const std::string &getServerName() const { return _serverName; }		
-		const std::string &getAddress() const { return _address; }
-		const int &getPort() const { return _port; }
-		const long &getBody() const { return _body; }
-		const std::vector<Location *> &getLocations() const { return _locations; }
+		const std::string &getServerName(void) const { return _serverName; }		
+		const std::string &getAddress(void) const { return _address; }
+		const int &getPort(void) const { return _port; }
+		const long &getBody(void) const { return _body; }
+		const std::vector<Location *> &getLocations(void) const { return _locations; }
 };
 
-std::ostream &			operator<<( std::ostream & o, Config const & i );
+std::ostream &operator<<(std::ostream &o, const Config &i);
 
 #endif /* ********************************************************** CONFIG_H */
 

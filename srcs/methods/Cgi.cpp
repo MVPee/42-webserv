@@ -78,8 +78,6 @@ _save_std_out(-1) {
 	}
 }
 
-
-
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
@@ -91,7 +89,6 @@ Cgi::~Cgi() {
 	}
 	clean();
 }
-
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
@@ -107,7 +104,6 @@ std::ostream &operator<<( std::ostream & o, Cgi const & i ) {
 	o << "------End------\n" << C;
 	return o;
 }
-
 
 /*
 ** --------------------------------- METHODS ----------------------------------
@@ -208,7 +204,6 @@ void Cgi::receive_cgi(int *pipe_fd, int *pipe_fd2, int pid) {
 }
 
 void Cgi::generate_env (void) {
-
 	add_env_variable("PATH_INFO", _path_info);
 	add_env_variable("PATH_QUERY", _path_query);
 	add_env_variable("CONTENT_LENGTH", ft_to_string(_body.size()));
@@ -239,6 +234,5 @@ void Cgi::clean (void) {
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
-
 
 /* ************************************************************************** */

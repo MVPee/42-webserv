@@ -2,6 +2,7 @@
 # define REQUEST_HPP
 
 # include "macro.hpp"
+
 class Server;
 class Location;
 
@@ -16,11 +17,11 @@ class Request {
 		size_t			_status_code;
 		bool			_success;
 
-		Location *_location;
+		Location 		*_location;
 
 		void parse_request(Server &s);
 		void parse_extension(void);
-		void resolvePath();
+		void resolvePath(void);
 		void throw_and_set_status(const size_t set_status_code, const std::string message);
 	public:
 		Request(std::string &header, Server &s);

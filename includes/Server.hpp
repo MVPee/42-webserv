@@ -10,8 +10,8 @@ class Client;
 
 class Server {
 	private:
-		std::map<int, Client *> _clients;
-		fd_set _readfds, _writefds;
+		std::map<int, Client *> 	_clients;
+		fd_set 						_readfds, _writefds;
 
 		std::string 				_name;
 		std::string					_address;
@@ -37,6 +37,6 @@ class Server {
 		void message(const std::string &message, const char *color) const;
 };
 
-std::ostream &operator<<( std::ostream & o, Server const & i );
+std::ostream &operator<<(std::ostream &o, const Server &i);
 
 #endif /* ********************************************************** SERVER_H */

@@ -4,7 +4,7 @@
 ** ------------------------------- STATIC ------------------------------------
 */
 
-std::string getCurrentTime() {
+std::string getCurrentTime(void) {
     std::time_t now = std::time(0);
     std::tm* time_info = std::localtime(&now);
     
@@ -60,7 +60,7 @@ Server::~Server() {
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-std::ostream &			operator<<( std::ostream & o, Server const & i ) {
+std::ostream &operator<<( std::ostream &o, const Server &i ) {
 	o << M << "\n----Server----\n";
 	o << "|Name: " << i.getName() << "\n";
 	o << "|Port: " << i.getPort() << "\n";
@@ -135,7 +135,7 @@ void Server::process(void) {
 			}
 		}
 	}
-
+ 
 	if (stopRequested) {
 		message("Stopped", R);
 		return ;

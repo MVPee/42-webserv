@@ -58,7 +58,7 @@ Request::~Request() {
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-std::ostream &			operator<<( std::ostream & o, Request const & i ) {
+std::ostream &operator<<(std::ostream &o, const Request &i) {
 	o << Y << "----Request-----\n";
 	o << "Method: ";
 	if (i.getMethod() == GET) o << "GET";
@@ -77,7 +77,7 @@ std::ostream &			operator<<( std::ostream & o, Request const & i ) {
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void Request::resolvePath() {
+void Request::resolvePath(void) {
 	struct stat info;
 
 	//! detect cgi

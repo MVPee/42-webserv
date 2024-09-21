@@ -5,25 +5,24 @@
 
 class Client;
 
-class Cgi
-{
+class Cgi {
 	private:
 		size_t						&_status_code;
 		Request 					&_request;
 		const std::string			&_body;
 		std::vector<const char*>	_env;
 
-		std::string		_executable;
-		std::string		_path_query;
-		std::string		_path_info;
-		std::string		_folder;
-		std::string		_cgi_extension;
-		std::string		_response_content;
+		std::string					_executable;
+		std::string					_path_query;
+		std::string					_path_info;
+		std::string					_folder;
+		std::string					_cgi_extension;
+		std::string					_response_content;
 
-		int				_save_std_in;
-		int				_save_std_out;
-		int				_pipe_fd[2];
-		int				_pipe_fd2[2];
+		int							_save_std_in;
+		int							_save_std_out;
+		int							_pipe_fd[2];
+		int							_pipe_fd2[2];
 
 		void get_cgi_infos(void);
 		void execute_cgi(void);
@@ -31,9 +30,7 @@ class Cgi
 		void generate_env (void);
 		void add_env_variable (const std::string &name, const std::string &value);
 		void clean (void);
-
 	public:
-
 		Cgi(Client &client);
 		~Cgi();
 
@@ -43,9 +40,8 @@ class Cgi
 		const std::string & getFolder(void) const { return _folder; }
 		const std::string & getCgiExtension(void) const { return _cgi_extension; }
 		const std::string & getResponseContent(void) const { return _response_content; }
-
-
 };
 
 std::ostream &			operator<<( std::ostream & o, Cgi const & i );
+
 #endif /* ************************************************************* CGI_H */

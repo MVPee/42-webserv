@@ -72,7 +72,7 @@ Config::~Config() {
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-std::ostream &			operator<<( std::ostream & o, Config const & i ) {
+std::ostream &operator<<(std::ostream &o, const Config &i) {
 	o << "Name: " << i.getServerName() << '\n';
 	o << "Address: " << i.getAddress() << '\n';
 	o << "Port: " << i.getPort() << '\n';
@@ -84,7 +84,7 @@ std::ostream &			operator<<( std::ostream & o, Config const & i ) {
 ** --------------------------------- METHODS ----------------------------------
 */
 
-static bool isValidIPAddress(const std::string& ip) {
+static bool isValidIPAddress(const std::string &ip) {
     std::istringstream iss(ip);
     std::string segment;
     int num;
@@ -201,7 +201,6 @@ void Config::parseLocation(std::string token, std::string line, size_t size) {
         int code;
         iss >> code >> value;
         _locations.at(size)->setErrorPage(value, code);
-			
     }
     else if (token == "upload") {
         iss >> value;
@@ -240,7 +239,5 @@ void Config::parseLocation(std::string token, std::string line, size_t size) {
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
-
-
 
 /* ************************************************************************** */

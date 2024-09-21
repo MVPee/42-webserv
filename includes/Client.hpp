@@ -3,8 +3,6 @@
 
 #include "macro.hpp"
 
-
-
 class Post;
 
 class Client
@@ -23,7 +21,6 @@ class Client
 		
 		void receive_request_content (void);
 	public:
-
 		Client(Server &s, int fd);
 		~Client();
 
@@ -46,8 +43,6 @@ class Client
 		void 		setHeader(std::string header) { _header = header; }
 		void 		setBody(std::string body) { _body = body; }
 		void 		setConnectionTime(time_t connection_time) { _connection_time = connection_time; }
-
-
 };
 
 #endif /* ********************************************************** CLIENT_H */

@@ -41,26 +41,17 @@ _state(ReceivingHeader) {
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
 
-Post::~Post() {
-}
-
+Post::~Post() {}
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-std::ostream &			operator<<( std::ostream & o, Post const & i ) {
-	(void)i;
-	//o << "Value = " << i.getValue();
-	return o;
-}
-
-
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void Post::decide_action ( std::string &new_content) {
+void Post::decide_action (std::string &new_content) {
 	try {
 		_body_size += new_content.size();
 		if (_body_size > _server.getBody()) throw_and_set_status(PAYLOAD_TOO_LARGE, "Body size exceeded");
@@ -126,14 +117,12 @@ std::string Post::get_data_in_header(const std::string &header, const std::strin
 	return "";
 }
 
-
 void Post::throw_and_set_status(const size_t status_code, std::string message) {
 	_status_code = status_code;
 	throw std::runtime_error(message);
 }
 
-
-void	Post::get_file_infos(void) {
+void Post::get_file_infos(void) {
 	clear_file_infos();
 	_file.contentDisposition = get_data_in_header(_header, "Content-Disposition: ", ";");
 
@@ -148,7 +137,7 @@ void	Post::get_file_infos(void) {
 	if (!_file.output_file.is_open() || !_file.output_file.good()) throw_and_set_status(ERROR_INTERNAL_SERVER, "Couldn't open file");
 	
 }
-void	Post::clear_file_infos (void) {
+void Post::clear_file_infos(void) {
 	_file.contentDisposition.clear();
 	_file.filename.clear();
     _file.contentType.clear();
@@ -163,7 +152,5 @@ void	Post::clear_file_infos (void) {
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
-
-
 
 /* ************************************************************************** */
