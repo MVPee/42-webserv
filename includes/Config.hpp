@@ -36,7 +36,7 @@ class Location {
 		const std::string &getRoot(void) const { return _root; }
 		const std::string &getIndex(void) const { return _index; }
 		const std::string &getErrorPage(int code) const { return _errorPage[code - 200]; }
-		const std::string &getCGI(int index) const { return _cgi[index]; }
+		const std::string *getCGI() const { return _cgi; }
 		const std::string &getUpload(void) const { return _upload; }
 		const std::string &getRedirection(void) const { return _redirection; }
 		const bool &getMethods(short index) const { return _methods[index]; }
