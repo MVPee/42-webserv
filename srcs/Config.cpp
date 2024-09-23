@@ -156,13 +156,11 @@ void Config::parse(std::string token, std::string line) {
         iss >> value;
         _locations.at(0)->setUpload(value);
     }
-    else if (token == "GET") {
-        iss >> value;
-        _locations.at(0)->setCGI(value, GET);
-    }
-    else if (token == "POST") {
-        iss >> value;
-        _locations.at(0)->setCGI(value, POST);
+    else if (token == "cgi") {
+        std::string value2;
+        iss >> value >> value2;
+        _locations.at(0)->setCGI(0, value);
+        _locations.at(0)->setCGI(1, value2);
     }
     else if (token == "methods") {
         std::string method1, method2, method3;
@@ -206,13 +204,11 @@ void Config::parseLocation(std::string token, std::string line, size_t size) {
         iss >> value;
         _locations.at(size)->setUpload(value);
     }
-    else if (token == "GET") {
-        iss >> value;
-        _locations.at(size)->setCGI(value, GET);
-    }
-    else if (token == "POST") {
-        iss >> value;
-        _locations.at(size)->setCGI(value, POST);
+    else if (token == "cgi") {
+        std::string value2;
+        iss >> value >> value2;
+        _locations.at(size)->setCGI(0, value);
+        _locations.at(size)->setCGI(1, value2);
     }
     else if (token == "redirection") {
         iss >> value;
