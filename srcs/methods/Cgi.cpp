@@ -1,17 +1,17 @@
 #include "../../includes/methods/Cgi.hpp"
 
-/*
-** ------------------------------- STATIC --------------------------------
-*/
-
-size_t find_cgi_extension(const std::string &path) {
-	std::string extensions[] = {".py", ".php", ".pl"};
-	for (size_t i = 0; i < sizeof(extensions) / sizeof(std::string); i++) {
-		size_t pos = path.find(extensions[i]);
+size_t	find_cgi_extension(const std::string &path, const std::string *cgi) {
+	for (size_t i = 0; i < MAX_CGI_EXT && !cgi[i].empty(); i++) {
+		size_t pos = path.find(cgi[i]);
 		if (pos != std::string::npos) return pos;
 	}
 	return std::string::npos;
 }
+
+/*
+** ------------------------------- STATIC --------------------------------
+*/
+
 
 static const char* get_exec_command(const std::string &extension) {
 	if (extension == ".py") return "/usr/bin/python3";
@@ -113,7 +113,8 @@ void Cgi::get_cgi_infos(void) {
 
 	std::size_t query_pos = path.find('?');
 	
-	std::size_t extension_pos = find_cgi_extension(path);
+	std::size_t extension_pos = find_cgi_extension(path, _request.getLocation()->getCGI());
+	if (extension_pos == std::string::npos) throw std::runtime_error("Cgi extension not found");
 
 	std::size_t end_of_extension = path.find_first_of("./?", extension_pos + 1);
 	_cgi_extension = path.substr(extension_pos, ((end_of_extension != std::string::npos) ? end_of_extension : path.size()) - extension_pos);
@@ -230,6 +231,7 @@ void Cgi::clean (void) {
 	close_and_change_value(_pipe_fd2[READ_PIPE]);
 	close_and_change_value(_pipe_fd2[WRITE_PIPE]);
 }
+
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

@@ -80,7 +80,7 @@ enum ClientState {
     Error
 };
 
-size_t find_cgi_extension(const std::string &path);
+size_t	find_cgi_extension(const std::string &path, const std::string *cgi);
 
 # include "Request.hpp"
 # include "Response.hpp"

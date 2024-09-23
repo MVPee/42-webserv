@@ -80,8 +80,7 @@ std::ostream &operator<<(std::ostream &o, const Request &i) {
 void Request::resolvePath(void) {
 	struct stat info;
 
-	//! detect cgi
-	if (find_cgi_extension(_path) != std::string::npos) _extension = "cgi";
+	if (find_cgi_extension(_path, _location->getCGI()) != std::string::npos) _extension = "cgi";
 	if (!_location->getRedirection().empty()) _extension = "redirection";
 	else if (stat(_path.c_str(), &info) == 0) {
 		if (info.st_mode & S_IFDIR) {
