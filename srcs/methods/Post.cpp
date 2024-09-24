@@ -4,8 +4,7 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Post::Post(const int client_fd, Request &request, Server &server) : 
-_client_fd(client_fd), 
+Post::Post(Request &request, Server &server) : 
 _request(request), 
 _server(server), 
 _body_size(0), 

@@ -12,7 +12,6 @@ struct file {
 
 class Post {
 	private:
-		const int 		_client_fd;
 		const Request 	&_request;
 		const Server 	&_server;
 		ssize_t			_body_size;
@@ -31,7 +30,7 @@ class Post {
 		void	get_file_infos(void);
 		void	clear_file_infos (void);
 	public:
-		Post(const int client_fd, Request &request, Server &server);
+		Post(Request &request, Server &server);
 		~Post();
 
 		ClientState	get_state(void) { return _state;};

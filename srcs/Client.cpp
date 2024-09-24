@@ -86,7 +86,7 @@ void Client::request(void) {
 		_request = new Request(_header, _server);
 	if (_state == HandlingBody && _request->getMethod() == POST && _request->getExtension() != "cgi") {
 		if (!_post)
-			_post = new Post(_client_fd, *_request, _server);
+			_post = new Post(*_request, _server);
 		_post->decide_action(_body);
 		_body.clear();
 	}
