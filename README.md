@@ -23,7 +23,7 @@ with HTTP.
 
 This project is about writing a HTTP/1.1 server.
 
-[//]: #TODO (inclure des images)
+![gallery](./images/gallery.png)
 
 ## 🚀 Running the server 
 
@@ -36,6 +36,7 @@ It will automatically compile the project and run it.
 ```
 Will launch the previously compiled project with `make` and run it. (configuration file must be a valid `.conf` file see section below)
 
+![Servers](./images/Servers.png)
 
 ## 💻 configurating the server
 
