@@ -40,19 +40,18 @@ _cookie(0) {
 				_status_code = ERROR_INTERNAL_SERVER;
 			else 
 				_status_code = NO_CONTENT;
-			response_header = "<h1>default: " + ft_to_string(_status_code) + " " + get_status_message(_status_code) + "</h1>";
 		}
 	}
 	else if (_request.getExtension() == "cgi") {
 		Cgi cgi(_client);
 		response_header = cgi.getResponseContent();
-		if (_status_code < 400)
+		if (_status_code < 400 && _status_code != NO_CONTENT)
 		{
 			_response = response_header;
 			return;
 		}
 	}
-	else if (_request.getMethod() == GET || _status_code > 300 ) {
+	if (_request.getMethod() == GET || _status_code > 300 || response_header.empty()) {
 		response_header = Get (_request, _server).get_content();
 		_cookie = new Cookie(_request.getHttpRequest(), response_header);
 	}

@@ -1,1 +1,1 @@
-print "<html><body><h1>Hello from Perl!</h1></body></html>";
+print "HTTP/1.1 200 OK \r\n Content-Type: text/html;charset=utf-8 \r\n\r\n <html><body><h1>Hello from Perl!</h1></body></html>";

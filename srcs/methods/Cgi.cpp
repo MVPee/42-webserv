@@ -73,8 +73,6 @@ _save_std_out(-1) {
 	catch(const std::exception& e) {
 		std::cerr << R << e.what() << C << '\n';
 		if (_status_code < 400) _status_code = ERROR_INTERNAL_SERVER;
-		if (_response_content.empty())
-			_response_content = "<h1>default: " + ft_to_string(_status_code) + " " + get_status_message(_status_code) + "</h1>";
 	}
 }
 
@@ -135,7 +133,6 @@ void Cgi::execute_cgi(void) {
 	const std::string exec = get_exec_command(_cgi_extension);
 
 	char *const args[3] = {const_cast<char*>(exec.c_str()), const_cast<char*>(_executable.c_str()), NULL};
-	// std::cout << R << (exec + " " + _folder + "/" + _executable ) << C << std::endl; //* DEBUG
 	if (access((_folder + "/" + _executable).c_str(), F_OK) != 0) {
 		_status_code = ERROR_NOT_FOUND;
 		throw std::runtime_error("File does not exist");
@@ -180,22 +177,21 @@ void Cgi::receive_cgi(int *pipe_fd, int *pipe_fd2, int pid) {
 	time_t start = time(NULL);
 	while (difftime(time(NULL), start) < TIME_OUT_CGI) {
 		bytes_read = read(pipe_fd[READ_PIPE], buffer, sizeof(buffer) - 1);
-
-		if (bytes_read > 0) {
+		if (bytes_read > ((ssize_t) 0)) {
 			//std::cerr << bytes_read << std::endl; //*DEBUG
 			_response_content.append(buffer, bytes_read);
 			if (bytes_read < (ssize_t)(sizeof(buffer) - 1))
 				break;
 		}
-		else if (bytes_read == 0) {
+		else if (bytes_read == ((ssize_t) 0)) {
 			std::cerr << "Child process closed connection " << std::endl; //*DEBUG
+			_status_code = NO_CONTENT;
 			break;
 		}
 	}
 	if (difftime(time(NULL), start) >= TIME_OUT_CGI) {
 		kill(pid, SIGINT);
 		_status_code = ERROR_REQUEST_TIMEOUT;
-		_response_content = "<h1>default: " + ft_to_string(_status_code) + " " + get_status_message(_status_code) + "</h1>";
 	}
 	close_and_change_value(pipe_fd[READ_PIPE]);
 	int status;
