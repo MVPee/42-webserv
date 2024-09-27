@@ -31,7 +31,7 @@ _server(s) {}
 */
 
 Client::~Client() {
-	clear();
+	clear(CLOSE);
 }
 
 /*
@@ -47,9 +47,9 @@ bool Client::checkTimeOut(void) {
 	if (difftime(current_time, getConnectionTime()) > TIME_OUT) {
 		std::string time_out = "HTTP/1.1 408 Request Timeout\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 21\r\n\r\n<h1>Time out 408</h1>";
 		ssize_t bytes_sent = send(getFd(), time_out.c_str(), time_out.size(), 0);
-		if (bytes_sent < 0 || bytes_sent == (ssize_t)_response.size()) clear();
-		else if (bytes_sent < (ssize_t)_response.size()) clear();
-		else clear();
+		if (bytes_sent < 0 || bytes_sent == (ssize_t)_response.size()) clear(CLOSE);
+		else if (bytes_sent < (ssize_t)_response.size()) clear(CLOSE);
+		else clear(CLOSE);
 		return true;
 	}
 	return false;
@@ -72,8 +72,11 @@ void Client::response(void) {
 
 	if (!_response.empty()) {
 		ssize_t bytes_sent = send(_client_fd, _response.c_str(), _response.size(), 0);
-		if (bytes_sent < 0 || bytes_sent == (ssize_t)_response.size()) {
-			clear();
+		if (bytes_sent < 0) {
+			clear(CLOSE);
+		}
+		if (bytes_sent == (ssize_t)_response.size()){
+			clear(KEEP_ALIVE);
 		}
 		else if (bytes_sent < (ssize_t)_response.size())
 			_response = _response.substr(bytes_sent);
@@ -106,7 +109,7 @@ void Client::receive_request_content(void) {
 			if (bytes_received == (ssize_t) 0) {
 				;// std::cout << _client_fd << " close connection." << std::endl;
 			}
-			clear();
+			clear(CLOSE);
 		}
 		else if (bytes_received > (ssize_t) 0) {
 			if (_state == ReceivingHeader) {
@@ -128,21 +131,24 @@ void Client::receive_request_content(void) {
 	}
 	catch(const std::exception& e) {
 		std::cerr << R << e.what() << C << '\n';
-		clear();
+		clear(CLOSE);
 		//* No response to send
 	}
 	
 }
 
-void Client::clear(void) {
-	if (_client_fd)
-		close(_client_fd);
-	_client_fd = 0;
+void Client::clear(bool alive) {
+	if (alive == CLOSE)
+	{
+		if (_client_fd)
+			close(_client_fd);
+		_client_fd = 0;
+		_connection_time = -1;
+	}
 	_header.clear();
 	_body.clear();
 	_response.clear();
 	_state = ReceivingHeader;
-	_connection_time = -1;
 	if (_request) {
 		delete _request;
 		_request = 0;

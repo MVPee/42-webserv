@@ -77,7 +77,7 @@ const std::string Response::generate_response(const std::string &page_content) c
                             + "Content-Type: " + content_type + "\r\n" \
                             + "Content-Length: " + ft_to_string(page_content.size()) + "\r\n"\
                             + setCookie(_request.getHttpRequest())
-                            + "Connection: close" \
+                            + "Connection: keep-alive" \
                             + ((_request.getExtension() == "redirection") ? ("\r\nLocation: " + _request.getLocation()->getRedirection() + "\r\n") : ("")) \
                             + "\r\n\r\n" + page_content;
     return response;

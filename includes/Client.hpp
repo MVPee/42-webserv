@@ -27,7 +27,7 @@ class Client
 		void request(void);
 		void response(void);
 		bool checkTimeOut(void);
-		void clear(void);
+		void clear(bool alive);
 
 		ClientState		getState(void) { return _state; }
 		Request		&getRequest(void) { return *_request; }
