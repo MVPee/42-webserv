@@ -79,7 +79,7 @@ const std::string Response::generate_response(const std::string &page_content) c
                             + setCookie(_request.getHttpRequest())
                             + "Connection: close" \
                             + ((_request.getExtension() == "redirection") ? ("\r\nLocation: " + _request.getLocation()->getRedirection() + "\r\n") : ("")) \
-                            + "\r\n\r\n" + page_content + '\0';
+                            + "\r\n\r\n" + page_content;
     return response;
 }
 
