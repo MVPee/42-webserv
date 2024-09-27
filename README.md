@@ -90,3 +90,5 @@ Will launch the previously compiled project with `make` and run it. (configurati
 
 - **Keep-alive connection**
   Connection is kept alive if possible
+
+![Cookie-clicker](./images/Cookie-clicker.png)
