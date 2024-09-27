@@ -87,3 +87,4 @@ Will launch the previously compiled project with `make` and run it. (configurati
 
 - **Resilience Under Load**  
   Stress-tested to maintain availability under high demand.
+ - **Cookie handling**

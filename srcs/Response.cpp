@@ -46,6 +46,11 @@ _cookie(0) {
 	else if (_request.getExtension() == "cgi") {
 		Cgi cgi(_client);
 		response_header = cgi.getResponseContent();
+		if (_status_code < 400)
+		{
+			_response = response_header;
+			return;
+		}
 	}
 	else if (_request.getMethod() == GET || _status_code > 300 ) {
 		response_header = Get (_request, _server).get_content();

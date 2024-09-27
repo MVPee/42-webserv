@@ -12,19 +12,17 @@ _status_code(request.get_status_code()),
 _state(ReceivingHeader) {
 	try {
 		const std::string header = request.getHttpRequest();
-		_boundary = get_data_in_header(header, "boundary=", "\r");
-		std::string content_length = get_data_in_header(header, "Content-Length: ", "\r");
-		std::string	content_type = get_data_in_header(header, "Content-Type: ", ";");
+		_content_length = get_data_in_header(header, "Content-Length: ", "\r\n");
+		_content_type = get_data_in_header(header, "Content-Type: ", "\r\n");
 
-
-		if (std::strtoul(content_length.c_str(), 0, 10) > (unsigned long)server.getBody()) {
-			// fcntl(client_fd, F_SETFL, O_NONBLOCK);
-			// while (recv(client_fd, 0, 255, 0) > 0); //* still a problem when uploading big files and exceeding body size limit (bad response)
+		if (std::strtoul(_content_length.c_str(), 0, 10) > (unsigned long)server.getBody()) {
 			throw_and_set_status(PAYLOAD_TOO_LARGE, "Body-size too long");
 		}
 
-		if (content_type != "multipart/form-data")
-			throw_and_set_status(NOT_IMPLEMENTED, "Form is not a multipart/form-data");
+		if (_content_type == "multipart/form-data")
+			_boundary = get_data_in_header(header, "boundary=", "\r");
+		// if (_content_type != "multipart/form-data" || _content_type != "plain/text")
+		// 	throw_and_set_status(NOT_IMPLEMENTED, "Form is not a 'multipart/form-data' or 'plain/text'");
 
 	}
 	catch(const std::exception& e) {
@@ -58,7 +56,11 @@ void Post::decide_action (std::string &new_content) {
 		if (_state == ReceivingHeader) {
 			std::string total = _remaining_content + new_content;
 			std::size_t pos;
-			if ((pos = total.find(HEADER_DELIMITER)) == std::string::npos)
+			if (_content_type != "multipart/form-data" && std::strtoul(_content_length.c_str(), 0, 10) <= total.size())
+			{
+				_state = Completed;
+			}
+			else if ((pos = total.find(HEADER_DELIMITER)) == std::string::npos)
 				_remaining_content = total;
 			else
 			{
@@ -108,7 +110,7 @@ std::string Post::get_data_in_header(const std::string &header, const std::strin
 	std::size_t start = header.find(first_delimiter);
 	if (start != std::string::npos) {
 		std::string ret = header.substr(start + first_delimiter.size());
-		std::size_t end = ret.find(end_delimiter);
+		std::size_t end = ret.find_first_of(end_delimiter + ";");
 		if (end != std::string::npos)
 			return ret.substr(0, end);
 	}

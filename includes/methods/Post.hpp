@@ -19,6 +19,8 @@ class Post {
 		std::string		_remaining_content;
 		std::string		_boundary;
 		std::string		_header;
+		std::string		_content_type;
+		std::string		_content_length;
 		size_t			&_status_code;
 		ClientState 	_state;
 		file			_file;
