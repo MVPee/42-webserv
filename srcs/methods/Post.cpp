@@ -20,7 +20,7 @@ _state(ReceivingHeader) {
 		}
 
 		if (_content_type == "multipart/form-data")
-			_boundary = get_data_in_header(header, "boundary=", "\r");
+			_boundary = "\r\n--" + get_data_in_header(header, "boundary=", "\r\n");
 		// if (_content_type != "multipart/form-data" || _content_type != "plain/text")
 		// 	throw_and_set_status(NOT_IMPLEMENTED, "Form is not a 'multipart/form-data' or 'plain/text'");
 
@@ -48,7 +48,7 @@ Post::~Post() {}
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void Post::decide_action (std::string &new_content) {
+void Post::decide_action (std::string new_content) {
 	try {
 		_body_size += new_content.size();
 		if (_body_size > _server.getBody()) throw_and_set_status(PAYLOAD_TOO_LARGE, "Body size exceeded");
@@ -97,6 +97,7 @@ void Post::output_Content_Body(std::string &new_content) {
 		_file.output_file.write(full.c_str(), end);
 		_remaining_content = full.substr(end, full.size() - end);
 		_state = ReceivingHeader;
+		decide_action("");
 	}
 	else {
 		_file.output_file << _remaining_content;
@@ -131,8 +132,6 @@ void Post::get_file_infos(void) {
 	_file.filename = _request.getLocation()->getRoot() + _request.getLocation()->getUpload() + "/" + _file.filename;
 
     _file.contentType = get_data_in_header(_header, "Content-Type: ", "\r");
-	if (_file.contentType.find("text/") == 0)
-		throw_and_set_status(UNSUPPORTED_MEDIA_TYPE, "Posted content is not a file"); //? change that ?
 
 	_file.output_file.open(_file.filename.c_str(), std::ofstream::trunc | std::ios::binary);
 	if (!_file.output_file.is_open() || !_file.output_file.good()) throw_and_set_status(ERROR_INTERNAL_SERVER, "Couldn't open file");

@@ -36,7 +36,7 @@ class Post {
 		~Post();
 
 		ClientState	get_state(void) { return _state;};
-		void		decide_action ( std::string &new_content);
+		void		decide_action ( std::string new_content);
 };
 
 #endif /* ************************************************************ POST_H */
