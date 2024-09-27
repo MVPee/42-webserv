@@ -85,10 +85,10 @@ Will launch the previously compiled project with `make` and run it. (configurati
 - **Browser Compatibility**  
   -- Compliant with HTTP 1.1 standards.
 
-- **Handle Cookies**
+- **Handle Cookies**  
   -- A small cookie clicker has been made to show the implementation of the cookies.
 
-- **Keep-alive connection** 
+- **Keep-alive connection**  
   -- Connection is kept alive if possible.
 
 ![Cookie-clicker](./images/Cookie-clicker.png)
