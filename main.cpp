@@ -31,7 +31,7 @@ static void signal() {
     sa.sa_flags = 0;
     sigaction(SIGINT, &sa, NULL);
     sigaction(SIGQUIT, &sa, NULL);
-    signal(SIGPIPE, SIG_IGN); // A retirer (verif si SIGPIPE with siege on linux at 19)
+    signal(SIGPIPE, SIG_IGN); //MaCOS
 }
 
 static void* serverThread(void* arg) {
