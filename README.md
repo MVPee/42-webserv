@@ -56,39 +56,39 @@ Will launch the previously compiled project with `make` and run it. (configurati
 ## 📜 Key Features
 
 - **Configuration Flexibility**  
-  Accepts a custom configuration file or defaults to a predefined path.
+  -- Accepts a custom configuration file or defaults to a predefined path.
 
 - **Non-Blocking Architecture**  
-  Uses a single `poll()` (or equivalent) for all I/O operations, including listening and client communication.
+  -- Uses a single `poll()` (or equivalent) for all I/O operations, including listening and client communication.
 
 - **Efficient Resource Management**  
-  Handles all read/write operations via `poll()`, optimizing resource usage and **preventing blocking**.
+  -- Handles all read/write operations via `poll()`, optimizing resource usage and **preventing blocking**.
 
 - **HTTP Methods**  
-  Supports `GET`, `POST`, and `DELETE`.
+  -- Supports `GET`, `POST`, and `DELETE`.
 
 - **File Uploads**  
-  Allows clients to upload files directly to the server.
+  -- Allows clients to upload files directly to the server.
 
 - **Static File Serving**  
-  Serves static websites.
+  -- Serves static websites.
 
 - **Accurate HTTP Responses**  
-  Delivers precise status codes and default error pages.
+  -- Delivers precise status codes and default error pages.
 
 - **CGI Integration**  
-  Supports CGI execution (e.g., `PHP`, `Python`, `Perl`, ...)
+  -- Supports CGI execution (e.g., `PHP`, `Python`, `Perl`, ...)
 
 - **Multi-Port Listening**  
-  Listens on multiple ports as defined in the configuration file.
+  -- Listens on multiple ports as defined in the configuration file.
 
 - **Browser Compatibility**  
-  Compliant with HTTP 1.1 standards.
+  -- Compliant with HTTP 1.1 standards.
 
 - **Handle Cookies**
-  A small cookie clicker has been made to show the implementation of the cookies.
+  -- A small cookie clicker has been made to show the implementation of the cookies.
 
-- **Keep-alive connection**
-  Connection is kept alive if possible
+- **Keep-alive connection** 
+  -- Connection is kept alive if possible.
 
 ![Cookie-clicker](./images/Cookie-clicker.png)
