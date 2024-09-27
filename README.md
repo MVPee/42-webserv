@@ -62,29 +62,31 @@ Will launch the previously compiled project with `make` and run it. (configurati
   Uses a single `poll()` (or equivalent) for all I/O operations, including listening and client communication.
 
 - **Efficient Resource Management**  
-  Handles all read/write operations via `poll()`, optimizing resource usage and preventing blocking.
+  Handles all read/write operations via `poll()`, optimizing resource usage and **preventing blocking**.
 
 - **HTTP Methods**  
-  Supports `GET`, `POST`, and `DELETE` for flexible web interactions.
+  Supports `GET`, `POST`, and `DELETE`.
 
 - **File Uploads**  
   Allows clients to upload files directly to the server.
 
 - **Static File Serving**  
-  Serves static websites seamlessly.
+  Serves static websites.
 
 - **Accurate HTTP Responses**  
-  Delivers precise status codes and default error pages for a smooth user experience.
+  Delivers precise status codes and default error pages.
 
 - **CGI Integration**  
-  Supports CGI execution (e.g., PHP, Python), enabling dynamic content while remaining non-blocking.
+  Supports CGI execution (e.g., `PHP`, `Python`, `Perl`, ...)
 
 - **Multi-Port Listening**  
   Listens on multiple ports as defined in the configuration file.
 
 - **Browser Compatibility**  
-  Fully compliant with modern web browsers and HTTP 1.1 standards.
+  Compliant with HTTP 1.1 standards.
 
-- **Resilience Under Load**  
-  Stress-tested to maintain availability under high demand.
- - **Cookie handling**
+- **Handle Cookies**
+  A small cookie clicker has been made to show the implementation of the cookies.
+
+- **Keep-alive connection**
+  Connection is kept alive if possible
