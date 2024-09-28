@@ -37,7 +37,7 @@ It will automatically compile the project and run it.
 ```
 Will launch the previously compiled project with `make` and run it. (configuration file must be a valid `.conf` file see section below)
 
-![Servers](https://github.com/user-attachments/assets/320dfa86-b882-463f-adc4-65493e32c620)
+![Servers](./images/Servers.png)
 
 ## 💻 configurating the server
 
