@@ -50,9 +50,51 @@ Will launch the previously compiled project with `make` and run it. (configurati
 - `root` -- to route the requested URI to another directory
 - `upload` -- to set a specific directory for upload requests
 - `listing` -- to list all files present in the targeted directory (`ON` | `OFF`)
-- `error` -- to define the allowed methods for HTTP requests
+- `error` -- to define the page to display when an error occurs, add a default page if none is provided in the `.conf` file.
 - `cgi` -- to configure a cgi to execute for a specific file extenstion (`.php` | `.py` | `.pl`)
-
+- `redirection` -- to define a redirection to a location or to an another server
+```
+{
+    name server
+    listen 0.0.0.0:8080
+    methods GET POST
+    body_size 1000000000000
+    root ./rsrcs
+    upload /upload
+    index index.html
+    error 404 404.html
+    location /cookie
+        root ./rsrcs/cookie
+        index cookie.html
+        methods GET
+    location /cgi
+        root ./rsrcs/cgi
+        listing ON
+        cgi .py .php
+        methods GET POST
+    location /intra
+        root ./rsrcs/intra
+        index intra.html
+        methods GET
+    location /listing
+        listing ON
+        error 403 403.html
+        error 404 404.html
+        root ./rsrcs/listing
+        methods GET
+    location /listing/403.html
+        root ./rsrcs/listing/403.html
+    location /listing/404.html
+        root ./rsrcs/listing/404.html
+    location /listing/1/2/3
+        redirection /listing
+    location /upload
+        root ./rsrcs/upload
+        methods GET DELETE
+    location /redirection
+        redirection https://fr.wikipedia.org/
+}
+```
 ------------
 ## 📜 Key Features
 
