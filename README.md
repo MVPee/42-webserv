@@ -24,7 +24,7 @@ with HTTP.
 
 This project is about writing a HTTP/1.1 server.
 
-![gallery](./images/gallery.png)
+![gallery](./.images/gallery.png)
 
 ## 🚀 Running the server 
 
@@ -37,7 +37,7 @@ It will automatically compile the project and run it.
 ```
 Will launch the previously compiled project with `make` and run it. (configuration file must be a valid `.conf` file see section below)
 
-![Servers](./images/Servers.png)
+![Servers](./.images/Servers.png)
 
 ## 💻 configurating the server
 
@@ -139,7 +139,7 @@ Will launch the previously compiled project with `make` and run it. (configurati
 
 ---
 
-![Cookie-clicker](./images/Cookie-clicker.png)
+![Cookie-clicker](./.images/Cookie-clicker.png)
 
 ---
 This group project was done by [MVPee (mvan-pee)](https://github.com/MVPee) and [Dan (dspilleb)](https://github.com/dspilleb)
