@@ -95,6 +95,8 @@ Will launch the previously compiled project with `make` and run it. (configurati
 - **Time out**  
   -- Timeout for CGI and basic requests
 
+---
+
 ![Cookie-clicker](./images/Cookie-clicker.png)
 
 ---
