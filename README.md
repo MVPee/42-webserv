@@ -39,7 +39,7 @@ Will launch the previously compiled project with `make` and run it. (configurati
 
 ![Servers](./.images/Servers.png)
 
-## 💻 configurating the server
+## 💻 Configurating the server
 
 </br>It will allow you to setup the following parameters :
 - `name` -- define the server name
