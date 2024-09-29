@@ -12,7 +12,7 @@
 <h3 align="center">
 	<a href="#-running-the-server">Running</a>
 	<span> · </span>
-	<a href="#-running-the-server">Configuration</a>
+	<a href="#-configurating-the-server">Configuration</a>
 	<span> · </span>
 	<a href="#-key-features">Key features</a>
 </h3>
