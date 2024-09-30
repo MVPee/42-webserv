@@ -76,8 +76,8 @@ const std::string Response::generate_response(const std::string &page_content) c
     std::string response = ft_to_string(HTML_VERSION) + " " + ft_to_string(_status_code) + " " + status_message + "\r\n" \
                             + "Content-Type: " + content_type + "\r\n" \
                             + "Content-Length: " + ft_to_string(page_content.size()) + "\r\n"\
-                            + setCookie(_request.getHttpRequest())
-                            + "Connection: keep-alive" \
+                            + setCookie(_request.getHttpRequest()) \
+                            + ((_request.get_status_code() >= 400) ? ("Connection: close") : ("Connection: keep-alive")) \
                             + ((_request.getExtension() == "redirection") ? ("\r\nLocation: " + _request.getLocation()->getRedirection() + "\r\n") : ("")) \
                             + "\r\n\r\n" + page_content;
     return response;
