@@ -45,6 +45,7 @@ Client::~Client() {
 bool Client::checkTimeOut(void) {
 	time_t current_time = time(NULL);
 	if (difftime(current_time, getConnectionTime()) > TIME_OUT) {
+		//std::cout << "timeout" << std::endl;
 		std::string time_out = "HTTP/1.1 408 Request Timeout\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 21\r\n\r\n<h1>Time out 408</h1>";
 		ssize_t bytes_sent = send(getFd(), time_out.c_str(), time_out.size(), 0);
 		if (bytes_sent < 0 || bytes_sent == (ssize_t)_response.size()) clear(CLOSE);
@@ -76,7 +77,10 @@ void Client::response(void) {
 			clear(CLOSE);
 		}
 		if (bytes_sent == (ssize_t)_response.size()){
-			clear(KEEP_ALIVE);
+			if (_request->getExtension() == "cgi")
+				clear(CLOSE);
+			else
+				clear(KEEP_ALIVE);
 		}
 		else if (bytes_sent < (ssize_t)_response.size())
 			_response = _response.substr(bytes_sent);
