@@ -79,7 +79,7 @@ int main(int ac, char **av) {
         Server *newServer = new Server(config);
         checkPort(newServer, servers);
         start = end + 1;
-        if (servers.size() >= MAX_SERVER) {
+        if (servers.size() > MAX_SERVER) {
             std::cerr << Y << "MAX_SERVER IS LIMITED TO " << MAX_SERVER << C << std::endl;
             break;
         }
