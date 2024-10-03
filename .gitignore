@@ -2,3 +2,4 @@
 .env
 .objs
 webserv
+.DS_Store
