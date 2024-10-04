@@ -24,7 +24,7 @@
 >This is when you finally understand why a URL starts
 with HTTP.
 
-This project is about writing a non-blocking HTTP/1.1 server written in C++, designed to handle multiple simultaneous connections efficiently using asynchronous I/O. The server adheres to the HTTP/1.1 protocol and supports essential features such as GET, POST, and error handling, ensuring responsive communication without stalling the main execution thread.
+This project is about writing a non-blocking HTTP/1.1 server in C++, designed to handle multiple simultaneous connections efficiently using asynchronous I/O. The server adheres to the HTTP/1.1 protocol and supports essential features such as GET, POST, DELETE, and error handling, ensuring responsive communication without stalling the main execution thread. Additionally, the server integrates non-blocking CGI execution, supporting various languages such as Python, Perl, PHP, and binary executables.
 
 ![gallery](./.imgs/gallery.png)
 
