@@ -45,7 +45,7 @@ extern volatile bool stopRequested;
 # define OFF 0
 # define ON 1
 
-# define KEEP_ALIVE 0
+# define KEEP_ALIVE 1
 # define CLOSE 0
 
 # define SOCKET 0
