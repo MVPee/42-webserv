@@ -24,7 +24,7 @@
 >This is when you finally understand why a URL starts
 with HTTP.
 
-This project is about writing a HTTP/1.1 server.
+This project is about writing a non-blocking HTTP/1.1 server written in C++, designed to handle multiple simultaneous connections efficiently using asynchronous I/O. The server adheres to the HTTP/1.1 protocol and supports essential features such as GET, POST, and error handling, ensuring responsive communication without stalling the main execution thread.
 
 ![gallery](./.imgs/gallery.png)
 
